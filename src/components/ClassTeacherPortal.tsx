@@ -12,14 +12,14 @@ export default function ClassTeacherPortal() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
-  const [selectedStd, setSelectedStd] = useState<Standard>('5th');
+  const [selectedStd, setSelectedStd] = useState<Standard>('5 वी');
   const [isDesktop, setIsDesktop] = useState(true);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
   const [alerts, setAlerts] = useState<string[]>([]);
 
   const classStudents = students.filter(s => s.standard === selectedStd);
-  const allStandards: Standard[] = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'];
+  const allStandards: Standard[] = ['1 ली','2 री','3 री','4 थी','5 वी','6 वी','7 वी','8 वी','9 वी','10 वी','11 वी','12 वी'];
 
   const presentCount = Object.values(attendance).filter(a => a === 'present').length;
   const absentCount = Object.values(attendance).filter(a => a === 'absent').length;
@@ -32,7 +32,7 @@ export default function ClassTeacherPortal() {
     if (status === 'absent') {
       const student = classStudents.find(s => s.id === studentId);
       if (student) {
-        const alertMsg = `${t('WhatsApp alert sent to', 'व्हॉट्सअॅप सूचना पाठवली')}: ${student.parent_name} - ${student.full_name} ${t('is absent today', 'आज अनुपस्थित आहे')}`;
+        const alertMsg = `${t('WhatsApp alert sent to', 'व्हॉट्सअॅप सूचना पाठवली')}: ${student.guardian_name} - ${student.full_name} ${t('is absent today', 'आज अनुपस्थित आहे')}`;
         setAlerts(prev => [alertMsg, ...prev.slice(0, 4)]);
       }
     }
@@ -175,7 +175,7 @@ export default function ClassTeacherPortal() {
               <tr>
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase">#</th>
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase">{t('Name', 'नाव')}</th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase">{t('Gender', 'लिंग')}</th>
+                <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase">{t('Village', 'गाव')}</th>
                 <th className="px-4 py-2.5 text-center text-xs font-semibold text-slate-500 uppercase">{t('Attendance', 'उपस्थिती')}</th>
               </tr>
             </thead>
@@ -186,7 +186,7 @@ export default function ClassTeacherPortal() {
                   <tr key={student.id} className={`border-b border-slate-100 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
                     <td className="px-4 py-2.5 text-xs text-slate-400">{idx + 1}</td>
                     <td className="px-4 py-2.5 text-sm font-medium text-slate-700">{student.full_name}</td>
-                    <td className="px-4 py-2.5 text-xs text-slate-500">{student.gender}</td>
+                    <td className="px-4 py-2.5 text-xs text-slate-500">{student.village}</td>
                     <td className="px-4 py-2.5">
                       <div className="flex items-center justify-center gap-1.5">
                         <button

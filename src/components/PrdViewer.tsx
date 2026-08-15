@@ -128,19 +128,21 @@ function DatabaseSection() {
   const schema = `-- Students Table
 CREATE TABLE students (
   id UUID PRIMARY KEY,
-  application_no VARCHAR(20) UNIQUE,
+  sr_no INTEGER NOT NULL,
   full_name VARCHAR(255) NOT NULL,
-  standard ENUM('1st'...'12th'),
-  stream ENUM('Arts', 'Science') NULL,
-  caste_category ENUM('ST','SC','OBC','NT','SBC','General'),
-  aadhaar_verified BOOLEAN DEFAULT FALSE,
+  standard VARCHAR(10),
+  date_of_birth VARCHAR(20),
+  blood_group VARCHAR(5),
+  apaar_id VARCHAR(20),
   mobile_number VARCHAR(10),
-  parent_name VARCHAR(255),
-  status ENUM('Submitted','Verified','Approved','Enrolled','Rejected'),
-  gender ENUM('Male','Female'),
-  hostel_wing VARCHAR(20),
-  bed_number INTEGER,
-  created_at TIMESTAMP
+  guardian_name VARCHAR(255),
+  village VARCHAR(100),
+  taluka VARCHAR(100),
+  district VARCHAR(100),
+  pincode VARCHAR(10),
+  guardian_mobile VARCHAR(10),
+  guardian_relation VARCHAR(50),
+  status ENUM('Enrolled')
 );
 
 -- Staff Table

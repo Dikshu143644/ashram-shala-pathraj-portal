@@ -277,8 +277,8 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
         <div className="border border-slate-200 rounded-xl p-5 min-h-72 bg-slate-50/50 text-sm relative">
           <div className="text-center border-b border-slate-300 pb-4 mb-4">
             <p className="text-xs text-slate-500">आदिवासी विकास विभाग, महाराष्ट्र शासन</p>
-            <p className="font-bold text-slate-800 mt-0.5">शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथराज</p>
-            <p className="text-xs text-slate-500 mt-0.5">ता. सुधागड, जि. रायगड</p>
+            <p className="font-bold text-slate-800 mt-0.5">शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज</p>
+            <p className="text-xs text-slate-500 mt-0.5">ता. कर्जत, जि. रायगड</p>
           </div>
           <p className="text-xs text-slate-500 mb-3">{t('Date:', 'दिनांक:')} {new Date().toLocaleDateString()}</p>
           <p className="mb-1.5"><strong className="text-slate-700">{t('To:', 'प्रति:')}</strong> {form.to || '...'}</p>

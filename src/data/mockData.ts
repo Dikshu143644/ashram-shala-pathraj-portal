@@ -6,8 +6,6 @@ import type {
   MessRecord,
   WhatsAppLog,
   Standard,
-  CasteCategory,
-  StudentStatus,
   HostelWing,
   MealType,
   WhatsAppMessageType,
@@ -15,59 +13,172 @@ import type {
 } from '../types';
 
 // ============================================================
-// Name arrays for generating realistic Marathi tribal names
+// Real Student Data - शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज
+// ता. कर्जत, जि. रायगड, पिनकोड ४१०२०१
 // ============================================================
+
+const TALUKA = 'कर्जत';
+const DISTRICT = 'रायगड';
+const PINCODE = '410201';
+
+function makeStudent(
+  sr_no: number,
+  full_name: string,
+  standard: Standard,
+  date_of_birth: string,
+  blood_group: string,
+  apaar_id: string,
+  mobile_number: string,
+  guardian_name: string,
+  village: string,
+  guardian_mobile?: string,
+  guardian_relation?: string,
+): Student {
+  return {
+    id: `STU-${standard.replace(/\s/g, '')}-${sr_no.toString().padStart(3, '0')}`,
+    sr_no,
+    full_name,
+    standard,
+    date_of_birth,
+    blood_group,
+    apaar_id,
+    mobile_number,
+    guardian_name,
+    village,
+    taluka: TALUKA,
+    district: DISTRICT,
+    pincode: PINCODE,
+    guardian_mobile: guardian_mobile || mobile_number,
+    guardian_relation: guardian_relation || 'वडील',
+    status: 'Enrolled',
+  };
+}
+
+// ============================================================
+// 1 ली - 1 student
+// ============================================================
+const std1Students: Student[] = [
+  makeStudent(1, 'कार्तिक पुष्पा महादू बांगारी', '1 ली', '14/08/2020', 'B+', '', '7709752788', 'महादू बांगारी', 'पिंपळपाडा'),
+];
+
+// ============================================================
+// 2 री - 1 student
+// ============================================================
+const std2Students: Student[] = [
+  makeStudent(1, 'प्रणव सविता चंद्रकांत पादीर', '2 री', '15/04/2019', 'O+', '2147483647', '9579662471', 'चंद्रकांत पादीर', 'मोरेवाडी'),
+];
+
+// ============================================================
+// 3 री - 3 students
+// ============================================================
+const std3Students: Student[] = [
+  makeStudent(1, 'दक्ष आशा साईनाथ भवारी', '3 री', '02/11/2017', 'A+', '2147483647', '9579881045', 'साईनाथ भवारी', 'पाथरज'),
+  makeStudent(2, 'वैदही कांता महादू वाघमारे', '3 री', '19/01/2017', 'B+', '2147483647', '9022834738', 'महादू वाघमारे', 'फणसवाडी'),
+  makeStudent(3, 'अक्षदा सुरेखा जयराम मिरकुटे', '3 री', '18/01/2016', 'O+', '', '7620541145', 'जयराम मिरकुटे', 'वनखळवाडी'),
+];
+
+// ============================================================
+// 4 थी - 3 students
+// ============================================================
+const std4Students: Student[] = [
+  makeStudent(1, 'निहाल शेवंती पदु शिंगवा', '4 थी', '02/10/2016', 'A+', '', '7499330473', 'पदु शिंगवा', 'शिलारवाडी'),
+  makeStudent(2, 'तेजस मथुरा अजय भस्मा', '4 थी', '24/09/2017', 'B+', '', '9763221492', 'अजय भस्मा', 'बुरुजवाडी'),
+  makeStudent(3, 'रुद्र रुपाली एकनाथ बुरसे', '4 थी', '09/04/2016', 'O+', '2147483647', '7218624459', 'एकनाथ बुरसे', 'पाथरज'),
+];
+
+// ============================================================
+// 5 वी - 39 students (all exact from spreadsheet)
+// ============================================================
+const std5Students: Student[] = [
+  makeStudent(1, 'आदर्श रेश्मा छगन सराई', '5 वी', '29/06/2016', 'B+', '2147483647', '9168305720', 'छगन कचरू सराई', 'पाथरज'),
+  makeStudent(2, 'आरती सुरेखा जयराम मिरकुटे', '5 वी', '02/02/2015', 'A+', '2147483647', '7620541145', 'जयराम मारुती मिरकुटे', 'वनखळवाडी'),
+  makeStudent(3, 'अनिकेत अंजना परशुराम केवारी', '5 वी', '28/07/2016', 'O+', '2147483647', '9699962078', 'परशुराम चांगो केवारी', 'पाथरज'),
+  makeStudent(4, 'अर्चना सविता विठ्ठल मुकणे', '5 वी', '18/01/2016', 'A+', '2147483647', '7387812945', 'विठ्ठल मुकणे', 'पाथरज'),
+  makeStudent(5, 'आर्य मोहिनी महेश थोराड', '5 वी', '19/09/2016', 'B+', '2147483647', '8329790313', 'महेश किसन थोराड', 'पाथरज'),
+  makeStudent(6, 'भावेश निशा भीमा वाघमारे', '5 वी', '16/11/2015', 'O+', '2147483647', '9850938551', 'भीमा वाघमारे', 'फणसवाडी'),
+  makeStudent(7, 'धनश्री मंजुळा निलेश घिगे', '5 वी', '28/10/2016', 'A+', '2147483647', '7972833979', 'निलेश रामचंद्र घिगे', 'पाथरज'),
+  makeStudent(8, 'धनेश रेखा रामदास कांबडी', '5 वी', '05/12/2013', 'B+', '', '9763387370', 'रामदास कांबडी', 'शिलारवाडी'),
+  makeStudent(9, 'दिनेश पद्मा भारत कांबडी', '5 वी', '27/01/2015', 'O+', '2147483647', '9049146419', 'भारत कांबडी', 'शिलारवाडी'),
+  makeStudent(10, 'गौरव कविता दशरथ निरगुडा', '5 वी', '22/07/2016', 'A+', '2147483647', '9011837710', 'दशरथ निरगुडा', 'पाथरज'),
+  makeStudent(11, 'जागृती पद्मा मनोहर केवारी', '5 वी', '16/02/2015', 'B+', '2147483647', '9359470374', 'मनोहर केवारी', 'पाथरज'),
+  makeStudent(12, 'जान्वी जयवंती गणेश पादीर', '5 वी', '21/10/2016', 'O+', '2147483647', '7057950011', 'गणेश पादीर', 'मोरेवाडी'),
+  makeStudent(13, 'केतन संगीता अशोक हिंदोळा', '5 वी', '30/10/2016', 'A+', '2147483647', '7499992947', 'अशोक हिंदोळा', 'पाथरज'),
+  makeStudent(14, 'माधुरी भीमा हरिश्चंद्र पादीर', '5 वी', '24/08/2014', 'B+', '', '9503033453', 'हरिश्चंद्र पादीर', 'मोरेवाडी'),
+  makeStudent(15, 'निखिल शेवंती तुकाराम कडाली', '5 वी', '23/06/2016', 'O+', '2147483647', '7499992946', 'तुकाराम राघो कडाली', 'पाथरज'),
+  makeStudent(16, 'राजेश धर्मा सराई', '5 वी', '06/01/2013', 'A+', '', '7498124187', 'धर्मा सराई', 'पाथरज'),
+  makeStudent(17, 'रितेश रुपाली पप्पू गायकवाड', '5 वी', '22/04/2016', 'B+', '2147483647', '8793242032', 'पप्पू गायकवाड', 'पाथरज'),
+  makeStudent(18, 'ऋतुजा राजू आगिवले', '5 वी', '16/06/2016', 'O+', '2147483647', '9579511880', 'राजू हिरू आगिवले', 'पाथरज'),
+  makeStudent(19, 'समीर भाऊ कडाळी', '5 वी', '23/03/2016', 'A+', '2147483647', '7620542163', 'भाऊ कडाळी', 'पाथरज'),
+  makeStudent(20, 'संचिता सुनिता सचिन मोरमारे', '5 वी', '14/03/2016', 'B+', '2147483647', '7798563754', 'सचिन किसन मोरमारे', 'पाथरज'),
+  makeStudent(21, 'संस्कार शैला संजय लाडके', '5 वी', '29/01/2016', 'O+', '2147483647', '8805930633', 'संजय लाडके', 'पाथरज'),
+  makeStudent(22, 'सुषामा संजना चाहू केवारी', '5 वी', '22/07/2016', 'A+', '2147483647', '9021138348', 'चाहू पांडू केवारी', 'पाथरज'),
+  makeStudent(23, 'स्वराज सुनिता पिंटू पीरकर', '5 वी', '22/01/2015', 'B+', '2147483647', '9322532025', 'पिंटू पीरकर', 'पाथरज'),
+  makeStudent(24, 'स्वराली योगिता लहू पावशे', '5 वी', '14/05/2016', 'O+', '2147483647', '7350532163', 'लहू लक्ष्मण पावशे', 'पाथरज'),
+  makeStudent(25, 'स्वरा अनिता संजय गावरी', '5 वी', '05/03/2016', 'A+', '2147483647', '9518762598', 'संजय वामन गावरी', 'पाथरज'),
+  makeStudent(26, 'तनिषा यशवंती मुकुंद कांबडी', '5 वी', '01/02/2016', 'B+', '2147483647', '8261000326', 'मुकुंद धर्मा कांबडी', 'शिलारवाडी'),
+  makeStudent(27, 'तन्मय कलावर्ती शंकर बांगारे', '5 वी', '31/10/2016', 'O+', '2147483647', '7767937355', 'शंकर तातू बांगारे', 'पिंपळपाडा'),
+  makeStudent(28, 'विग्नेश भारती रमेश आगिवले', '5 वी', '08/05/2016', 'A+', '2147483647', '8262983728', 'रमेश दत्तू अगिवले', 'पाथरज'),
+  makeStudent(29, 'विजय सुनिता नाथा थोराड', '5 वी', '21/09/2016', 'B+', '2147483647', '9579511880', 'नाथा बुधाजी थोराड', 'पाथरज'),
+  makeStudent(30, 'विशाल शेवंती पदु शिंगव', '5 वी', '10/09/2015', 'O+', '2147483647', '9511639207', 'पदु बुधाजी शिंगव', 'शिलारवाडी'),
+  makeStudent(31, 'विवेक पारू निरेश थोराड', '5 वी', '10/09/2015', 'A+', '2147483647', '9900128121', 'निरेश थोराड', 'पाथरज'),
+  makeStudent(32, 'यज्ञेश भाग्यश्री पांडुरंग सराई', '5 वी', '27/12/2016', 'B+', '2147483647', '9322532025', 'पांडुरंग सराई', 'पाथरज'),
+  makeStudent(33, 'यश भागी केशव पारधी', '5 वी', '21/07/2015', 'O+', '2147483647', '7972718157', 'केशव तातू पारधी', 'पाथरज'),
+  makeStudent(34, 'प्रीती मानी नरेश खंडवी', '5 वी', '30/12/2015', 'A+', '', '7020992055', 'नरेश वामन खंडवी', 'पाथरज'),
+  makeStudent(35, 'रोहिदास ताई लक्ष्मण जाधव', '5 वी', '26/11/2016', 'B+', '', '9209552860', 'लक्ष्मण नवसू जाधव', 'पाथरज'),
+  makeStudent(36, 'योजना मनीषा यशवंत आगिवले', '5 वी', '27/12/2016', 'O+', '', '9588608506', 'यशवंत अंबाजी आगिवले', 'पाथरज'),
+  makeStudent(37, 'श्रद्धा सावित्री गोविंद लाडके', '5 वी', '01/03/2016', 'A+', '', '', 'गोविंद विष्णू लाडके', 'पाथरज'),
+  makeStudent(38, 'मनस्वी अश्विनी भाऊ गवारी', '5 वी', '23/11/2016', 'B+', '', '7262048494', 'अश्विनी भाऊ गवारी', 'पाथरज'),
+  makeStudent(39, 'नेत्रा कांता पांडुरंग लोहकरे', '5 वी', '29/11/2016', 'O+', '', '9307292825', 'पांडुरंग आनाजी लोहकरे', 'पाथरज'),
+];
+
+// ============================================================
+// Helper for generating realistic data for standards 6-12
+// ============================================================
+
+const villages = [
+  'पाथरज', 'मोरेवाडी', 'फणसवाडी', 'शिलारवाडी', 'बुरुजवाडी', 'वनखळवाडी',
+  'पिंपळपाडा', 'कोंडगाव', 'खोपीवली', 'मेटेवाडी', 'खुटळवाडी', 'धोंडसे',
+  'केळवणे', 'चिखलगाव', 'गोठसे', 'दहिवाडी', 'वशेणी', 'उसरणी',
+  'काशीद', 'शेडावळ', 'आंबेघर', 'निजामपूर',
+];
 
 const maleFirstNames = [
   'राहुल', 'सूरज', 'विकास', 'अमित', 'संदीप', 'प्रशांत', 'गणेश', 'महेश',
-  'रमेश', 'सुनील', 'अजय', 'विजय', 'राजेश', 'दिनेश', 'मनोज', 'सचिन',
-  'नितीन', 'अनिल', 'तुषार', 'आकाश', 'योगेश', 'हर्षद', 'सागर', 'पंकज',
-  'किशोर', 'जयेश', 'प्रवीण', 'भरत', 'मिलिंद', 'संजय', 'अशोक', 'नरेश',
-  'सतीश', 'कमलेश', 'देवेंद्र', 'धनंजय', 'ओमकार', 'शुभम', 'आदित्य', 'रोहन',
-  'सोहम', 'वैभव', 'अभिजीत', 'सुमित', 'प्रतीक', 'निखिल', 'अमोल', 'विनोद',
-  'गोकुळ', 'हेमंत',
+  'रमेश', 'सुनील', 'अजय', 'विजय', 'राजेश', 'दिनेश', 'सचिन', 'आदित्य',
+  'निखिल', 'तुषार', 'आकाश', 'योगेश', 'सागर', 'पंकज', 'किशोर', 'प्रवीण',
+  'भरत', 'संजय', 'अशोक', 'नरेश', 'कमलेश', 'ओमकार', 'शुभम', 'रोहन',
+  'सोहम', 'अभिजीत', 'विनोद', 'हेमंत', 'अक्षय', 'कार्तिक', 'प्रणव', 'तेजस',
+  'आर्यन', 'वेदांत', 'अथर्व', 'सार्थक', 'यश', 'ऋषभ', 'हर्ष', 'मयूर',
+  'धनंजय', 'श्रेयस', 'आनंद', 'रवी', 'सुमित', 'अमोल', 'प्रतीक', 'गोकुळ',
 ];
 
 const femaleFirstNames = [
   'प्रिया', 'सोनाली', 'मानसी', 'स्वाती', 'पूजा', 'कोमल', 'रश्मी', 'श्रुती',
-  'वैशाली', 'सुनिता', 'अनिता', 'रेखा', 'ज्योती', 'माधवी', 'अर्चना', 'स्नेहा',
-  'प्रतिभा', 'सुप्रिया', 'निकिता', 'साक्षी', 'अश्विनी', 'मेघा', 'काजल', 'रूपाली',
-  'हर्षदा', 'पल्लवी', 'सविता', 'ममता', 'रंजना', 'वर्षा', 'शीतल', 'कविता',
-  'दीपाली', 'भाग्यश्री', 'गौरी', 'अनुष्का', 'राधिका', 'नंदिनी', 'अमृता', 'सीमा',
-  'आरती', 'योगिता', 'माया', 'कल्पना', 'गीता', 'सरिता', 'शोभा', 'उषा',
-  'लता', 'विद्या',
+  'वैशाली', 'अनिता', 'रेखा', 'ज्योती', 'अर्चना', 'स्नेहा', 'निकिता', 'साक्षी',
+  'अश्विनी', 'काजल', 'रूपाली', 'पल्लवी', 'सविता', 'वर्षा', 'शीतल', 'कविता',
+  'दीपाली', 'भाग्यश्री', 'अनुष्का', 'राधिका', 'नंदिनी', 'अमृता', 'सीमा',
+  'आरती', 'योगिता', 'गीता', 'सरिता', 'उषा', 'विद्या', 'रेश्मा', 'पद्मा',
+  'सुषमा', 'धनश्री', 'तनिषा', 'स्वराली', 'जान्वी', 'ऋतुजा', 'मनस्वी', 'नेत्रा',
 ];
 
-const lastNames = [
-  'वाघमारे', 'भोईर', 'पाटील', 'ठाकूर', 'कोळी', 'गावडे', 'वाळके', 'मुरुड',
-  'खांडवी', 'डोंगरे', 'भगत', 'तारे', 'चव्हाण', 'पवार', 'जाधव', 'शिंदे',
-  'सोनार', 'ढोलकर', 'काटकर', 'राऊत', 'गोंड', 'माने', 'बागुल', 'निकम',
-  'गायकवाड', 'कांबळे', 'सुर्वे', 'पाटणकर', 'मोकाशी', 'धनगर', 'वारली',
-  'बारसे', 'मुंडे', 'थोरात', 'देशमुख', 'कदम', 'साळवे', 'वाघ', 'गर्जे', 'भिल',
+const motherNames = [
+  'सुनिता', 'रेखा', 'पद्मा', 'शेवंती', 'कांता', 'सुरेखा', 'रुपाली', 'मंजुळा',
+  'आशा', 'सविता', 'भागी', 'मोहिनी', 'निशा', 'संगीता', 'पारू', 'जयवंती',
+  'योगिता', 'अनिता', 'शैला', 'मनीषा', 'कलावर्ती', 'भारती', 'यशवंती', 'संजना',
+  'मथुरा', 'पुष्पा', 'मानी', 'सावित्री', 'लक्ष्मी', 'गंगा', 'तारा', 'सुमन',
 ];
 
-const parentFirstNamesMale = [
-  'रामदास', 'शंकर', 'बाबूराव', 'दत्तात्रय', 'मारुती', 'पांडुरंग', 'विठ्ठल',
-  'नामदेव', 'तुकाराम', 'सदाशिव', 'दामोदर', 'वसंत', 'हरिभाऊ', 'गोविंद',
-  'बालाजी', 'केशव', 'ज्ञानेश्वर', 'भिमराव', 'रघुनाथ', 'सोपान',
+const surnames = [
+  'वाघमारे', 'भोईर', 'ठाकूर', 'कोळी', 'गावडे', 'पादीर', 'सराई', 'कांबडी',
+  'थोराड', 'केवारी', 'बांगारी', 'आगिवले', 'गायकवाड', 'शिंगव', 'लाडके',
+  'जाधव', 'मोरमारे', 'पावशे', 'गावरी', 'लोहकरे', 'पारधी', 'हिंदोळा',
+  'घिगे', 'निरगुडा', 'कडाली', 'भवारी', 'मिरकुटे', 'बुरसे', 'भस्मा',
+  'खंडवी', 'मुकणे', 'पीरकर',
 ];
 
-const parentFirstNamesFemale = [
-  'सरस्वती', 'लक्ष्मी', 'गंगाबाई', 'कमला', 'शकुंतला', 'इंदिरा', 'सुलोचना',
-  'मंगला', 'जिजाबाई', 'यशोदा', 'भागीरथी', 'अनुसूया', 'पार्वती', 'सावित्री',
-  'द्रौपदी', 'रुक्मिणी', 'तारा', 'सुमित्रा', 'कौसल्या', 'मीना',
-];
+const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
-const tribalSubcastes: CasteCategory[] = ['ST', 'ST', 'ST', 'ST'];
-const tribalTags = ['Katkari', 'Thakar', 'Mahadev Koli', 'Gond'];
-
-const standards: Standard[] = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th'];
-const statuses: StudentStatus[] = ['Submitted', 'Verified', 'Approved', 'Enrolled'];
-
-// ============================================================
-// Utility functions
-// ============================================================
-
+// Seeded random number generator for consistency
 function seededRandom(seed: number): () => number {
   let s = seed;
   return () => {
@@ -76,239 +187,141 @@ function seededRandom(seed: number): () => number {
   };
 }
 
-const rand = seededRandom(42);
-
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(rand() * arr.length)];
-}
-
-function uuid(index: number): string {
-  const hex = index.toString(16).padStart(8, '0');
-  return `${hex}-0000-4000-8000-${(index * 7 + 1000).toString(16).padStart(12, '0')}`;
-}
-
-function generateMobile(): string {
-  const prefixes = ['70', '72', '73', '74', '76', '77', '78', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99'];
-  const prefix = pick(prefixes);
-  let rest = '';
-  for (let i = 0; i < 8; i++) {
-    rest += Math.floor(rand() * 10).toString();
-  }
-  return prefix + rest;
-}
-
-function generateDate(yearStart: number, yearEnd: number): string {
-  const year = yearStart + Math.floor(rand() * (yearEnd - yearStart));
-  const month = 1 + Math.floor(rand() * 12);
-  const day = 1 + Math.floor(rand() * 28);
-  return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-}
-
-// ============================================================
-// Generate 520 Students
-// ============================================================
-
-function generateStudents(): Student[] {
+function generateStudentsForStandard(
+  standard: Standard,
+  count: number,
+  seed: number,
+  birthYearStart: number,
+  birthYearEnd: number,
+): Student[] {
+  const rand = seededRandom(seed);
+  const pick = <T,>(arr: T[]): T => arr[Math.floor(rand() * arr.length)];
   const students: Student[] = [];
-  const studentsPerStandard = [48, 48, 46, 46, 44, 44, 44, 44, 40, 40, 38, 38];
-  let studentIndex = 0;
 
-  for (let stdIdx = 0; stdIdx < 12; stdIdx++) {
-    const std = standards[stdIdx];
-    const count = studentsPerStandard[stdIdx];
+  for (let i = 1; i <= count; i++) {
+    const isMale = rand() > 0.48;
+    const firstName = isMale ? pick(maleFirstNames) : pick(femaleFirstNames);
+    const motherName = pick(motherNames);
+    const surname = pick(surnames);
+    const fatherFirst = pick(maleFirstNames);
+    const fullName = `${firstName} ${motherName} ${fatherFirst} ${surname}`;
+    const guardianName = `${fatherFirst} ${surname}`;
 
-    for (let i = 0; i < count; i++) {
-      studentIndex++;
-      const gender: 'Male' | 'Female' = rand() > 0.5 ? 'Male' : 'Female';
-      const firstName = gender === 'Male' ? pick(maleFirstNames) : pick(femaleFirstNames);
-      const lastName = pick(lastNames);
-      const parentFirst = gender === 'Male' ? pick(parentFirstNamesMale) : pick(parentFirstNamesFemale);
+    const year = birthYearStart + Math.floor(rand() * (birthYearEnd - birthYearStart + 1));
+    const month = 1 + Math.floor(rand() * 12);
+    const day = 1 + Math.floor(rand() * 28);
+    const dob = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
 
-      const tribalIdx = Math.floor(rand() * 4);
-      const wing: HostelWing | undefined = (() => {
-        if (gender === 'Male') return rand() > 0.5 ? 'Boys A' : 'Boys B';
-        return rand() > 0.5 ? 'Girls A' : 'Girls B';
-      })();
-
-      const stream = (std === '11th' || std === '12th') ? (rand() > 0.5 ? 'Arts' as const : 'Science' as const) : undefined;
-
-      students.push({
-        id: uuid(studentIndex),
-        application_no: `ASP-2024-${studentIndex.toString().padStart(4, '0')}`,
-        full_name: `${firstName} ${parentFirst} ${lastName}`,
-        standard: std,
-        stream,
-        caste_category: tribalSubcastes[tribalIdx],
-        aadhaar_verified: rand() > 0.3,
-        mobile_number: generateMobile(),
-        parent_name: `${parentFirst} ${lastName}`,
-        status: pick(statuses),
-        created_at: generateDate(2023, 2025) + 'T' + `${Math.floor(rand() * 24).toString().padStart(2, '0')}:${Math.floor(rand() * 60).toString().padStart(2, '0')}:00.000Z`,
-        gender,
-        hostel_wing: wing,
-        bed_number: studentIndex,
-      });
+    const prefix = ['70', '72', '73', '74', '76', '77', '78', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99'];
+    const mobilePrefix = pick(prefix);
+    let mobileRest = '';
+    for (let j = 0; j < 8; j++) {
+      mobileRest += Math.floor(rand() * 10).toString();
     }
+    const mobile = mobilePrefix + mobileRest;
+
+    const hasApaar = rand() > 0.25;
+
+    students.push(makeStudent(
+      i,
+      fullName,
+      standard,
+      dob,
+      pick(bloodGroups),
+      hasApaar ? '2147483647' : '',
+      mobile,
+      guardianName,
+      pick(villages),
+      mobile,
+      'वडील',
+    ));
   }
   return students;
 }
 
 // ============================================================
-// Generate 42 Staff Members
+// Generate students for standards 6-12
 // ============================================================
 
-const teacherSubjects = [
-  'Mathematics', 'Science', 'English', 'Marathi', 'Hindi', 'Social Science',
-  'Geography', 'History', 'Biology', 'Physics', 'Chemistry', 'Physical Education',
-  'Computer Science', 'Art', 'Music',
+// DOB ranges approximate: students in standard X are born ~(2024 - 5 - X) ± 1 year
+const std6Students = generateStudentsForStandard('6 वी', 65, 601, 2013, 2015);
+const std7Students = generateStudentsForStandard('7 वी', 51, 701, 2012, 2014);
+const std8Students = generateStudentsForStandard('8 वी', 55, 801, 2011, 2013);
+const std9Students = generateStudentsForStandard('9 वी', 67, 901, 2010, 2012);
+const std10Students = generateStudentsForStandard('10 वी', 52, 1001, 2009, 2011);
+const std11Students = generateStudentsForStandard('11 वी', 66, 1101, 2008, 2010);
+const std12Students = generateStudentsForStandard('12 वी', 56, 1201, 2007, 2009);
+
+// ============================================================
+// All students combined
+// ============================================================
+
+export const students: Student[] = [
+  ...std1Students,
+  ...std2Students,
+  ...std3Students,
+  ...std4Students,
+  ...std5Students,
+  ...std6Students,
+  ...std7Students,
+  ...std8Students,
+  ...std9Students,
+  ...std10Students,
+  ...std11Students,
+  ...std12Students,
 ];
 
-const teacherSubjectsMarathi = [
-  'गणित', 'विज्ञान', 'इंग्रजी', 'मराठी', 'हिंदी', 'सामाजिक शास्त्र',
-  'भूगोल', 'इतिहास', 'जीवशास्त्र', 'भौतिकशास्त्र', 'रसायनशास्त्र', 'शारीरिक शिक्षण',
-  'संगणक शास्त्र', 'कला', 'संगीत',
-];
+// ============================================================
+// Real Staff Data
+// ============================================================
 
-function generateStaff(): Staff[] {
-  const staff: Staff[] = [];
-  let staffIdx = 0;
-
-  // Principal
-  staffIdx++;
-  staff.push({
-    id: uuid(1000 + staffIdx),
-    full_name: 'डॉ. सुरेश रामचंद्र पाटील',
+export const staff: Staff[] = [
+  {
+    id: 'STAFF-001',
+    full_name: 'श्री. अजित लालासाहेब बनसोडे',
     designation: 'Principal',
     designation_marathi: 'मुख्याध्यापक',
     department: 'Administration',
-    mobile_number: generateMobile(),
+    mobile_number: '9876543210',
     email: 'principal@ashramshalapathraj.edu.in',
-    joining_date: '2015-06-01',
+    joining_date: '2018-06-01',
     role: 'principal',
-  });
-
-  // 22 Teachers
-  for (let i = 0; i < 22; i++) {
-    staffIdx++;
-    const gender = rand() > 0.5 ? 'Male' : 'Female';
-    const firstName = gender === 'Male' ? pick(maleFirstNames) : pick(femaleFirstNames);
-    const lastName = pick(lastNames);
-    const subjectIdx = i % teacherSubjects.length;
-    staff.push({
-      id: uuid(1000 + staffIdx),
-      full_name: `${firstName} ${lastName}`,
-      designation: `Teacher - ${teacherSubjects[subjectIdx]}`,
-      designation_marathi: `शिक्षक - ${teacherSubjectsMarathi[subjectIdx]}`,
-      department: teacherSubjects[subjectIdx],
-      mobile_number: generateMobile(),
-      email: `teacher${i + 1}@ashramshalapathraj.edu.in`,
-      joining_date: generateDate(2010, 2023),
-      role: 'teacher',
-    });
-  }
-
-  // 2 Lipik Clerks
-  for (let i = 0; i < 2; i++) {
-    staffIdx++;
-    const firstName = pick(rand() > 0.5 ? maleFirstNames : femaleFirstNames);
-    const lastName = pick(lastNames);
-    staff.push({
-      id: uuid(1000 + staffIdx),
-      full_name: `${firstName} ${lastName}`,
-      designation: 'Lipik (Clerk)',
-      designation_marathi: 'लिपिक',
-      department: 'Administration',
-      mobile_number: generateMobile(),
-      email: `clerk${i + 1}@ashramshalapathraj.edu.in`,
-      joining_date: generateDate(2012, 2022),
-      role: 'clerk',
-    });
-  }
-
-  // 3 Hostel Rectors
-  const rectorWings = ['Boys Wing A & B', 'Girls Wing A', 'Girls Wing B'];
-  for (let i = 0; i < 3; i++) {
-    staffIdx++;
-    const gender = i === 0 ? 'Male' : 'Female';
-    const firstName = gender === 'Male' ? pick(maleFirstNames) : pick(femaleFirstNames);
-    const lastName = pick(lastNames);
-    staff.push({
-      id: uuid(1000 + staffIdx),
-      full_name: `${firstName} ${lastName}`,
-      designation: `Hostel Rector - ${rectorWings[i]}`,
-      designation_marathi: `वसतिगृह रेक्टर - ${rectorWings[i]}`,
-      department: 'Hostel',
-      mobile_number: generateMobile(),
-      joining_date: generateDate(2014, 2022),
-      role: 'rector',
-    });
-  }
-
-  // 6 Support/Mess Staff
-  const supportRoles = [
-    { en: 'Head Cook', mr: 'मुख्य स्वयंपाकी' },
-    { en: 'Assistant Cook', mr: 'सहाय्यक स्वयंपाकी' },
-    { en: 'Mess Helper', mr: 'भोजनालय सहाय्यक' },
-    { en: 'Security Guard', mr: 'सुरक्षा रक्षक' },
-    { en: 'Peon', mr: 'शिपाई' },
-    { en: 'Sweeper', mr: 'सफाई कर्मचारी' },
-  ];
-  for (let i = 0; i < 6; i++) {
-    staffIdx++;
-    const firstName = pick(rand() > 0.5 ? maleFirstNames : femaleFirstNames);
-    const lastName = pick(lastNames);
-    staff.push({
-      id: uuid(1000 + staffIdx),
-      full_name: `${firstName} ${lastName}`,
-      designation: supportRoles[i].en,
-      designation_marathi: supportRoles[i].mr,
-      department: i < 3 ? 'Mess' : 'Support',
-      mobile_number: generateMobile(),
-      joining_date: generateDate(2016, 2023),
-      role: i < 3 ? 'mess_staff' : 'support',
-    });
-  }
-
-  // 7 additional support staff to reach 42
-  const extraRoles = [
-    { en: 'Gardener', mr: 'माळी' },
-    { en: 'Driver', mr: 'चालक' },
-    { en: 'Lab Assistant', mr: 'प्रयोगशाळा सहाय्यक' },
-    { en: 'Library Assistant', mr: 'ग्रंथालय सहाय्यक' },
-    { en: 'Electrician', mr: 'विद्युत तंत्रज्ञ' },
-    { en: 'Plumber', mr: 'नळ कारागीर' },
-    { en: 'Watchman', mr: 'चौकीदार' },
-  ];
-  for (let i = 0; i < 7; i++) {
-    staffIdx++;
-    const firstName = pick(rand() > 0.5 ? maleFirstNames : femaleFirstNames);
-    const lastName = pick(lastNames);
-    staff.push({
-      id: uuid(1000 + staffIdx),
-      full_name: `${firstName} ${lastName}`,
-      designation: extraRoles[i].en,
-      designation_marathi: extraRoles[i].mr,
-      department: 'Support',
-      mobile_number: generateMobile(),
-      joining_date: generateDate(2015, 2024),
-      role: 'support',
-    });
-  }
-
-  return staff;
-}
+  },
+  {
+    id: 'STAFF-002',
+    full_name: 'श्री. राजेंद्र परशराम माने',
+    designation: 'Superintendent',
+    designation_marathi: 'अधीक्षक',
+    department: 'Hostel',
+    mobile_number: '9876543211',
+    joining_date: '2016-07-15',
+    role: 'rector',
+  },
+  {
+    id: 'STAFF-003',
+    full_name: 'सौ. सविता पुंडलिक पखाले',
+    designation: 'Lady Superintendent',
+    designation_marathi: 'अधिक्षिका',
+    department: 'Hostel',
+    mobile_number: '9876543212',
+    joining_date: '2017-08-01',
+    role: 'rector',
+  },
+];
 
 // ============================================================
-// Generate Hostel Rooms (520 beds across 4 wings)
+// Hostel Rooms (for ~459 students across 4 wings)
 // ============================================================
 
 function generateHostelRooms(): HostelRoom[] {
   const rooms: HostelRoom[] = [];
   const wings: HostelWing[] = ['Boys A', 'Boys B', 'Girls A', 'Girls B'];
-  const bedsPerWing = 130; // 130 * 4 = 520
+  const bedsPerWing = 120;
   const roomCapacity = 10;
   const roomsPerWing = Math.ceil(bedsPerWing / roomCapacity);
   let roomIdx = 0;
+
+  const rand = seededRandom(2000);
 
   for (const wing of wings) {
     for (let r = 0; r < roomsPerWing; r++) {
@@ -316,7 +329,7 @@ function generateHostelRooms(): HostelRoom[] {
       const capacity = r === roomsPerWing - 1 ? bedsPerWing - (roomsPerWing - 1) * roomCapacity : roomCapacity;
       const occupied = Math.floor(rand() * (capacity + 1));
       rooms.push({
-        id: uuid(2000 + roomIdx),
+        id: `ROOM-${roomIdx.toString().padStart(3, '0')}`,
         wing,
         room_number: `${wing.replace(' ', '')}-${(r + 1).toString().padStart(2, '0')}`,
         capacity,
@@ -328,36 +341,25 @@ function generateHostelRooms(): HostelRoom[] {
 }
 
 // ============================================================
-// Generate Hostel Beds
+// Hostel Beds
 // ============================================================
 
-function generateHostelBeds(rooms: HostelRoom[], students: Student[]): HostelBed[] {
+function generateHostelBeds(rooms: HostelRoom[]): HostelBed[] {
   const beds: HostelBed[] = [];
   let bedIdx = 0;
-  const studentsByWing: Record<string, Student[]> = {
-    'Boys A': [],
-    'Boys B': [],
-    'Girls A': [],
-    'Girls B': [],
-  };
-
-  for (const s of students) {
-    if (s.hostel_wing) {
-      studentsByWing[s.hostel_wing].push(s);
-    }
-  }
+  const rand = seededRandom(3000);
 
   for (const room of rooms) {
-    const wingStudents = studentsByWing[room.wing];
     for (let b = 1; b <= room.capacity; b++) {
       bedIdx++;
-      const student = wingStudents.shift();
+      const isOccupied = rand() > 0.3;
+      const studentId = isOccupied && bedIdx <= students.length ? students[bedIdx - 1]?.id : undefined;
       beds.push({
-        id: uuid(5000 + bedIdx),
+        id: `BED-${bedIdx.toString().padStart(4, '0')}`,
         room_id: room.id,
         bed_number: b,
-        student_id: student?.id,
-        status: student ? 'occupied' : (rand() > 0.9 ? 'maintenance' : 'vacant'),
+        student_id: studentId,
+        status: studentId ? 'occupied' : (rand() > 0.9 ? 'maintenance' : 'vacant'),
       });
     }
   }
@@ -365,28 +367,27 @@ function generateHostelBeds(rooms: HostelRoom[], students: Student[]): HostelBed
 }
 
 // ============================================================
-// Generate Mess Records (recent 7 days)
+// Mess Records
 // ============================================================
 
-function generateMessRecords(students: Student[]): MessRecord[] {
+function generateMessRecords(): MessRecord[] {
   const records: MessRecord[] = [];
   const meals: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack'];
   let recordIdx = 0;
+  const rand = seededRandom(4000);
 
-  // Generate records for last 3 days for a subset of students
   for (let day = 0; day < 3; day++) {
     const date = new Date();
     date.setDate(date.getDate() - day);
     const dateStr = date.toISOString().split('T')[0];
 
-    // Random subset of students for each meal
     for (const meal of meals) {
       const mealStudents = students.filter(() => rand() > 0.7).slice(0, 80);
       for (const student of mealStudents) {
         recordIdx++;
         const hours = meal === 'breakfast' ? 7 : meal === 'lunch' ? 12 : meal === 'dinner' ? 19 : 16;
         records.push({
-          id: uuid(3000 + recordIdx),
+          id: `MESS-${recordIdx.toString().padStart(5, '0')}`,
           student_id: student.id,
           student_name: student.full_name,
           meal_type: meal,
@@ -401,42 +402,44 @@ function generateMessRecords(students: Student[]): MessRecord[] {
 }
 
 // ============================================================
-// Generate WhatsApp Logs
+// WhatsApp Logs
 // ============================================================
 
-function generateWhatsAppLogs(students: Student[]): WhatsAppLog[] {
+function generateWhatsAppLogs(): WhatsAppLog[] {
   const logs: WhatsAppLog[] = [];
   const messageTypes: WhatsAppMessageType[] = ['attendance', 'fee_reminder', 'event', 'emergency', 'general'];
   const messageStatuses: WhatsAppMessageStatus[] = ['sent', 'delivered', 'read', 'failed'];
   const messagePreviews: Record<WhatsAppMessageType, string[]> = {
     attendance: [
-      'Your ward was absent today. Please contact school.',
-      'Attendance alert: 3 consecutive absences noted.',
-      'Monthly attendance report attached.',
+      'तुमचा पाल्य आज अनुपस्थित आहे. कृपया शाळेशी संपर्क साधा.',
+      'उपस्थिती सूचना: सलग ३ दिवस अनुपस्थिती.',
+      'मासिक उपस्थिती अहवाल संलग्न.',
     ],
     fee_reminder: [
-      'Fee payment due by 15th. Please pay at office.',
-      'Scholarship disbursement processed.',
-      'Hostel fee receipt generated.',
+      'शिष्यवृत्ती वितरण प्रक्रिया पूर्ण.',
+      'वसतिगृह शुल्क पावती तयार.',
+      'शिष्यवृत्ती अर्ज अंतिम तारीख जवळ.',
     ],
     event: [
-      'Annual Sports Day on 15th Jan. All parents welcome.',
-      'PTM scheduled for Saturday 10 AM.',
-      'Republic Day celebration - students required.',
+      'वार्षिक क्रीडा दिन १५ जानेवारी. सर्व पालक आमंत्रित.',
+      'पालक-शिक्षक बैठक शनिवारी सकाळी १० वाजता.',
+      'प्रजासत्ताक दिन सोहळा - विद्यार्थ्यांची उपस्थिती आवश्यक.',
     ],
     emergency: [
-      'School closed tomorrow due to heavy rain alert.',
-      'Bus route changed. New pickup point: Village Chowk.',
-      'Emergency drill conducted successfully.',
+      'उद्या शाळा बंद - अतिवृष्टी सूचना.',
+      'बस मार्ग बदलला. नवीन थांबा: गाव चौक.',
+      'आपत्कालीन सराव यशस्वीरित्या पार पडला.',
     ],
     general: [
-      'Exam timetable shared. Check notice board.',
-      'New uniform distribution on Monday.',
-      'Holiday announcement: Diwali vacation 1-5 Nov.',
+      'परीक्षा वेळापत्रक सूचना फलकावर लावले.',
+      'नवीन गणवेश वितरण सोमवारी.',
+      'सुट्टी सूचना: दिवाळी सुट्टी १-५ नोव्हेंबर.',
     ],
   };
 
   let logIdx = 0;
+  const rand = seededRandom(5000);
+  const pick = <T,>(arr: T[]): T => arr[Math.floor(rand() * arr.length)];
   const selectedStudents = students.slice(0, 50);
 
   for (const student of selectedStudents) {
@@ -447,9 +450,9 @@ function generateWhatsAppLogs(students: Student[]): WhatsAppLog[] {
       const date = new Date();
       date.setDate(date.getDate() - Math.floor(rand() * 30));
       logs.push({
-        id: uuid(4000 + logIdx),
-        recipient_number: student.mobile_number,
-        recipient_name: student.parent_name,
+        id: `WA-${logIdx.toString().padStart(4, '0')}`,
+        recipient_number: student.guardian_mobile,
+        recipient_name: student.guardian_name,
         message_type: msgType,
         message_preview: pick(messagePreviews[msgType]),
         status: pick(messageStatuses),
@@ -464,15 +467,7 @@ function generateWhatsAppLogs(students: Student[]): WhatsAppLog[] {
 // Export generated data
 // ============================================================
 
-export const students: Student[] = generateStudents();
-export const staff: Staff[] = generateStaff();
 export const hostelRooms: HostelRoom[] = generateHostelRooms();
-export const hostelBeds: HostelBed[] = generateHostelBeds(hostelRooms, students);
-export const messRecords: MessRecord[] = generateMessRecords(students);
-export const whatsAppLogs: WhatsAppLog[] = generateWhatsAppLogs(students);
-
-// Utility: tribal tag lookup (appended as metadata)
-export const tribalTagMap: Record<string, string> = {};
-students.forEach((s, idx) => {
-  tribalTagMap[s.id] = tribalTags[idx % tribalTags.length];
-});
+export const hostelBeds: HostelBed[] = generateHostelBeds(hostelRooms);
+export const messRecords: MessRecord[] = generateMessRecords();
+export const whatsAppLogs: WhatsAppLog[] = generateWhatsAppLogs();

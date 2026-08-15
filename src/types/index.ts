@@ -1,12 +1,10 @@
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
-export type StudentStatus = 'Submitted' | 'Verified' | 'Approved' | 'Enrolled' | 'Rejected';
+export type StudentStatus = 'Enrolled';
 
 export type Role = 'principal' | 'teacher' | 'clerk' | 'rector' | 'support' | 'mess_staff';
 
-export type CasteCategory = 'ST' | 'SC' | 'OBC' | 'NT' | 'SBC' | 'General';
-
-export type Standard = '1st' | '2nd' | '3rd' | '4th' | '5th' | '6th' | '7th' | '8th' | '9th' | '10th' | '11th' | '12th';
+export type Standard = '1 ली' | '2 री' | '3 री' | '4 थी' | '5 वी' | '6 वी' | '7 वी' | '8 वी' | '9 वी' | '10 वी' | '11 वी' | '12 वी';
 
 export type HostelWing = 'Boys A' | 'Boys B' | 'Girls A' | 'Girls B';
 
@@ -18,19 +16,21 @@ export type WhatsAppMessageType = 'attendance' | 'fee_reminder' | 'event' | 'eme
 
 export interface Student {
   id: string;
-  application_no: string;
+  sr_no: number;
   full_name: string;
   standard: Standard;
-  stream?: 'Arts' | 'Science';
-  caste_category: CasteCategory;
-  aadhaar_verified: boolean;
+  date_of_birth: string;
+  blood_group: string;
+  apaar_id: string;
   mobile_number: string;
-  parent_name: string;
+  guardian_name: string;
+  village: string;
+  taluka: string;
+  district: string;
+  pincode: string;
+  guardian_mobile: string;
+  guardian_relation: string;
   status: StudentStatus;
-  created_at: string;
-  gender: 'Male' | 'Female';
-  hostel_wing?: HostelWing;
-  bed_number?: number;
 }
 
 export interface Staff {

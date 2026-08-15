@@ -3,13 +3,10 @@ import { Search, Plus, CheckCircle, Loader2, Fingerprint, X, Users, UserCheck, S
 import { motion, AnimatePresence } from 'motion/react';
 import { students } from '../data/mockData';
 import { useAppContext } from '../contexts/AppContext';
-import type { Student, StudentStatus } from '../types';
+import type { Student, Standard } from '../types';
 import StatsCard from './StatsCard';
-import StatusBadge from './StatusBadge';
 
-const statusSteps: StudentStatus[] = ['Submitted', 'Verified', 'Approved', 'Enrolled'];
-
-const casteOptions = ['Katkari', 'Thakar', 'Mahadev Koli', 'Gond', 'Other ST'];
+const allStandards: Standard[] = ['1 ली', '2 री', '3 री', '4 थी', '5 वी', '6 वी', '7 वी', '8 वी', '9 वी', '10 वी', '11 वी', '12 वी'];
 
 export default function AdmissionPortal() {
   const { language } = useAppContext();
@@ -18,41 +15,39 @@ export default function AdmissionPortal() {
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState('');
   const [filterStd, setFilterStd] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
 
   // Form state
   const [formData, setFormData] = useState({
     full_name: '',
-    standard: '1st',
-    stream: 'Arts' as 'Arts' | 'Science',
-    caste_category: 'Katkari',
-    aadhaar: '',
+    standard: '5 वी' as string,
+    guardian_name: '',
+    village: '',
     mobile_number: '',
-    parent_name: '',
+    apaar_id: '',
   });
-  const [aadhaarVerifying, setAadhaarVerifying] = useState(false);
-  const [aadhaarVerified, setAadhaarVerified] = useState(false);
+  const [apaarVerifying, setApaarVerifying] = useState(false);
+  const [apaarVerified, setApaarVerified] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [applicationId, setApplicationId] = useState('');
 
   // Stats
-  const totalApplications = students.length;
-  const verifiedCount = students.filter(s => s.status === 'Verified' || s.status === 'Approved' || s.status === 'Enrolled').length;
-  const approvedCount = students.filter(s => s.status === 'Approved' || s.status === 'Enrolled').length;
+  const totalStudents = students.length;
   const enrolledCount = students.filter(s => s.status === 'Enrolled').length;
+  const villageCount = new Set(students.map(s => s.village)).size;
+  const standardCount = new Set(students.map(s => s.standard)).size;
 
-  const handleAadhaarVerify = () => {
-    if (formData.aadhaar.length !== 12) return;
-    setAadhaarVerifying(true);
+  const handleApaarVerify = () => {
+    if (formData.apaar_id.length < 5) return;
+    setApaarVerifying(true);
     setTimeout(() => {
-      setAadhaarVerifying(false);
-      setAadhaarVerified(true);
+      setApaarVerifying(false);
+      setApaarVerified(true);
     }, 2000);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const id = `ASPS-2024-${Math.floor(10000 + Math.random() * 90000)}`;
+    const id = `ASPS-2025-${Math.floor(10000 + Math.random() * 90000)}`;
     setApplicationId(id);
     setSubmitted(true);
   };
@@ -60,19 +55,17 @@ export default function AdmissionPortal() {
   const resetForm = () => {
     setShowForm(false);
     setSubmitted(false);
-    setAadhaarVerified(false);
-    setFormData({ full_name: '', standard: '1st', stream: 'Arts', caste_category: 'Katkari', aadhaar: '', mobile_number: '', parent_name: '' });
+    setApaarVerified(false);
+    setFormData({ full_name: '', standard: '5 वी', guardian_name: '', village: '', mobile_number: '', apaar_id: '' });
   };
 
   const filteredStudents = students.filter((s: Student) => {
     const matchSearch = s.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      s.application_no.toLowerCase().includes(search.toLowerCase());
+      s.guardian_name.toLowerCase().includes(search.toLowerCase()) ||
+      s.village.toLowerCase().includes(search.toLowerCase());
     const matchStd = filterStd ? s.standard === filterStd : true;
-    const matchStatus = filterStatus ? s.status === filterStatus : true;
-    return matchSearch && matchStd && matchStatus;
+    return matchSearch && matchStd;
   });
-
-  const needsStream = formData.standard === '11th' || formData.standard === '12th';
 
   return (
     <motion.div
@@ -104,38 +97,36 @@ export default function AdmissionPortal() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <StatsCard
           icon={Users}
-          label="Total Applications"
-          labelMr="एकूण अर्ज"
-          value={totalApplications}
+          label="Total Students"
+          labelMr="एकूण विद्यार्थी"
+          value={totalStudents}
           variant="navy"
           language={language}
           trend={{ direction: 'up', percentage: 12 }}
         />
         <StatsCard
-          icon={UserCheck}
-          label="Verified"
-          labelMr="सत्यापित"
-          value={verifiedCount}
-          variant="gold"
-          language={language}
-          trend={{ direction: 'up', percentage: 8 }}
-        />
-        <StatsCard
-          icon={ShieldCheck}
-          label="Approved"
-          labelMr="मंजूर"
-          value={approvedCount}
-          variant="emerald"
-          language={language}
-        />
-        <StatsCard
           icon={GraduationCap}
           label="Enrolled"
-          labelMr="नोंदणी"
+          labelMr="नोंदणीकृत"
           value={enrolledCount}
           variant="emerald"
           language={language}
-          trend={{ direction: 'up', percentage: 5 }}
+        />
+        <StatsCard
+          icon={ShieldCheck}
+          label="Standards"
+          labelMr="इयत्ता"
+          value={standardCount}
+          variant="gold"
+          language={language}
+        />
+        <StatsCard
+          icon={UserCheck}
+          label="Villages"
+          labelMr="गावे"
+          value={villageCount}
+          variant="emerald"
+          language={language}
         />
       </div>
 
@@ -157,25 +148,6 @@ export default function AdmissionPortal() {
                   {t('Application Submitted!', 'अर्ज सादर केला!')}
                 </h3>
                 <p className="text-emerald-700 text-lg font-mono font-bold">{applicationId}</p>
-
-                {/* Step Indicator */}
-                <div className="flex items-center justify-center gap-0 mt-6 px-4">
-                  {statusSteps.map((step, idx) => (
-                    <div key={step} className="flex items-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shadow-sm ${
-                          idx === 0 ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'
-                        }`}>
-                          {idx === 0 ? <CheckCircle className="w-4 h-4" /> : idx + 1}
-                        </div>
-                        <span className="text-[10px] text-slate-600 font-medium">{step}</span>
-                      </div>
-                      {idx < statusSteps.length - 1 && (
-                        <div className={`w-8 sm:w-12 h-0.5 mx-1 ${idx === 0 ? 'bg-emerald-400' : 'bg-slate-200'}`} />
-                      )}
-                    </div>
-                  ))}
-                </div>
                 <button onClick={resetForm} className="mt-6 px-5 py-2 bg-slate-200 rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors">
                   {t('Close', 'बंद करा')}
                 </button>
@@ -206,59 +178,34 @@ export default function AdmissionPortal() {
                       onChange={(e) => setFormData({ ...formData, standard: e.target.value })}
                       className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                     >
-                      {['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'].map(s => (
+                      {allStandards.map(s => (
                         <option key={s} value={s}>{s}</option>
                       ))}
                     </select>
                   </div>
-                  {needsStream && (
-                    <div>
-                      <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Stream', 'शाखा')}</label>
-                      <select
-                        value={formData.stream}
-                        onChange={(e) => setFormData({ ...formData, stream: e.target.value as 'Arts' | 'Science' })}
-                        className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
-                      >
-                        <option value="Arts">{t('Arts', 'कला')}</option>
-                        <option value="Science">{t('Science', 'विज्ञान')}</option>
-                      </select>
-                    </div>
-                  )}
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Caste Category', 'जात प्रवर्ग')}</label>
-                    <select
-                      value={formData.caste_category}
-                      onChange={(e) => setFormData({ ...formData, caste_category: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
-                    >
-                      {casteOptions.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Aadhaar Number', 'आधार क्रमांक')}</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('APAAR ID', 'अपार आयडी')}</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
-                        value={formData.aadhaar}
-                        onChange={(e) => { setFormData({ ...formData, aadhaar: e.target.value.replace(/\D/g, '').slice(0, 12) }); setAadhaarVerified(false); }}
+                        value={formData.apaar_id}
+                        onChange={(e) => { setFormData({ ...formData, apaar_id: e.target.value.replace(/\D/g, '') }); setApaarVerified(false); }}
                         className="flex-1 px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
-                        maxLength={12}
-                        placeholder="XXXX XXXX XXXX"
-                        required
+                        placeholder="APAAR ID"
                       />
                       <button
                         type="button"
-                        onClick={handleAadhaarVerify}
-                        disabled={formData.aadhaar.length !== 12 || aadhaarVerifying || aadhaarVerified}
+                        onClick={handleApaarVerify}
+                        disabled={formData.apaar_id.length < 5 || apaarVerifying || apaarVerified}
                         className={`px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-all whitespace-nowrap ${
-                          aadhaarVerified ? 'bg-emerald-100 text-emerald-700' :
+                          apaarVerified ? 'bg-emerald-100 text-emerald-700' :
                           'bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-50'
                         }`}
                       >
-                        {aadhaarVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> :
-                         aadhaarVerified ? <CheckCircle className="w-4 h-4" /> :
+                        {apaarVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> :
+                         apaarVerified ? <CheckCircle className="w-4 h-4" /> :
                          <Fingerprint className="w-4 h-4" />}
-                        {aadhaarVerified ? t('Verified (Demo)', 'सत्यापित (डेमो)') : t('Verify (Demo)', 'सत्यापन (डेमो)')}
+                        {apaarVerified ? t('Verified', 'सत्यापित') : t('Verify', 'सत्यापन')}
                       </button>
                     </div>
                   </div>
@@ -274,11 +221,21 @@ export default function AdmissionPortal() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Parent Name', 'पालकाचे नाव')}</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Guardian Name', 'पालकाचे नाव')}</label>
                     <input
                       type="text"
-                      value={formData.parent_name}
-                      onChange={(e) => setFormData({ ...formData, parent_name: e.target.value })}
+                      value={formData.guardian_name}
+                      onChange={(e) => setFormData({ ...formData, guardian_name: e.target.value })}
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Village', 'गाव')}</label>
+                    <input
+                      type="text"
+                      value={formData.village}
+                      onChange={(e) => setFormData({ ...formData, village: e.target.value })}
                       className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                       required
                     />
@@ -310,7 +267,7 @@ export default function AdmissionPortal() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('Search by name or application no...', 'नाव किंवा अर्ज क्रमांकाने शोधा...')}
+              placeholder={t('Search by name, guardian or village...', 'नाव, पालक किंवा गावाने शोधा...')}
               className="flex-1 px-3.5 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
             />
           </div>
@@ -320,17 +277,9 @@ export default function AdmissionPortal() {
             className="px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 transition-all"
           >
             <option value="">{t('All Standards', 'सर्व इयत्ता')}</option>
-            {['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'].map(s => (
+            {allStandards.map(s => (
               <option key={s} value={s}>{s}</option>
             ))}
-          </select>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 transition-all"
-          >
-            <option value="">{t('All Status', 'सर्व स्थिती')}</option>
-            {statusSteps.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
       </div>
@@ -341,32 +290,27 @@ export default function AdmissionPortal() {
           <table className="w-full text-sm">
             <thead className="bg-slate-50/80 border-b border-slate-200">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Application No', 'अर्ज क्र.')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Sr No', 'अ.क्र.')}</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Name', 'नाव')}</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Std', 'इ.')}</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Category', 'प्रवर्ग')}</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Aadhaar', 'आधार')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Guardian', 'पालक')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Village', 'गाव')}</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Status', 'स्थिती')}</th>
               </tr>
             </thead>
             <tbody>
               {filteredStudents.slice(0, 50).map((student, idx) => (
                 <tr key={student.id} className={`border-b border-slate-100 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
-                  <td className="px-4 py-2.5 font-mono text-xs text-slate-600">{student.application_no}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-slate-600">{student.sr_no}</td>
                   <td className="px-4 py-2.5 font-medium text-slate-800">{student.full_name}</td>
                   <td className="px-4 py-2.5 text-slate-600">{student.standard}</td>
-                  <td className="px-4 py-2.5 text-slate-600">{student.caste_category}</td>
+                  <td className="px-4 py-2.5 text-slate-600">{student.guardian_name}</td>
+                  <td className="px-4 py-2.5 text-slate-600">{student.village}</td>
                   <td className="px-4 py-2.5">
-                    {student.aadhaar_verified ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium">
-                        <CheckCircle className="w-3.5 h-3.5" /> {t('Verified', 'सत्यापित')}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-slate-400">{t('Pending', 'प्रलंबित')}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <StatusBadge status={student.status} />
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      {t('Enrolled', 'नोंदणीकृत')}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -374,8 +318,8 @@ export default function AdmissionPortal() {
           </table>
         </div>
         <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
-          {t(`Showing ${Math.min(50, filteredStudents.length)} of ${filteredStudents.length} applications`,
-             `${filteredStudents.length} पैकी ${Math.min(50, filteredStudents.length)} अर्ज दर्शवित आहे`)}
+          {t(`Showing ${Math.min(50, filteredStudents.length)} of ${filteredStudents.length} students`,
+             `${filteredStudents.length} पैकी ${Math.min(50, filteredStudents.length)} विद्यार्थी दर्शवित आहे`)}
         </div>
       </div>
     </motion.div>

@@ -121,7 +121,7 @@ function RoomAllotment({ t }: { language: string; t: (en: string, mr: string) =>
       {/* Bed Grid */}
       <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
         <div className="flex flex-wrap gap-2">
-          {wingBeds.slice(0, 130).map((bed) => (
+          {wingBeds.slice(0, 120).map((bed) => (
             <button
               key={bed.id}
               onClick={() => bed.student_id ? setSelectedBedStudent(bed.student_id) : null}
@@ -154,8 +154,8 @@ function RoomAllotment({ t }: { language: string; t: (en: string, mr: string) =>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <p><span className="text-blue-600 font-medium">{t('Name:', 'नाव:')}</span> {selectedStudent.full_name}</p>
             <p><span className="text-blue-600 font-medium">{t('Standard:', 'इयत्ता:')}</span> {selectedStudent.standard}</p>
-            <p><span className="text-blue-600 font-medium">{t('Wing:', 'विंग:')}</span> {selectedStudent.hostel_wing}</p>
-            <p><span className="text-blue-600 font-medium">{t('Bed:', 'बेड:')}</span> #{selectedStudent.bed_number}</p>
+            <p><span className="text-blue-600 font-medium">{t('Guardian:', 'पालक:')}</span> {selectedStudent.guardian_name}</p>
+            <p><span className="text-blue-600 font-medium">{t('Village:', 'गाव:')}</span> {selectedStudent.village}</p>
           </div>
         </motion.div>
       )}
@@ -168,7 +168,7 @@ function MessCounter({ t }: { language: string; t: (en: string, mr: string) => s
   const [verifying, setVerifying] = useState<string | null>(null);
   const [lastVerified, setLastVerified] = useState<string | null>(null);
 
-  const totalStudents = 520;
+  const totalStudents = students.length;
 
   const todayRecords = messRecords.filter(r => r.date === new Date().toISOString().split('T')[0]);
   const breakfastCount = todayRecords.filter(r => r.meal_type === 'breakfast' && r.verified).length + verifiedCounts.breakfast;

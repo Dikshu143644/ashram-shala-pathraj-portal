@@ -48,14 +48,14 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
           <div>
             <h1 className="text-sm sm:text-lg font-bold leading-tight font-devanagari" style={{ color: '#d4af37' }}>
               {t(
-                'Shashkeey Madhyamik v Uchh Madhyamik Ashram Shala Pathraj',
-                'शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथराज'
+                'Govt. Secondary & Higher Secondary Ashram School Pathraj',
+                'शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज'
               )}
             </h1>
             <p className="text-xs text-slate-300 mt-0.5">
               {t(
-                'Tal. Sudhagad, Dist. Raigad, Maharashtra 402205',
-                'ता. सुधागड, जि. रायगड, महाराष्ट्र ४०२२०५'
+                'Tal. Karjat, Dist. Raigad, Maharashtra 410201',
+                'ता. कर्जत, जि. रायगड, पिनकोड ४१०२०१'
               )}
             </p>
           </div>
