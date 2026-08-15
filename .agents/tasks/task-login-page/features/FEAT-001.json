@@ -1,7 +1,7 @@
 {
   "id": "FEAT-001",
   "title": "Login Page with Authentication Gate",
-  "status": "in_progress",
+  "status": "completed",
   "description": "Add a glassmorphism login page that gates the entire app behind authentication, with server-side login validation and rate limiting.",
   "steps": [
     "Create src/components/LoginPage.tsx with glassmorphism UI",
