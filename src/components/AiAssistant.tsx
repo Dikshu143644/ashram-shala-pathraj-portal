@@ -207,8 +207,19 @@ export default function AiAssistant() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userText, language }),
       });
-      const data = await response.json();
-      setMessages(prev => [...prev, { role: 'bot', text: data.response || data.reply || generalResponses[language][Math.floor(Math.random() * 3)] }]);
+
+      if (response.status === 429) {
+        const rateLimitMsg = language === 'en'
+          ? 'Too many requests, please try again in a minute.'
+          : 'खूप विनंत्या आल्या आहेत, कृपया एका मिनिटानंतर पुन्हा प्रयत्न करा.';
+        setMessages(prev => [...prev, { role: 'bot', text: rateLimitMsg }]);
+      } else if (!response.ok) {
+        const fallback = generalResponses[language][Math.floor(Math.random() * 3)];
+        setMessages(prev => [...prev, { role: 'bot', text: fallback }]);
+      } else {
+        const data = await response.json();
+        setMessages(prev => [...prev, { role: 'bot', text: data.response || data.reply || generalResponses[language][Math.floor(Math.random() * 3)] }]);
+      }
     } catch {
       const fallback = generalResponses[language][Math.floor(Math.random() * 3)];
       setMessages(prev => [...prev, { role: 'bot', text: fallback }]);

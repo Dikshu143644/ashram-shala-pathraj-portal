@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
@@ -24,25 +24,30 @@ interface RateLimitEntry {
   timestamps: number[];
 }
 
-const rateLimitStore = new Map<string, RateLimitEntry>();
+// Separate rate-limit buckets per endpoint
+const chatRateLimitStore = new Map<string, RateLimitEntry>();
+const ttsRateLimitStore = new Map<string, RateLimitEntry>();
 
 // Periodically clean up stale entries every 5 minutes
-setInterval(() => {
+const cleanupInterval = setInterval(() => {
   const now = Date.now();
-  for (const [key, entry] of rateLimitStore) {
-    entry.timestamps = entry.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
-    if (entry.timestamps.length === 0) {
-      rateLimitStore.delete(key);
+  for (const store of [chatRateLimitStore, ttsRateLimitStore]) {
+    for (const [key, entry] of store) {
+      entry.timestamps = entry.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+      if (entry.timestamps.length === 0) {
+        store.delete(key);
+      }
     }
   }
 }, 5 * 60 * 1000);
+cleanupInterval.unref();
 
-function isRateLimited(ip: string): boolean {
+function isRateLimited(ip: string, store: Map<string, RateLimitEntry>): boolean {
   const now = Date.now();
-  let entry = rateLimitStore.get(ip);
+  let entry = store.get(ip);
   if (!entry) {
     entry = { timestamps: [] };
-    rateLimitStore.set(ip, entry);
+    store.set(ip, entry);
   }
   // Remove timestamps outside the window
   entry.timestamps = entry.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
@@ -82,7 +87,7 @@ const SYSTEM_PROMPT = `You are the AI assistant for शासकीय माध
 
 app.post('/api/ai-chat', async (req: Request, res: Response) => {
   const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
-  if (isRateLimited(clientIp)) {
+  if (isRateLimited(clientIp, chatRateLimitStore)) {
     res.status(429).json({ error: 'Too many requests. Please try again later.' });
     return;
   }
@@ -124,7 +129,7 @@ app.post('/api/ai-chat', async (req: Request, res: Response) => {
 
 app.post('/api/voice/tts', async (req: Request, res: Response) => {
   const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
-  if (isRateLimited(clientIp)) {
+  if (isRateLimited(clientIp, ttsRateLimitStore)) {
     res.status(429).json({ error: 'Too many requests. Please try again later.' });
     return;
   }
