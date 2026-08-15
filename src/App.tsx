@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   GraduationCap, ClipboardList, Building2, MessageCircle,
-  FileStack, Shield, Bot, Book, Menu, X
+  FileStack, Shield, Bot, Book, Menu, X, School
 } from 'lucide-react';
 import { AppProvider, useAppContext, type AppRole } from './contexts/AppContext';
 import Header from './components/Header';
@@ -37,11 +37,35 @@ const tabs: TabConfig[] = [
   { key: 'prd', labelEn: 'Docs', labelMr: 'दस्तऐवज', icon: Book, roles: ['web_creator', 'principal'] },
 ];
 
+function SplashScreen({ onComplete }: { onComplete: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onComplete, 1800);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
+  return (
+    <div className="splash-screen">
+      <div className="splash-logo">
+        <div className="govt-seal" style={{ width: '5rem', height: '5rem' }}>
+          <School className="w-10 h-10 text-slate-900" />
+        </div>
+      </div>
+      <div className="splash-text mt-6 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold font-devanagari" style={{ color: '#d4af37' }}>
+          शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथराज
+        </h1>
+        <p className="text-slate-400 text-sm mt-2">Loading portal...</p>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
   const { language, role } = useAppContext();
   const [activeTab, setActiveTab] = useState<TabKey>('admission');
   const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   const visibleTabs = tabs.filter(tab => tab.roles.includes(role));
 
@@ -67,30 +91,58 @@ function AppContent() {
     }
   };
 
+  if (showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col animate-fadeIn">
       <Header onOpenPromptModal={() => setPromptModalOpen(true)} />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex flex-col w-56 bg-white border-r border-slate-200 shrink-0">
-          <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+        <aside className="hidden lg:flex flex-col w-60 bg-white border-r border-slate-200 shrink-0 shadow-sm">
+          {/* School Logo Area */}
+          <div className="p-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
+                <School className="w-5 h-5 text-slate-900" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-slate-700 truncate">Ashram Shala</p>
+                <p className="text-[10px] text-slate-400 truncate">Pathraj, Raigad</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 py-3 px-3 space-y-1 overflow-y-auto">
             {visibleTabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border-l-[3px] ${
                   activeTab === tab.key
-                    ? 'text-white'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+                    ? 'border-l-[#d4af37] bg-amber-50/70 text-slate-800 shadow-sm'
+                    : 'border-l-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
                 }`}
-                style={activeTab === tab.key ? { backgroundColor: '#1e293b' } : {}}
               >
-                <tab.icon className="w-4 h-4 shrink-0" />
+                <tab.icon className={`w-4 h-4 shrink-0 ${
+                  activeTab === tab.key ? 'text-amber-600' : 'text-slate-400'
+                }`} />
                 <span className="truncate">{language === 'en' ? tab.labelEn : tab.labelMr}</span>
               </button>
             ))}
           </nav>
+
+          {/* Sidebar Footer */}
+          <div className="p-3 border-t border-slate-100">
+            <p className="text-[10px] text-slate-400 text-center leading-relaxed">
+              &copy; 2024 Tribal Development Dept.
+              <br />
+              Maharashtra State Government
+            </p>
+          </div>
         </aside>
 
         {/* Mobile Sidebar Overlay */}
@@ -103,40 +155,49 @@ function AppContent() {
               className="lg:hidden fixed inset-0 z-40"
               onClick={() => setSidebarOpen(false)}
             >
-              <div className="absolute inset-0 bg-black/50" />
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
               <motion.aside
-                initial={{ x: -256 }}
+                initial={{ x: -280 }}
                 animate={{ x: 0 }}
-                exit={{ x: -256 }}
+                exit={{ x: -280 }}
                 transition={{ type: 'tween', duration: 0.2 }}
                 onClick={(e) => e.stopPropagation()}
-                className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl z-50"
+                className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl z-50 flex flex-col"
               >
                 <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-slate-700">
-                    {language === 'en' ? 'Navigation' : 'नेव्हिगेशन'}
-                  </span>
-                  <button onClick={() => setSidebarOpen(false)} className="p-1 rounded hover:bg-slate-100">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
+                      <School className="w-4 h-4 text-slate-900" />
+                    </div>
+                    <span className="text-sm font-semibold text-slate-700">
+                      {language === 'en' ? 'Navigation' : 'नेव्हिगेशन'}
+                    </span>
+                  </div>
+                  <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
                     <X className="w-5 h-5 text-slate-600" />
                   </button>
                 </div>
-                <nav className="py-2 px-2 space-y-1">
+                <nav className="flex-1 py-3 px-3 space-y-1 overflow-y-auto">
                   {visibleTabs.map((tab) => (
                     <button
                       key={tab.key}
                       onClick={() => { setActiveTab(tab.key); setSidebarOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border-l-[3px] ${
                         activeTab === tab.key
-                          ? 'text-white'
-                          : 'text-slate-600 hover:bg-slate-100'
+                          ? 'border-l-[#d4af37] bg-amber-50/70 text-slate-800'
+                          : 'border-l-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
                       }`}
-                      style={activeTab === tab.key ? { backgroundColor: '#1e293b' } : {}}
                     >
-                      <tab.icon className="w-4 h-4" />
+                      <tab.icon className={`w-4 h-4 ${activeTab === tab.key ? 'text-amber-600' : 'text-slate-400'}`} />
                       {language === 'en' ? tab.labelEn : tab.labelMr}
                     </button>
                   ))}
                 </nav>
+                <div className="p-3 border-t border-slate-100">
+                  <p className="text-[10px] text-slate-400 text-center">
+                    &copy; 2024 Tribal Development Dept.
+                  </p>
+                </div>
               </motion.aside>
             </motion.div>
           )}
@@ -145,10 +206,10 @@ function AppContent() {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-20 lg:pb-4">
           {/* Mobile menu button */}
-          <div className="lg:hidden p-2 border-b border-slate-200 bg-white">
+          <div className="lg:hidden p-2 border-b border-slate-200 bg-white sticky top-0 z-10">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition-colors"
             >
               <Menu className="w-4 h-4" />
               {language === 'en' ? 'Menu' : 'मेनू'}
@@ -170,20 +231,27 @@ function AppContent() {
       </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 shadow-lg">
         <div className="flex overflow-x-auto scrollbar-hide">
           {visibleTabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex flex-col items-center py-2 px-3 min-w-[4rem] shrink-0 transition-colors ${
+              className={`flex flex-col items-center py-2 px-3 min-w-[4rem] shrink-0 transition-all duration-200 ${
                 activeTab === tab.key ? 'text-slate-800' : 'text-slate-400'
               }`}
             >
               <tab.icon className="w-5 h-5" style={activeTab === tab.key ? { color: '#d4af37' } : {}} />
-              <span className="text-[10px] mt-0.5 whitespace-nowrap">
+              <span className="text-[10px] mt-0.5 whitespace-nowrap font-medium">
                 {language === 'en' ? tab.labelEn : tab.labelMr}
               </span>
+              {activeTab === tab.key && (
+                <motion.div
+                  layoutId="mobileTabIndicator"
+                  className="w-4 h-0.5 rounded-full mt-0.5"
+                  style={{ backgroundColor: '#d4af37' }}
+                />
+              )}
             </button>
           ))}
         </div>

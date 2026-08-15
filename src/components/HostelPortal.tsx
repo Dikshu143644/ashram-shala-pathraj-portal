@@ -7,6 +7,13 @@ import type { HostelWing } from '../types';
 
 type HostelTab = 'rooms' | 'mess' | 'sickbay';
 
+const wingColors: Record<HostelWing, { occupied: string; empty: string; label: string }> = {
+  'Boys A': { occupied: 'bg-blue-500', empty: 'bg-blue-100', label: 'Blue' },
+  'Boys B': { occupied: 'bg-teal-500', empty: 'bg-teal-100', label: 'Teal' },
+  'Girls A': { occupied: 'bg-pink-500', empty: 'bg-pink-100', label: 'Pink' },
+  'Girls B': { occupied: 'bg-purple-500', empty: 'bg-purple-100', label: 'Purple' },
+};
+
 export default function HostelPortal() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
@@ -25,18 +32,18 @@ export default function HostelPortal() {
       transition={{ duration: 0.3 }}
       className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
-      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-4">
+      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-5">
         {t('Hostel, Mess & Sick Bay', 'वसतिगृह, भोजनालय व आरोग्य कक्ष')}
       </h2>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-slate-100 rounded-lg p-1">
+      <div className="flex gap-1 mb-5 bg-slate-100 rounded-xl p-1">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 justify-center ${
-              activeTab === tab.key ? 'bg-white shadow text-slate-800' : 'text-slate-600 hover:text-slate-800'
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
+              activeTab === tab.key ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -70,59 +77,66 @@ function RoomAllotment({ t }: { language: string; t: (en: string, mr: string) =>
     ? students.find(s => s.id === selectedBedStudent)
     : null;
 
+  const colors = wingColors[selectedWing];
+
   return (
     <div>
       {/* Wing Selector */}
-      <div className="flex gap-2 mb-4 flex-wrap">
-        {wings.map(w => (
-          <button
-            key={w}
-            onClick={() => { setSelectedWing(w); setSelectedBedStudent(null); }}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              selectedWing === w ? 'text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-            style={selectedWing === w ? { backgroundColor: '#d4af37' } : {}}
-          >
-            {w}
-          </button>
-        ))}
+      <div className="flex gap-2 mb-5 flex-wrap">
+        {wings.map(w => {
+          const wc = wingColors[w];
+          return (
+            <button
+              key={w}
+              onClick={() => { setSelectedWing(w); setSelectedBedStudent(null); }}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+                selectedWing === w
+                  ? 'text-white shadow-md scale-105'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+              }`}
+              style={selectedWing === w ? { backgroundColor: wc.occupied.includes('blue') ? '#3b82f6' : wc.occupied.includes('teal') ? '#14b8a6' : wc.occupied.includes('pink') ? '#ec4899' : '#8b5cf6', borderColor: 'transparent' } : {}}
+            >
+              {w}
+            </button>
+          );
+        })}
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
-          <p className="text-lg font-bold text-emerald-700">{occupiedCount}</p>
-          <p className="text-xs text-emerald-600">{t('Occupied', 'व्यापलेले')}</p>
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm border-l-4 border-l-emerald-500">
+          <p className="text-2xl font-bold text-emerald-700">{occupiedCount}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{t('Occupied', 'व्यापलेले')}</p>
         </div>
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
-          <p className="text-lg font-bold text-slate-600">{vacantCount}</p>
-          <p className="text-xs text-slate-500">{t('Vacant', 'रिक्त')}</p>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm border-l-4 border-l-slate-400">
+          <p className="text-2xl font-bold text-slate-600">{vacantCount}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{t('Vacant', 'रिक्त')}</p>
         </div>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-          <p className="text-lg font-bold text-red-600">{maintCount}</p>
-          <p className="text-xs text-red-500">{t('Maintenance', 'देखभाल')}</p>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm border-l-4 border-l-red-500">
+          <p className="text-2xl font-bold text-red-600">{maintCount}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{t('Maintenance', 'देखभाल')}</p>
         </div>
       </div>
 
       {/* Bed Grid */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <div className="flex flex-wrap gap-1.5">
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div className="flex flex-wrap gap-2">
           {wingBeds.slice(0, 130).map((bed) => (
             <button
               key={bed.id}
               onClick={() => bed.student_id ? setSelectedBedStudent(bed.student_id) : null}
               title={`Bed ${bed.bed_number} - ${bed.status}`}
-              className={`w-5 h-5 rounded-sm transition-all hover:scale-125 ${
-                bed.status === 'occupied' ? 'bg-emerald-500 hover:bg-emerald-600 cursor-pointer' :
-                bed.status === 'maintenance' ? 'bg-red-400' : 'bg-slate-200'
+              className={`w-6 h-6 rounded-md transition-all hover:scale-125 hover:shadow-md ${
+                bed.status === 'occupied' ? `${colors.occupied} cursor-pointer` :
+                bed.status === 'maintenance' ? 'bg-red-300' : `${colors.empty}`
               }`}
             />
           ))}
         </div>
-        <div className="flex items-center gap-4 mt-3 text-xs text-slate-500">
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" />{t('Occupied', 'व्यापलेले')}</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-slate-200 inline-block" />{t('Vacant', 'रिक्त')}</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-red-400 inline-block" />{t('Maintenance', 'देखभाल')}</span>
+        <div className="flex items-center gap-5 mt-4 text-xs text-slate-500 pt-3 border-t border-slate-100">
+          <span className="flex items-center gap-1.5"><span className={`w-3.5 h-3.5 rounded-md ${colors.occupied}`} />{t('Occupied', 'व्यापलेले')}</span>
+          <span className="flex items-center gap-1.5"><span className={`w-3.5 h-3.5 rounded-md ${colors.empty}`} />{t('Vacant', 'रिक्त')}</span>
+          <span className="flex items-center gap-1.5"><span className="w-3.5 h-3.5 rounded-md bg-red-300" />{t('Maintenance', 'देखभाल')}</span>
         </div>
       </div>
 
@@ -131,14 +145,17 @@ function RoomAllotment({ t }: { language: string; t: (en: string, mr: string) =>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4"
+          className="mt-4 bg-blue-50 border border-blue-200 rounded-2xl p-5 shadow-sm"
         >
-          <h4 className="font-semibold text-blue-800 mb-2">{t('Student Details', 'विद्यार्थी माहिती')}</h4>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <p><span className="text-blue-600">{t('Name:', 'नाव:')}</span> {selectedStudent.full_name}</p>
-            <p><span className="text-blue-600">{t('Standard:', 'इयत्ता:')}</span> {selectedStudent.standard}</p>
-            <p><span className="text-blue-600">{t('Wing:', 'विंग:')}</span> {selectedStudent.hostel_wing}</p>
-            <p><span className="text-blue-600">{t('Bed:', 'बेड:')}</span> #{selectedStudent.bed_number}</p>
+          <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+            <BedDouble className="w-4 h-4" />
+            {t('Student Details', 'विद्यार्थी माहिती')}
+          </h4>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <p><span className="text-blue-600 font-medium">{t('Name:', 'नाव:')}</span> {selectedStudent.full_name}</p>
+            <p><span className="text-blue-600 font-medium">{t('Standard:', 'इयत्ता:')}</span> {selectedStudent.standard}</p>
+            <p><span className="text-blue-600 font-medium">{t('Wing:', 'विंग:')}</span> {selectedStudent.hostel_wing}</p>
+            <p><span className="text-blue-600 font-medium">{t('Bed:', 'बेड:')}</span> #{selectedStudent.bed_number}</p>
           </div>
         </motion.div>
       )}
@@ -177,24 +194,38 @@ function MessCounter({ t }: { language: string; t: (en: string, mr: string) => s
 
   return (
     <div className="space-y-4">
+      {/* Meal summary strip */}
+      <div className="grid grid-cols-3 gap-3 mb-2">
+        {meals.map(meal => (
+          <div key={meal.key} className="bg-white border border-slate-200 rounded-xl p-3 text-center shadow-sm">
+            <span className="text-2xl">{meal.emoji}</span>
+            <p className="text-2xl font-bold text-slate-800 mt-1">{meal.count}</p>
+            <p className="text-[10px] text-slate-500">{meal.label}</p>
+          </div>
+        ))}
+      </div>
+
       {meals.map((meal) => (
-        <div key={meal.key} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">{meal.emoji}</span>
+        <div key={meal.key} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm transition-all hover:shadow-md">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{meal.emoji}</span>
               <div>
                 <h4 className="font-semibold text-slate-800">{meal.label}</h4>
-                <p className="text-xs text-slate-500">{meal.time}</p>
+                <p className="text-xs text-slate-400">{meal.time}</p>
               </div>
             </div>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => handleVerify(meal.key)}
               disabled={verifying !== null}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                verifying === meal.key ? 'bg-amber-100 text-amber-700' :
-                lastVerified === meal.key ? 'bg-emerald-100 text-emerald-700' :
-                'bg-slate-800 text-white hover:bg-slate-700'
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm ${
+                verifying === meal.key ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                lastVerified === meal.key ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                'text-white'
               }`}
+              style={verifying !== meal.key && lastVerified !== meal.key ? { background: 'linear-gradient(135deg, #1e293b, #334155)' } : {}}
             >
               {verifying === meal.key ? (
                 <Fingerprint className="w-4 h-4 animate-pulse" />
@@ -206,19 +237,19 @@ function MessCounter({ t }: { language: string; t: (en: string, mr: string) => s
               {verifying === meal.key ? t('Verifying...', 'सत्यापित करत आहे...') :
                lastVerified === meal.key ? t('Verified!', 'सत्यापित!') :
                t('Verify Student', 'विद्यार्थी सत्यापित करा')}
-            </button>
+            </motion.button>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
-                style={{ backgroundColor: '#059669' }}
+                style={{ background: 'linear-gradient(90deg, #059669, #14b8a6)' }}
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(100, (meal.count / totalStudents) * 100)}%` }}
                 transition={{ duration: 0.5 }}
               />
             </div>
-            <span className="text-sm font-mono text-slate-700">{meal.count}/{totalStudents}</span>
+            <span className="text-sm font-mono font-medium text-slate-700 min-w-[5rem] text-right">{meal.count}/{totalStudents}</span>
           </div>
         </div>
       ))}
@@ -251,61 +282,70 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
     setNameQuery('');
   };
 
+  const severityColors: Record<string, string> = {
+    mild: 'bg-green-50 text-green-700 border-green-200',
+    moderate: 'bg-amber-50 text-amber-700 border-amber-200',
+    severe: 'bg-red-50 text-red-700 border-red-200',
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <h4 className="font-semibold text-slate-700 mb-3">{t('New Sick Bay Entry', 'नवीन आरोग्य नोंद')}</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <h4 className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+          <Stethoscope className="w-4 h-4 text-emerald-600" />
+          {t('New Sick Bay Entry', 'नवीन आरोग्य नोंद')}
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="relative">
-            <label className="text-xs text-slate-500 block mb-1">{t('Student Name', 'विद्यार्थ्याचे नाव')}</label>
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('Student Name', 'विद्यार्थ्याचे नाव')}</label>
             <input
               type="text"
               value={nameQuery}
               onChange={(e) => { setNameQuery(e.target.value); setForm({ ...form, name: e.target.value }); setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
               placeholder={t('Type to search...', 'शोधण्यासाठी टाइप करा...')}
             />
             {showSuggestions && nameQuery && filteredStudents.length > 0 && (
-              <div className="absolute z-10 top-full left-0 right-0 bg-white border border-slate-200 rounded-lg mt-1 shadow-lg max-h-32 overflow-y-auto">
+              <div className="absolute z-10 top-full left-0 right-0 bg-white border border-slate-200 rounded-xl mt-1 shadow-lg max-h-32 overflow-y-auto">
                 {filteredStudents.map(s => (
                   <button
                     key={s.id}
                     type="button"
                     onClick={() => { setNameQuery(s.full_name); setForm({ ...form, name: s.full_name }); setShowSuggestions(false); }}
-                    className="block w-full text-left px-3 py-1.5 text-sm hover:bg-slate-50"
+                    className="block w-full text-left px-3.5 py-2 text-sm hover:bg-amber-50 transition-colors"
                   >
-                    {s.full_name} ({s.standard})
+                    {s.full_name} <span className="text-slate-400">({s.standard})</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
           <div>
-            <label className="text-xs text-slate-500 block mb-1">{t('Complaint', 'तक्रार')}</label>
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('Complaint', 'तक्रार')}</label>
             <input
               type="text"
               value={form.complaint}
               onChange={(e) => setForm({ ...form, complaint: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
             />
           </div>
           <div>
-            <label className="text-xs text-slate-500 block mb-1">{t('Medication', 'औषधोपचार')}</label>
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('Medication', 'औषधोपचार')}</label>
             <input
               type="text"
               value={form.medication}
               onChange={(e) => setForm({ ...form, medication: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
             />
           </div>
           <div>
-            <label className="text-xs text-slate-500 block mb-1">{t('Severity', 'तीव्रता')}</label>
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('Severity', 'तीव्रता')}</label>
             <select
               value={form.severity}
               onChange={(e) => setForm({ ...form, severity: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
             >
               <option value="mild">{t('Mild', 'सौम्य')}</option>
               <option value="moderate">{t('Moderate', 'मध्यम')}</option>
@@ -313,7 +353,7 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
             </select>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
           <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
             <input
               type="checkbox"
@@ -324,35 +364,35 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
             <Send className="w-3.5 h-3.5 text-green-600" />
             {t('Notify parent via WhatsApp', 'व्हॉट्सअॅपद्वारे पालकांना सूचित करा')}
           </label>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
-            className="px-4 py-2 rounded-lg text-white text-sm font-medium"
-            style={{ backgroundColor: '#059669' }}
+            className="px-5 py-2.5 rounded-xl text-white text-sm font-medium shadow-sm"
+            style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
           >
             {t('Add Entry', 'नोंद करा')}
-          </button>
+          </motion.button>
         </div>
       </form>
 
       {/* Recent Entries */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="px-5 py-3 bg-slate-50/80 border-b border-slate-200">
           <h4 className="text-sm font-semibold text-slate-700">{t('Recent Entries', 'अलीकडील नोंदी')}</h4>
         </div>
         <div className="divide-y divide-slate-100">
           {entries.map((entry, idx) => (
-            <div key={idx} className="px-4 py-3 flex items-center justify-between">
+            <div key={idx} className="px-5 py-3.5 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
               <div>
                 <p className="text-sm font-medium text-slate-800">{entry.name}</p>
-                <p className="text-xs text-slate-500">{entry.complaint} - {entry.medication}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{entry.complaint} - {entry.medication}</p>
               </div>
-              <div className="text-right">
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                  entry.severity === 'mild' ? 'bg-green-100 text-green-700' :
-                  entry.severity === 'moderate' ? 'bg-amber-100 text-amber-700' :
-                  'bg-red-100 text-red-700'
-                }`}>{entry.severity}</span>
-                <p className="text-xs text-slate-400 mt-0.5">{entry.time}</p>
+              <div className="text-right flex items-center gap-3">
+                <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${severityColors[entry.severity]}`}>
+                  {entry.severity}
+                </span>
+                <p className="text-xs text-slate-400 font-mono">{entry.time}</p>
               </div>
             </div>
           ))}

@@ -1,18 +1,13 @@
 import { useState } from 'react';
-import { Search, Plus, CheckCircle, Loader2, Fingerprint, X } from 'lucide-react';
+import { Search, Plus, CheckCircle, Loader2, Fingerprint, X, Users, UserCheck, ShieldCheck, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { students } from '../data/mockData';
 import { useAppContext } from '../contexts/AppContext';
 import type { Student, StudentStatus } from '../types';
+import StatsCard from './StatsCard';
+import StatusBadge from './StatusBadge';
 
 const statusSteps: StudentStatus[] = ['Submitted', 'Verified', 'Approved', 'Enrolled'];
-const statusColors: Record<StudentStatus, string> = {
-  Submitted: 'bg-blue-100 text-blue-700',
-  Verified: 'bg-yellow-100 text-yellow-700',
-  Approved: 'bg-emerald-100 text-emerald-700',
-  Enrolled: 'bg-green-100 text-green-800',
-  Rejected: 'bg-red-100 text-red-700',
-};
 
 const casteOptions = ['Katkari', 'Thakar', 'Mahadev Koli', 'Gond', 'Other ST'];
 
@@ -39,6 +34,12 @@ export default function AdmissionPortal() {
   const [aadhaarVerified, setAadhaarVerified] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [applicationId, setApplicationId] = useState('');
+
+  // Stats
+  const totalApplications = students.length;
+  const verifiedCount = students.filter(s => s.status === 'Verified' || s.status === 'Approved' || s.status === 'Enrolled').length;
+  const approvedCount = students.filter(s => s.status === 'Approved' || s.status === 'Enrolled').length;
+  const enrolledCount = students.filter(s => s.status === 'Enrolled').length;
 
   const handleAadhaarVerify = () => {
     if (formData.aadhaar.length !== 12) return;
@@ -84,14 +85,58 @@ export default function AdmissionPortal() {
         <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
           {t('Admission Portal', 'प्रवेश पोर्टल')}
         </h2>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-colors"
-          style={{ backgroundColor: showForm ? '#64748b' : '#d4af37' }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md"
+          style={{
+            background: showForm ? '#64748b' : 'linear-gradient(135deg, #d4af37, #f59e0b)',
+            color: showForm ? '#fff' : '#1e293b',
+          }}
         >
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {showForm ? t('Close', 'बंद करा') : t('New Application', 'नवीन अर्ज')}
-        </button>
+        </motion.button>
+      </div>
+
+      {/* Stats Cards Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+        <StatsCard
+          icon={Users}
+          label="Total Applications"
+          labelMr="एकूण अर्ज"
+          value={totalApplications}
+          variant="navy"
+          language={language}
+          trend={{ direction: 'up', percentage: 12 }}
+        />
+        <StatsCard
+          icon={UserCheck}
+          label="Verified"
+          labelMr="सत्यापित"
+          value={verifiedCount}
+          variant="gold"
+          language={language}
+          trend={{ direction: 'up', percentage: 8 }}
+        />
+        <StatsCard
+          icon={ShieldCheck}
+          label="Approved"
+          labelMr="मंजूर"
+          value={approvedCount}
+          variant="emerald"
+          language={language}
+        />
+        <StatsCard
+          icon={GraduationCap}
+          label="Enrolled"
+          labelMr="नोंदणी"
+          value={enrolledCount}
+          variant="emerald"
+          language={language}
+          trend={{ direction: 'up', percentage: 5 }}
+        />
       </div>
 
       {/* Application Form */}
@@ -104,52 +149,62 @@ export default function AdmissionPortal() {
             className="mb-6 overflow-hidden"
           >
             {submitted ? (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center">
-                <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-3" />
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 sm:p-8 text-center shadow-sm">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200 }}>
+                  <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                </motion.div>
                 <h3 className="text-lg font-bold text-emerald-800 mb-1">
                   {t('Application Submitted!', 'अर्ज सादर केला!')}
                 </h3>
-                <p className="text-emerald-700 text-lg font-mono">{applicationId}</p>
-                {/* Status Tracker */}
-                <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
+                <p className="text-emerald-700 text-lg font-mono font-bold">{applicationId}</p>
+
+                {/* Step Indicator */}
+                <div className="flex items-center justify-center gap-0 mt-6 px-4">
                   {statusSteps.map((step, idx) => (
-                    <div key={step} className="flex items-center gap-1">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                        idx === 0 ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'
-                      }`}>
-                        {idx + 1}
+                    <div key={step} className="flex items-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shadow-sm ${
+                          idx === 0 ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'
+                        }`}>
+                          {idx === 0 ? <CheckCircle className="w-4 h-4" /> : idx + 1}
+                        </div>
+                        <span className="text-[10px] text-slate-600 font-medium">{step}</span>
                       </div>
-                      <span className="text-xs text-slate-600">{step}</span>
-                      {idx < statusSteps.length - 1 && <div className="w-6 h-0.5 bg-slate-300" />}
+                      {idx < statusSteps.length - 1 && (
+                        <div className={`w-8 sm:w-12 h-0.5 mx-1 ${idx === 0 ? 'bg-emerald-400' : 'bg-slate-200'}`} />
+                      )}
                     </div>
                   ))}
                 </div>
-                <button onClick={resetForm} className="mt-4 px-4 py-2 bg-slate-200 rounded-lg text-sm hover:bg-slate-300">
+                <button onClick={resetForm} className="mt-6 px-5 py-2 bg-slate-200 rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors">
                   {t('Close', 'बंद करा')}
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-700 mb-4">
+              <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-slate-700 mb-1 flex items-center gap-2">
+                  <span className="w-1 h-6 rounded-full" style={{ backgroundColor: '#d4af37' }} />
                   {t('New Admission Application', 'नवीन प्रवेश अर्ज')}
                 </h3>
+                <p className="text-xs text-slate-400 mb-5 ml-3">{t('Fill in all required fields', 'सर्व आवश्यक फील्ड भरा')}</p>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">{t('Full Name', 'पूर्ण नाव')}</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Full Name', 'पूर्ण नाव')}</label>
                     <input
                       type="text"
                       value={formData.full_name}
                       onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">{t('Standard', 'इयत्ता')}</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Standard', 'इयत्ता')}</label>
                     <select
                       value={formData.standard}
                       onChange={(e) => setFormData({ ...formData, standard: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                     >
                       {['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'].map(s => (
                         <option key={s} value={s}>{s}</option>
@@ -158,11 +213,11 @@ export default function AdmissionPortal() {
                   </div>
                   {needsStream && (
                     <div>
-                      <label className="block text-sm font-medium text-slate-600 mb-1">{t('Stream', 'शाखा')}</label>
+                      <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Stream', 'शाखा')}</label>
                       <select
                         value={formData.stream}
                         onChange={(e) => setFormData({ ...formData, stream: e.target.value as 'Arts' | 'Science' })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
+                        className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                       >
                         <option value="Arts">{t('Arts', 'कला')}</option>
                         <option value="Science">{t('Science', 'विज्ञान')}</option>
@@ -170,23 +225,23 @@ export default function AdmissionPortal() {
                     </div>
                   )}
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">{t('Caste Category', 'जात प्रवर्ग')}</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Caste Category', 'जात प्रवर्ग')}</label>
                     <select
                       value={formData.caste_category}
                       onChange={(e) => setFormData({ ...formData, caste_category: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                     >
                       {casteOptions.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">{t('Aadhaar Number', 'आधार क्रमांक')}</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Aadhaar Number', 'आधार क्रमांक')}</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         value={formData.aadhaar}
                         onChange={(e) => { setFormData({ ...formData, aadhaar: e.target.value.replace(/\D/g, '').slice(0, 12) }); setAadhaarVerified(false); }}
-                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
+                        className="flex-1 px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                         maxLength={12}
                         placeholder="XXXX XXXX XXXX"
                         required
@@ -195,9 +250,9 @@ export default function AdmissionPortal() {
                         type="button"
                         onClick={handleAadhaarVerify}
                         disabled={formData.aadhaar.length !== 12 || aadhaarVerifying || aadhaarVerified}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1 transition-colors ${
+                        className={`px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-all whitespace-nowrap ${
                           aadhaarVerified ? 'bg-emerald-100 text-emerald-700' :
-                          'bg-blue-100 text-blue-700 hover:bg-blue-200 disabled:opacity-50'
+                          'bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-50'
                         }`}
                       >
                         {aadhaarVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> :
@@ -208,34 +263,38 @@ export default function AdmissionPortal() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">{t('Mobile Number', 'मोबाईल नंबर')}</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Mobile Number', 'मोबाईल नंबर')}</label>
                     <input
                       type="text"
                       value={formData.mobile_number}
                       onChange={(e) => setFormData({ ...formData, mobile_number: e.target.value.replace(/\D/g, '').slice(0, 10) })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                       maxLength={10}
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">{t('Parent Name', 'पालकाचे नाव')}</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Parent Name', 'पालकाचे नाव')}</label>
                     <input
                       type="text"
                       value={formData.parent_name}
                       onChange={(e) => setFormData({ ...formData, parent_name: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                       required
                     />
                   </div>
                 </div>
-                <button
-                  type="submit"
-                  className="mt-4 px-6 py-2.5 rounded-lg text-white font-medium transition-colors hover:opacity-90"
-                  style={{ backgroundColor: '#059669' }}
-                >
-                  {t('Submit Application', 'अर्ज सादर करा')}
-                </button>
+                <div className="mt-5 flex justify-end">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl text-white font-medium text-sm transition-all shadow-md"
+                    style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
+                  >
+                    {t('Submit Application', 'अर्ज सादर करा')}
+                  </motion.button>
+                </div>
               </form>
             )}
           </motion.div>
@@ -252,13 +311,13 @@ export default function AdmissionPortal() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('Search by name or application no...', 'नाव किंवा अर्ज क्रमांकाने शोधा...')}
-              className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-400"
+              className="flex-1 px-3.5 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
             />
           </div>
           <select
             value={filterStd}
             onChange={(e) => setFilterStd(e.target.value)}
-            className="px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none"
+            className="px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 transition-all"
           >
             <option value="">{t('All Standards', 'सर्व इयत्ता')}</option>
             {['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'].map(s => (
@@ -268,7 +327,7 @@ export default function AdmissionPortal() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none"
+            className="px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 transition-all"
           >
             <option value="">{t('All Status', 'सर्व स्थिती')}</option>
             {statusSteps.map(s => <option key={s} value={s}>{s}</option>)}
@@ -280,26 +339,26 @@ export default function AdmissionPortal() {
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 border-b border-slate-200">
+            <thead className="bg-slate-50/80 border-b border-slate-200">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-slate-600">{t('Application No', 'अर्ज क्र.')}</th>
-                <th className="px-4 py-3 text-left font-semibold text-slate-600">{t('Name', 'नाव')}</th>
-                <th className="px-4 py-3 text-left font-semibold text-slate-600">{t('Std', 'इ.')}</th>
-                <th className="px-4 py-3 text-left font-semibold text-slate-600">{t('Category', 'प्रवर्ग')}</th>
-                <th className="px-4 py-3 text-left font-semibold text-slate-600">{t('Aadhaar', 'आधार')}</th>
-                <th className="px-4 py-3 text-left font-semibold text-slate-600">{t('Status', 'स्थिती')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Application No', 'अर्ज क्र.')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Name', 'नाव')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Std', 'इ.')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Category', 'प्रवर्ग')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Aadhaar', 'आधार')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Status', 'स्थिती')}</th>
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.slice(0, 50).map((student) => (
-                <tr key={student.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-2.5 font-mono text-xs">{student.application_no}</td>
-                  <td className="px-4 py-2.5">{student.full_name}</td>
-                  <td className="px-4 py-2.5">{student.standard}</td>
-                  <td className="px-4 py-2.5">{student.caste_category}</td>
+              {filteredStudents.slice(0, 50).map((student, idx) => (
+                <tr key={student.id} className={`border-b border-slate-100 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
+                  <td className="px-4 py-2.5 font-mono text-xs text-slate-600">{student.application_no}</td>
+                  <td className="px-4 py-2.5 font-medium text-slate-800">{student.full_name}</td>
+                  <td className="px-4 py-2.5 text-slate-600">{student.standard}</td>
+                  <td className="px-4 py-2.5 text-slate-600">{student.caste_category}</td>
                   <td className="px-4 py-2.5">
                     {student.aadhaar_verified ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-600 text-xs">
+                      <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium">
                         <CheckCircle className="w-3.5 h-3.5" /> {t('Verified', 'सत्यापित')}
                       </span>
                     ) : (
@@ -307,16 +366,14 @@ export default function AdmissionPortal() {
                     )}
                   </td>
                   <td className="px-4 py-2.5">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[student.status]}`}>
-                      {student.status}
-                    </span>
+                    <StatusBadge status={student.status} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="px-4 py-2 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
+        <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
           {t(`Showing ${Math.min(50, filteredStudents.length)} of ${filteredStudents.length} applications`,
              `${filteredStudents.length} पैकी ${Math.min(50, filteredStudents.length)} अर्ज दर्शवित आहे`)}
         </div>

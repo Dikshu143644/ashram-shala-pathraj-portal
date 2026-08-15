@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity } from 'lucide-react';
+import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
 
@@ -59,6 +59,24 @@ const auditEntries: AuditEntry[] = [
   { id: '22', timestamp: '2025-01-12 09:30:00', user: 'Admin (Web Creator)', action: 'Updated system config', ipAddress: '192.168.1.100', module: 'System' },
 ];
 
+const moduleColors: Record<string, string> = {
+  Auth: 'bg-red-50 text-red-700 border-red-200',
+  Students: 'bg-blue-50 text-blue-700 border-blue-200',
+  Admission: 'bg-amber-50 text-amber-700 border-amber-200',
+  Attendance: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  Reports: 'bg-purple-50 text-purple-700 border-purple-200',
+  Hostel: 'bg-teal-50 text-teal-700 border-teal-200',
+  Mess: 'bg-orange-50 text-orange-700 border-orange-200',
+  Exams: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  WhatsApp: 'bg-green-50 text-green-700 border-green-200',
+  Documents: 'bg-slate-100 text-slate-700 border-slate-200',
+  Leave: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+  System: 'bg-gray-100 text-gray-700 border-gray-200',
+  Dispatch: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+  Events: 'bg-pink-50 text-pink-700 border-pink-200',
+  Health: 'bg-rose-50 text-rose-700 border-rose-200',
+};
+
 export default function SuperAdminCenter() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
@@ -84,16 +102,56 @@ export default function SuperAdminCenter() {
       transition={{ duration: 0.3 }}
       className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
-      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-4">
+      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-5">
         {t('Web Creator Control Center', 'वेब क्रिएटर नियंत्रण केंद्र')}
       </h2>
 
+      {/* System Health Indicators */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center">
+            <Server className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500">{t('Server', 'सर्व्हर')}</p>
+            <p className="text-sm font-semibold text-emerald-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              {t('Healthy', 'सक्रिय')}
+            </p>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
+            <Database className="w-4 h-4 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500">{t('Database', 'डेटाबेस')}</p>
+            <p className="text-sm font-semibold text-blue-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              {t('Connected', 'कनेक्टेड')}
+            </p>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center">
+            <Wifi className="w-4 h-4 text-amber-600" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500">{t('Network', 'नेटवर्क')}</p>
+            <p className="text-sm font-semibold text-amber-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              {t('Stable', 'स्थिर')}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-slate-100 rounded-lg p-1">
+      <div className="flex gap-1 mb-5 bg-slate-100 rounded-xl p-1">
         <button
           onClick={() => setActiveTab('events')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 justify-center ${
-            activeTab === 'events' ? 'bg-white shadow text-slate-800' : 'text-slate-600 hover:text-slate-800'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
+            activeTab === 'events' ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
           <CheckCircle className="w-4 h-4" />
@@ -101,8 +159,8 @@ export default function SuperAdminCenter() {
         </button>
         <button
           onClick={() => setActiveTab('audit')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 justify-center ${
-            activeTab === 'audit' ? 'bg-white shadow text-slate-800' : 'text-slate-600 hover:text-slate-800'
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
+            activeTab === 'audit' ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
           <Shield className="w-4 h-4" />
@@ -116,20 +174,30 @@ export default function SuperAdminCenter() {
             <motion.div
               key={event.id}
               layout
-              className={`bg-white border rounded-xl p-4 shadow-sm ${
-                event.status === 'approved' ? 'border-emerald-200 bg-emerald-50/30' :
-                event.status === 'rejected' ? 'border-red-200 bg-red-50/30' :
+              className={`bg-white border rounded-2xl p-5 shadow-sm transition-all hover:shadow-md ${
+                event.status === 'approved' ? 'border-emerald-200 bg-emerald-50/20' :
+                event.status === 'rejected' ? 'border-red-200 bg-red-50/20' :
                 'border-slate-200'
               }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
-                  <h4 className="font-semibold text-slate-800">
-                    {language === 'mr' ? event.titleMr : event.title}
-                  </h4>
-                  <p className="text-xs text-slate-500 mt-0.5">{event.date} - {event.description}</p>
+                  <div className="flex items-center gap-3">
+                    {/* Timeline dot */}
+                    <div className={`w-3 h-3 rounded-full shrink-0 ${
+                      event.status === 'approved' ? 'bg-emerald-500' :
+                      event.status === 'rejected' ? 'bg-red-500' :
+                      'bg-amber-400'
+                    }`} />
+                    <h4 className="font-semibold text-slate-800">
+                      {language === 'mr' ? event.titleMr : event.title}
+                    </h4>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1 ml-6">
+                    <span className="font-medium">{event.date}</span> - {event.description}
+                  </p>
                   {event.status !== 'pending' && (
-                    <span className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                    <span className={`inline-block mt-2 ml-6 px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       event.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
                     }`}>
                       {event.status === 'approved' ? t('Approved', 'मंजूर') : t('Rejected', 'नाकारले')}
@@ -138,32 +206,36 @@ export default function SuperAdminCenter() {
                 </div>
                 {event.status === 'pending' && (
                   <div className="flex items-center gap-2">
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => handleApprove(event.id)}
-                      className="p-2 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors"
+                      className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors border border-emerald-200"
                       title="Approve"
                     >
                       <CheckCircle className="w-4 h-4" />
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => handleReject(event.id)}
-                      className="p-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                      className="p-2.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 transition-colors border border-red-200"
                       title="Reject"
                     >
                       <XCircle className="w-4 h-4" />
-                    </button>
+                    </motion.button>
                   </div>
                 )}
               </div>
               {event.status === 'pending' && (
-                <div className="mt-3 flex items-center gap-2">
+                <div className="mt-3 ml-6 flex items-center gap-2">
                   <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
                   <input
                     type="text"
                     value={event.comment}
                     onChange={(e) => handleCommentChange(event.id, e.target.value)}
                     placeholder={t('Add comment...', 'टिप्पणी जोडा...')}
-                    className="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-amber-400"
+                    className="flex-1 px-3.5 py-2 border-[1.5px] border-slate-200 rounded-xl text-xs outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
                   />
                 </div>
               )}
@@ -173,33 +245,33 @@ export default function SuperAdminCenter() {
       )}
 
       {activeTab === 'audit' && (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200">
+              <thead className="bg-slate-50/80 border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">
-                    <Clock className="w-3.5 h-3.5 inline mr-1" />{t('Timestamp', 'वेळ')}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    <Clock className="w-3 h-3 inline mr-1 relative -top-px" />{t('Timestamp', 'वेळ')}
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">
-                    <User className="w-3.5 h-3.5 inline mr-1" />{t('User', 'वापरकर्ता')}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    <User className="w-3 h-3 inline mr-1 relative -top-px" />{t('User', 'वापरकर्ता')}
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">
-                    <Activity className="w-3.5 h-3.5 inline mr-1" />{t('Action', 'कृती')}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    <Activity className="w-3 h-3 inline mr-1 relative -top-px" />{t('Action', 'कृती')}
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">{t('IP Address', 'IP पत्ता')}</th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">{t('Module', 'मॉड्यूल')}</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('IP Address', 'IP पत्ता')}</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Module', 'मॉड्यूल')}</th>
                 </tr>
               </thead>
               <tbody>
-                {auditEntries.map((entry) => (
-                  <tr key={entry.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                {auditEntries.map((entry, idx) => (
+                  <tr key={entry.id} className={`border-b border-slate-100 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
                     <td className="px-4 py-2.5 text-xs font-mono text-slate-500">{entry.timestamp}</td>
-                    <td className="px-4 py-2.5 text-sm">{entry.user}</td>
-                    <td className="px-4 py-2.5 text-sm">{entry.action}</td>
+                    <td className="px-4 py-2.5 text-sm font-medium text-slate-700">{entry.user}</td>
+                    <td className="px-4 py-2.5 text-sm text-slate-600">{entry.action}</td>
                     <td className="px-4 py-2.5 text-xs font-mono text-slate-500">{entry.ipAddress}</td>
                     <td className="px-4 py-2.5">
-                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${moduleColors[entry.module] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
                         {entry.module}
                       </span>
                     </td>

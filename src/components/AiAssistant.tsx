@@ -112,62 +112,69 @@ export default function AiAssistant() {
       transition={{ duration: 0.3 }}
       className="p-4 sm:p-6 max-w-4xl mx-auto"
     >
-      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-4">
+      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-5">
         {t('AI Inquiry Assistant', 'AI चौकशी सहाय्यक')}
       </h2>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+      {/* Quick Actions as pills */}
+      <div className="flex flex-wrap gap-2 mb-5">
         {quickActions.map((action) => (
-          <button
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             key={action.key}
             onClick={() => handleQuickAction(action.key)}
-            className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm hover:border-amber-300 hover:bg-amber-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-full text-sm font-medium hover:border-amber-300 hover:bg-amber-50 transition-all shadow-sm"
           >
-            <action.icon className="w-4 h-4 text-slate-500" />
-            <span className="text-xs text-slate-700">{language === 'en' ? action.labelEn : action.labelMr}</span>
-          </button>
+            <action.icon className="w-4 h-4 text-amber-600" />
+            <span className="text-slate-700">{language === 'en' ? action.labelEn : action.labelMr}</span>
+          </motion.button>
         ))}
       </div>
 
       {/* Chat Window */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col" style={{ height: '450px' }}>
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col" style={{ height: '480px' }}>
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4" style={{ background: 'linear-gradient(180deg, #f8fafc, #ffffff)' }}>
           {messages.map((msg, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              transition={{ delay: 0.05 }}
+              className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'bot' && (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: '#d4af37' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
                   <Bot className="w-4 h-4 text-slate-900" />
                 </div>
               )}
-              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${
-                msg.role === 'user' ? 'bg-slate-800 text-white rounded-br-md' : 'bg-slate-100 text-slate-800 rounded-bl-md'
-              }`}>
+              <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${
+                msg.role === 'user'
+                  ? 'rounded-br-md text-slate-900'
+                  : 'bg-white border border-slate-100 text-slate-800 rounded-bl-md'
+              }`}
+              style={msg.role === 'user' ? { background: 'linear-gradient(135deg, #fef3c7, #fde68a)' } : {}}
+              >
                 {msg.text}
               </div>
               {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
-                  <User className="w-4 h-4 text-slate-600" />
+                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0 shadow-sm">
+                  <User className="w-4 h-4 text-white" />
                 </div>
               )}
             </motion.div>
           ))}
           {isTyping && (
-            <div className="flex gap-2 items-center">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#d4af37' }}>
+            <div className="flex gap-2.5 items-start">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
                 <Bot className="w-4 h-4 text-slate-900" />
               </div>
-              <div className="bg-slate-100 rounded-2xl rounded-bl-md px-4 py-3">
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" />
-                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
-                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+              <div className="bg-white border border-slate-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                <div className="flex gap-1.5">
+                  <span className="w-2 h-2 bg-slate-400 rounded-full typing-dot" />
+                  <span className="w-2 h-2 bg-slate-400 rounded-full typing-dot" />
+                  <span className="w-2 h-2 bg-slate-400 rounded-full typing-dot" />
                 </div>
               </div>
             </div>
@@ -176,23 +183,25 @@ export default function AiAssistant() {
         </div>
 
         {/* Input */}
-        <div className="border-t border-slate-200 p-3 flex items-center gap-2">
+        <div className="border-t border-slate-200 p-4 flex items-center gap-3 bg-white">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t('Ask anything about admissions, school, hostel...', 'प्रवेश, शाळा, वसतिगृहाबद्दल काहीही विचारा...')}
-            className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-400"
+            className="flex-1 px-4 py-3 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
           />
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
-            className="p-2.5 rounded-xl text-white transition-colors disabled:opacity-50"
-            style={{ backgroundColor: '#059669' }}
+            className="p-3 rounded-xl text-white transition-all disabled:opacity-50 shadow-md"
+            style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
           >
             <Send className="w-4 h-4" />
-          </button>
+          </motion.button>
         </div>
       </div>
     </motion.div>
