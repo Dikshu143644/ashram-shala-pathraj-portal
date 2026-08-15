@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-004-review-fixes",
+  "type": "fix",
+  "description": "Address critical issues from semantic review: fix sanitization, intent routing ties, glassmorphism performance, and rate limiting behind proxy",
+  "status": "in_progress",
+  "steps": [
+    "Fix sanitizeChatMessage: remove escapeHtml and SQL stripping, keep only null bytes and control characters stripping",
+    "Fix sanitizeInput: remove SQL stripping but keep escapeHtml for form data",
+    "Fix detectIntent: use priority array for deterministic tie-breaking",
+    "Add @media (prefers-reduced-motion: reduce) block in src/index.css",
+    "Add app.set('trust proxy', 1) in server.ts before routes"
+  ],
+  "acceptance_criteria": [
+    "sanitizeChatMessage only strips null bytes and control characters",
+    "sanitizeInput keeps escapeHtml but removes SQL stripping",
+    "detectIntent uses explicit priority array for tie-breaking",
+    "src/index.css includes prefers-reduced-motion media query",
+    "server.ts has trust proxy configured before route handlers",
+    "npm run lint passes with 0 errors",
+    "npm run build succeeds"
+  ],
+  "verification": [
+    "Run npm run lint to confirm TypeScript compilation passes",
+    "Run npm run build to confirm the build succeeds"
+  ],
+  "blocked_reason": null,
+  "findings": null
+}

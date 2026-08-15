@@ -10,6 +10,10 @@ const __dirname = dirname(__filename);
 const app = express();
 app.use(express.json({ limit: '10kb' }));
 
+// Trust the first proxy hop so req.ip resolves to the real client IP
+// behind reverse proxies (Render, nginx, Cloudflare, etc.)
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -259,12 +263,14 @@ function detectIntent(message: string): string {
     if (lowerMessage.includes(keyword)) scores.academic++;
   }
 
-  // Find the agent with the highest score
+  // Find the agent with the highest score, using a priority array for
+  // deterministic tie-breaking when multiple agents score equally
   const maxScore = Math.max(...Object.values(scores));
   if (maxScore === 0) return 'general';
 
-  const topAgent = Object.entries(scores).find(([, score]) => score === maxScore);
-  return topAgent ? topAgent[0] : 'general';
+  const priority = ['admission', 'attendance', 'hostel', 'academic'];
+  const topAgent = priority.find((agent) => scores[agent] === maxScore);
+  return topAgent || 'general';
 }
 
 // ============================================================

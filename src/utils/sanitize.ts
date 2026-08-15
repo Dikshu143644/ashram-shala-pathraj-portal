@@ -38,9 +38,13 @@ export function escapeHtml(str: string): string {
 /**
  * Sanitizes general user input for form fields.
  * - Trims whitespace
- * - Escapes HTML entities (XSS protection)
- * - Removes common SQL injection patterns as a defense-in-depth measure
  * - Strips null bytes and control characters
+ * - Escapes HTML entities (XSS protection for rendered form data)
+ *
+ * Note: SQL injection prevention is handled at the database layer via
+ * parameterized queries. No SQL stripping is applied here because it
+ * mangles legitimate text (e.g., village names, natural language) and
+ * there is currently no database to protect.
  */
 export function sanitizeInput(str: string): string {
   if (!str) return '';
@@ -51,20 +55,7 @@ export function sanitizeInput(str: string): string {
   // Remove null bytes and control characters (except newlines and tabs)
   sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-  // Remove common SQL injection patterns (defense-in-depth)
-  // These patterns should never appear in legitimate form input
-  const sqlPatterns = [
-    /(\b)(DROP|ALTER|DELETE|INSERT|UPDATE|CREATE|EXEC|EXECUTE|UNION\s+SELECT)\b/gi,
-    /--\s/g,
-    /;\s*(DROP|ALTER|DELETE|INSERT|UPDATE|CREATE)/gi,
-    /\/\*[\s\S]*?\*\//g,
-  ];
-
-  for (const pattern of sqlPatterns) {
-    sanitized = sanitized.replace(pattern, '');
-  }
-
-  // Escape HTML entities
+  // Escape HTML entities for XSS protection when form data is rendered
   sanitized = escapeHtml(sanitized);
 
   return sanitized;
@@ -72,12 +63,15 @@ export function sanitizeInput(str: string): string {
 
 /**
  * Sanitizes chat messages before sending to the AI API.
- * Less aggressive than sanitizeInput since chat messages need to preserve
- * natural language, but still protects against injection attacks.
- * - Trims whitespace
- * - Removes null bytes and control characters
- * - Strips potential prompt injection markers
- * - Escapes HTML entities
+ * Only strips null bytes and control characters to preserve natural language.
+ *
+ * No HTML escaping is applied here because:
+ * 1. The message is sent to the Gemini API as plain text (not rendered as HTML)
+ * 2. React automatically escapes text when rendering responses in the DOM
+ * 3. HTML escaping corrupts legitimate text (e.g., "son's" becomes "son&#x27;s")
+ *
+ * No SQL stripping is applied because there is no database, and such patterns
+ * mangle legitimate text like "drop off" or "delete my old application."
  */
 export function sanitizeChatMessage(str: string): string {
   if (!str) return '';
@@ -87,20 +81,6 @@ export function sanitizeChatMessage(str: string): string {
 
   // Remove null bytes and control characters (except newlines and tabs)
   sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-
-  // Remove common SQL injection patterns (defense-in-depth)
-  const sqlPatterns = [
-    /(\b)(DROP|ALTER|DELETE|INSERT|UPDATE|CREATE|EXEC|EXECUTE)\s+(TABLE|DATABASE|INDEX|PROCEDURE)/gi,
-    /;\s*(DROP|ALTER|DELETE|INSERT|UPDATE|CREATE)/gi,
-    /\/\*[\s\S]*?\*\//g,
-  ];
-
-  for (const pattern of sqlPatterns) {
-    sanitized = sanitized.replace(pattern, '');
-  }
-
-  // Escape HTML entities for XSS protection
-  sanitized = escapeHtml(sanitized);
 
   return sanitized;
 }

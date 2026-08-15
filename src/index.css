@@ -925,3 +925,61 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
 }
+
+/* ===== ACCESSIBILITY: REDUCED MOTION & LOW-END DEVICE SUPPORT ===== */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations */
+  .animate-fadeIn,
+  .animate-slideUp,
+  .animate-slideDown,
+  .animate-slideLeft,
+  .animate-slideRight,
+  .animate-pulse-gold,
+  .animate-shimmer,
+  .animate-float,
+  .animate-bounce-gentle,
+  .animate-scale-in,
+  .animate-gradient-border,
+  .animate-voice-pulse,
+  .floating-shape-1,
+  .floating-shape-2,
+  .floating-shape-3,
+  .typing-dot {
+    animation: none !important;
+  }
+
+  /* Remove hover transforms */
+  .glass-card:hover,
+  .stat-card:hover,
+  .hover-lift:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-danger:hover,
+  .gradient-pill:hover {
+    transform: none !important;
+  }
+
+  /* Disable or reduce backdrop-filter blur for performance on budget devices */
+  .glass,
+  .glass-dark,
+  .glass-card,
+  .glass-card-static,
+  .stat-card,
+  .sidebar-glass,
+  .chat-bubble-bot,
+  .modal-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Disable expensive blur filter on decorative orbs */
+  .decorative-orb {
+    filter: none !important;
+    opacity: 0.5;
+  }
+
+  /* Simplify transitions */
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
