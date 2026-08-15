@@ -1,0 +1,27 @@
+{
+  "id": "FEAT-005",
+  "type": "fix",
+  "description": "Address semantic review findings: add rate limiting, input validation, .dockerignore, Docker image optimization, fix K8s image path, and improve user-facing error message.",
+  "status": "in_progress",
+  "steps": [
+    "1. Add in-memory rate limiting to /api/ai-chat and /api/voice/tts endpoints (sliding window, per-IP, no new deps)",
+    "2. Add input length validation: cap message at 1000 chars, text at 2000 chars",
+    "3. Create .dockerignore excluding .env, .git, node_modules, k8s/, .agents/",
+    "4. Optimize Dockerfile to run npm ci --omit=dev in production stage for smaller image",
+    "5. Fix K8s deployment.yaml image path to use a template variable matching deploy workflow",
+    "6. Change no-API-key response to a user-friendly message instead of revealing configuration details"
+  ],
+  "acceptance_criteria": [
+    "Rate limiting is in place for AI/TTS endpoints (returns 429 on excess requests)",
+    "Input length validation rejects oversized messages with 400 status",
+    ".dockerignore exists and excludes sensitive/unnecessary files",
+    "Docker production image only includes production dependencies",
+    "K8s deployment.yaml image path uses a placeholder that matches deploy.yml pattern",
+    "No internal config details are exposed in user-facing AI responses",
+    "npm run lint passes",
+    "npm run build passes",
+    "docker build succeeds"
+  ],
+  "blocked_reason": null,
+  "findings": null
+}

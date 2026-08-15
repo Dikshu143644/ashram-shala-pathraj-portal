@@ -14,6 +14,53 @@ const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
 // ============================================================
+// Rate Limiting (in-memory sliding window, per IP)
+// ============================================================
+
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 20; // max requests per window per IP
+
+interface RateLimitEntry {
+  timestamps: number[];
+}
+
+const rateLimitStore = new Map<string, RateLimitEntry>();
+
+// Periodically clean up stale entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of rateLimitStore) {
+    entry.timestamps = entry.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+    if (entry.timestamps.length === 0) {
+      rateLimitStore.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  let entry = rateLimitStore.get(ip);
+  if (!entry) {
+    entry = { timestamps: [] };
+    rateLimitStore.set(ip, entry);
+  }
+  // Remove timestamps outside the window
+  entry.timestamps = entry.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+  if (entry.timestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
+    return true;
+  }
+  entry.timestamps.push(now);
+  return false;
+}
+
+// ============================================================
+// Input validation constants
+// ============================================================
+
+const MAX_CHAT_MESSAGE_LENGTH = 1000;
+const MAX_TTS_TEXT_LENGTH = 2000;
+
+// ============================================================
 // API Routes
 // ============================================================
 
@@ -34,6 +81,12 @@ app.get('/api/staff', async (_req: Request, res: Response) => {
 const SYSTEM_PROMPT = `You are the AI assistant for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज, ता. कर्जत, जि. रायगड. You help parents and staff with queries about admissions, attendance, hostel, mess, exam schedules, tribal scholarships, and school information. Respond in Marathi when the user writes in Marathi, and in English when they write in English. The school has ~459 students from 1st to 12th standard. Principal: श्री. अजित लालासाहेब बनसोडे. The school is under the Tribal Development Department, Maharashtra.`;
 
 app.post('/api/ai-chat', async (req: Request, res: Response) => {
+  const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+  if (isRateLimited(clientIp)) {
+    res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    return;
+  }
+
   const { message } = req.body as { message?: string; language?: string };
 
   if (!message) {
@@ -41,9 +94,14 @@ app.post('/api/ai-chat', async (req: Request, res: Response) => {
     return;
   }
 
+  if (message.length > MAX_CHAT_MESSAGE_LENGTH) {
+    res.status(400).json({ error: `Message too long. Maximum ${MAX_CHAT_MESSAGE_LENGTH} characters allowed.` });
+    return;
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res.json({ response: 'AI is not configured. Set GEMINI_API_KEY environment variable.' });
+    res.json({ response: 'AI assistant is temporarily unavailable. Please try again later.' });
     return;
   }
 
@@ -65,6 +123,12 @@ app.post('/api/ai-chat', async (req: Request, res: Response) => {
 });
 
 app.post('/api/voice/tts', async (req: Request, res: Response) => {
+  const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+  if (isRateLimited(clientIp)) {
+    res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    return;
+  }
+
   const { text } = req.body as { text?: string; language?: 'mr' | 'en' };
 
   if (!text) {
@@ -72,11 +136,16 @@ app.post('/api/voice/tts', async (req: Request, res: Response) => {
     return;
   }
 
+  if (text.length > MAX_TTS_TEXT_LENGTH) {
+    res.status(400).json({ error: `Text too long. Maximum ${MAX_TTS_TEXT_LENGTH} characters allowed.` });
+    return;
+  }
+
   const apiKey = process.env.ELEVENLABS_API_KEY;
   const voiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
 
   if (!apiKey) {
-    res.status(400).json({ error: 'Voice service is not configured. Set ELEVENLABS_API_KEY environment variable.' });
+    res.status(400).json({ error: 'Voice service is temporarily unavailable.' });
     return;
   }
 

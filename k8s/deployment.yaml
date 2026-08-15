@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: ashram-shala-pathraj
-          image: ghcr.io/ashram-shala/pathraj:latest
+          image: ghcr.io/OWNER/REPO:latest  # Replace with ghcr.io/${{ github.repository }}:latest or set via kustomize/helm
           ports:
             - containerPort: 3000
           envFrom:

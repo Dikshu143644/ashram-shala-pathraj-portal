@@ -11,16 +11,24 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Stage 2: Production
+# Stage 2: Production dependencies
+FROM node:22-alpine AS deps
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Stage 3: Production
 FROM node:22-alpine
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy built artifacts and runtime dependencies
+# Copy built artifacts and production-only dependencies
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./
 
 EXPOSE 3000
