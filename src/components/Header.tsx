@@ -25,7 +25,7 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
   };
 
   return (
-    <header className="relative z-50 header-gradient text-white shadow-lg gold-border-bottom">
+    <header className="relative z-50 gold-border-bottom" style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
       {/* Government Banner */}
       <div className="py-1.5 px-4 text-center" style={{ background: 'rgba(0,0,0,0.25)' }}>
         <p className="text-xs sm:text-sm flex items-center justify-center gap-2">
@@ -40,7 +40,7 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
       {/* Main Header */}
       <div className="px-4 py-3 sm:py-4 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* Government Emblem / Ashoka Pillar placeholder */}
+          {/* Gold circular badge */}
           <div className="govt-seal animate-pulse-gold">
             <School className="w-6 h-6 text-slate-900" />
           </div>
@@ -63,7 +63,7 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
 
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           {/* System Active Indicator */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs" style={{ background: 'rgba(5, 150, 105, 0.15)' }}>
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs" style={{ background: 'rgba(5, 150, 105, 0.15)', border: '1px solid rgba(5, 150, 105, 0.2)' }}>
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
@@ -75,8 +75,8 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
           {/* UI Prompts Button */}
           <button
             onClick={onOpenPromptModal}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition-all duration-200 hover:scale-105"
-            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition-all duration-200 hover:scale-105 text-white"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
             title="UI Prompts"
           >
             <Image className="w-3.5 h-3.5" />
@@ -88,8 +88,8 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200"
-            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 text-white"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
           >
             <Globe className="w-3.5 h-3.5" />
             <span>{language === 'en' ? 'मराठी' : 'EN'}</span>
@@ -115,13 +115,14 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.95 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full mt-2 bg-white text-slate-800 rounded-xl shadow-xl py-2 min-w-52 z-50 border border-slate-100 overflow-hidden"
+                  className="absolute right-0 top-full mt-2 rounded-xl shadow-xl py-2 min-w-52 z-50 overflow-hidden"
+                  style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}
                 >
                   {roles.map((r) => (
                     <button
                       key={r}
                       onClick={() => { setRole(r); setRoleDropdownOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-slate-800 ${
                         r === role ? 'bg-amber-50 font-semibold' : 'hover:bg-slate-50'
                       }`}
                     >

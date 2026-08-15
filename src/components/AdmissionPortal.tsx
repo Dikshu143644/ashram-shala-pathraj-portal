@@ -75,7 +75,7 @@ export default function AdmissionPortal() {
       className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+        <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a]">
           {t('Admission Portal', 'प्रवेश पोर्टल')}
         </h2>
         <motion.button
@@ -93,7 +93,7 @@ export default function AdmissionPortal() {
         </motion.button>
       </div>
 
-      {/* Stats Cards Row */}
+      {/* Stats Cards - Bento Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <StatsCard
           icon={Users}
@@ -140,7 +140,7 @@ export default function AdmissionPortal() {
             className="mb-6 overflow-hidden"
           >
             {submitted ? (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 sm:p-8 text-center shadow-sm">
+              <div className="glass-card-static p-6 sm:p-8 text-center" style={{ background: 'rgba(236, 253, 245, 0.8)' }}>
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200 }}>
                   <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
                 </motion.div>
@@ -153,7 +153,7 @@ export default function AdmissionPortal() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <form onSubmit={handleSubmit} className="glass-card-static p-6">
                 <h3 className="text-lg font-semibold text-slate-700 mb-1 flex items-center gap-2">
                   <span className="w-1 h-6 rounded-full" style={{ backgroundColor: '#d4af37' }} />
                   {t('New Admission Application', 'नवीन प्रवेश अर्ज')}
@@ -167,7 +167,7 @@ export default function AdmissionPortal() {
                       type="text"
                       value={formData.full_name}
                       onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all bg-white/80"
                       required
                     />
                   </div>
@@ -176,7 +176,7 @@ export default function AdmissionPortal() {
                     <select
                       value={formData.standard}
                       onChange={(e) => setFormData({ ...formData, standard: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all bg-white/80"
                     >
                       {allStandards.map(s => (
                         <option key={s} value={s}>{s}</option>
@@ -190,7 +190,7 @@ export default function AdmissionPortal() {
                         type="text"
                         value={formData.apaar_id}
                         onChange={(e) => { setFormData({ ...formData, apaar_id: e.target.value.replace(/\D/g, '') }); setApaarVerified(false); }}
-                        className="flex-1 px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                        className="flex-1 px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all bg-white/80"
                         placeholder="APAAR ID"
                       />
                       <button
@@ -215,7 +215,7 @@ export default function AdmissionPortal() {
                       type="text"
                       value={formData.mobile_number}
                       onChange={(e) => setFormData({ ...formData, mobile_number: e.target.value.replace(/\D/g, '').slice(0, 10) })}
-                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all bg-white/80"
                       maxLength={10}
                       required
                     />
@@ -226,7 +226,7 @@ export default function AdmissionPortal() {
                       type="text"
                       value={formData.guardian_name}
                       onChange={(e) => setFormData({ ...formData, guardian_name: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all bg-white/80"
                       required
                     />
                   </div>
@@ -236,7 +236,7 @@ export default function AdmissionPortal() {
                       type="text"
                       value={formData.village}
                       onChange={(e) => setFormData({ ...formData, village: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all bg-white/80"
                       required
                     />
                   </div>
@@ -259,7 +259,7 @@ export default function AdmissionPortal() {
       </AnimatePresence>
 
       {/* Filters */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4 mb-4 shadow-sm">
+      <div className="glass-card-static p-4 mb-4">
         <div className="flex flex-wrap gap-3 items-center">
           <div className="flex items-center gap-2 flex-1 min-w-48">
             <Search className="w-4 h-4 text-slate-400" />
@@ -268,13 +268,13 @@ export default function AdmissionPortal() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('Search by name, guardian or village...', 'नाव, पालक किंवा गावाने शोधा...')}
-              className="flex-1 px-3.5 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+              className="flex-1 px-3.5 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
             />
           </div>
           <select
             value={filterStd}
             onChange={(e) => setFilterStd(e.target.value)}
-            className="px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 transition-all"
+            className="px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 transition-all bg-white/80"
           >
             <option value="">{t('All Standards', 'सर्व इयत्ता')}</option>
             {allStandards.map(s => (
@@ -285,10 +285,10 @@ export default function AdmissionPortal() {
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="glass-card-static overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50/80 border-b border-slate-200">
+            <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Sr No', 'अ.क्र.')}</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Name', 'नाव')}</th>
@@ -300,7 +300,7 @@ export default function AdmissionPortal() {
             </thead>
             <tbody>
               {filteredStudents.slice(0, 50).map((student, idx) => (
-                <tr key={student.id} className={`border-b border-slate-100 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
+                <tr key={student.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
                   <td className="px-4 py-2.5 font-mono text-xs text-slate-600">{student.sr_no}</td>
                   <td className="px-4 py-2.5 font-medium text-slate-800">{student.full_name}</td>
                   <td className="px-4 py-2.5 text-slate-600">{student.standard}</td>
@@ -317,7 +317,7 @@ export default function AdmissionPortal() {
             </tbody>
           </table>
         </div>
-        <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
+        <div className="px-4 py-2.5 border-t border-slate-200/50 text-xs text-slate-500" style={{ background: 'rgba(248, 250, 252, 0.6)' }}>
           {t(`Showing ${Math.min(50, filteredStudents.length)} of ${filteredStudents.length} students`,
              `${filteredStudents.length} पैकी ${Math.min(50, filteredStudents.length)} विद्यार्थी दर्शवित आहे`)}
         </div>

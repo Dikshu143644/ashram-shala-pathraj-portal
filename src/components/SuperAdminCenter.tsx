@@ -102,13 +102,13 @@ export default function SuperAdminCenter() {
       transition={{ duration: 0.3 }}
       className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
-      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-5">
+      <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] mb-5">
         {t('Web Creator Control Center', 'वेब क्रिएटर नियंत्रण केंद्र')}
       </h2>
 
-      {/* System Health Indicators */}
+      {/* System Health - Glass Cards */}
       <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm flex items-center gap-3">
+        <motion.div whileHover={{ scale: 1.02 }} className="glass-card-static p-3 sm:p-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center">
             <Server className="w-4 h-4 text-emerald-600" />
           </div>
@@ -119,8 +119,8 @@ export default function SuperAdminCenter() {
               {t('Healthy', 'सक्रिय')}
             </p>
           </div>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm flex items-center gap-3">
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.02 }} className="glass-card-static p-3 sm:p-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
             <Database className="w-4 h-4 text-blue-600" />
           </div>
@@ -131,8 +131,8 @@ export default function SuperAdminCenter() {
               {t('Connected', 'कनेक्टेड')}
             </p>
           </div>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm flex items-center gap-3">
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.02 }} className="glass-card-static p-3 sm:p-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center">
             <Wifi className="w-4 h-4 text-amber-600" />
           </div>
@@ -143,11 +143,11 @@ export default function SuperAdminCenter() {
               {t('Stable', 'स्थिर')}
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-slate-100 rounded-xl p-1">
+      {/* Tabs - Glass */}
+      <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
         <button
           onClick={() => setActiveTab('events')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
@@ -174,11 +174,17 @@ export default function SuperAdminCenter() {
             <motion.div
               key={event.id}
               layout
-              className={`bg-white border rounded-2xl p-5 shadow-sm transition-all hover:shadow-md ${
-                event.status === 'approved' ? 'border-emerald-200 bg-emerald-50/20' :
-                event.status === 'rejected' ? 'border-red-200 bg-red-50/20' :
-                'border-slate-200'
+              whileHover={{ scale: 1.01 }}
+              className={`glass-card-static p-5 transition-all ${
+                event.status === 'approved' ? 'border-emerald-200' :
+                event.status === 'rejected' ? 'border-red-200' :
+                ''
               }`}
+              style={
+                event.status === 'approved' ? { background: 'rgba(236, 253, 245, 0.7)' } :
+                event.status === 'rejected' ? { background: 'rgba(254, 242, 242, 0.7)' } :
+                {}
+              }
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
@@ -235,7 +241,7 @@ export default function SuperAdminCenter() {
                     value={event.comment}
                     onChange={(e) => handleCommentChange(event.id, e.target.value)}
                     placeholder={t('Add comment...', 'टिप्पणी जोडा...')}
-                    className="flex-1 px-3.5 py-2 border-[1.5px] border-slate-200 rounded-xl text-xs outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+                    className="flex-1 px-3.5 py-2 border-[1.5px] border-slate-200 rounded-xl text-xs outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
                   />
                 </div>
               )}
@@ -245,10 +251,10 @@ export default function SuperAdminCenter() {
       )}
 
       {activeTab === 'audit' && (
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="glass-card-static overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50/80 border-b border-slate-200">
+              <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     <Clock className="w-3 h-3 inline mr-1 relative -top-px" />{t('Timestamp', 'वेळ')}
@@ -265,7 +271,7 @@ export default function SuperAdminCenter() {
               </thead>
               <tbody>
                 {auditEntries.map((entry, idx) => (
-                  <tr key={entry.id} className={`border-b border-slate-100 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
+                  <tr key={entry.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
                     <td className="px-4 py-2.5 text-xs font-mono text-slate-500">{entry.timestamp}</td>
                     <td className="px-4 py-2.5 text-sm font-medium text-slate-700">{entry.user}</td>
                     <td className="px-4 py-2.5 text-sm text-slate-600">{entry.action}</td>

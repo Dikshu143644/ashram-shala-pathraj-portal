@@ -32,12 +32,12 @@ export default function HostelPortal() {
       transition={{ duration: 0.3 }}
       className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
-      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-5">
+      <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] mb-5">
         {t('Hostel, Mess & Sick Bay', 'वसतिगृह, भोजनालय व आरोग्य कक्ष')}
       </h2>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-slate-100 rounded-xl p-1">
+      {/* Tabs - Glassmorphism */}
+      <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -92,7 +92,7 @@ function RoomAllotment({ t }: { language: string; t: (en: string, mr: string) =>
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
                 selectedWing === w
                   ? 'text-white shadow-md scale-105'
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  : 'bg-white/70 text-slate-600 border-slate-200 hover:bg-white'
               }`}
               style={selectedWing === w ? { backgroundColor: wc.occupied.includes('blue') ? '#3b82f6' : wc.occupied.includes('teal') ? '#14b8a6' : wc.occupied.includes('pink') ? '#ec4899' : '#8b5cf6', borderColor: 'transparent' } : {}}
             >
@@ -102,24 +102,24 @@ function RoomAllotment({ t }: { language: string; t: (en: string, mr: string) =>
         })}
       </div>
 
-      {/* Stats */}
+      {/* Stats - Glass Cards */}
       <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm border-l-4 border-l-emerald-500">
-          <p className="text-2xl font-bold text-emerald-700">{occupiedCount}</p>
+        <div className="glass-card-static p-4 text-center" style={{ borderLeft: '4px solid #059669' }}>
+          <p className="text-2xl font-extrabold gradient-text-emerald">{occupiedCount}</p>
           <p className="text-xs text-slate-500 mt-0.5">{t('Occupied', 'व्यापलेले')}</p>
         </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm border-l-4 border-l-slate-400">
-          <p className="text-2xl font-bold text-slate-600">{vacantCount}</p>
+        <div className="glass-card-static p-4 text-center" style={{ borderLeft: '4px solid #64748b' }}>
+          <p className="text-2xl font-extrabold gradient-text-navy">{vacantCount}</p>
           <p className="text-xs text-slate-500 mt-0.5">{t('Vacant', 'रिक्त')}</p>
         </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm border-l-4 border-l-red-500">
-          <p className="text-2xl font-bold text-red-600">{maintCount}</p>
+        <div className="glass-card-static p-4 text-center" style={{ borderLeft: '4px solid #dc2626' }}>
+          <p className="text-2xl font-extrabold text-red-600">{maintCount}</p>
           <p className="text-xs text-slate-500 mt-0.5">{t('Maintenance', 'देखभाल')}</p>
         </div>
       </div>
 
-      {/* Bed Grid */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      {/* Bed Grid - Glass Card */}
+      <div className="glass-card-static p-5">
         <div className="flex flex-wrap gap-2">
           {wingBeds.slice(0, 120).map((bed) => (
             <button
@@ -133,7 +133,7 @@ function RoomAllotment({ t }: { language: string; t: (en: string, mr: string) =>
             />
           ))}
         </div>
-        <div className="flex items-center gap-5 mt-4 text-xs text-slate-500 pt-3 border-t border-slate-100">
+        <div className="flex items-center gap-5 mt-4 text-xs text-slate-500 pt-3 border-t border-slate-100/50">
           <span className="flex items-center gap-1.5"><span className={`w-3.5 h-3.5 rounded-md ${colors.occupied}`} />{t('Occupied', 'व्यापलेले')}</span>
           <span className="flex items-center gap-1.5"><span className={`w-3.5 h-3.5 rounded-md ${colors.empty}`} />{t('Vacant', 'रिक्त')}</span>
           <span className="flex items-center gap-1.5"><span className="w-3.5 h-3.5 rounded-md bg-red-300" />{t('Maintenance', 'देखभाल')}</span>
@@ -145,7 +145,8 @@ function RoomAllotment({ t }: { language: string; t: (en: string, mr: string) =>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 bg-blue-50 border border-blue-200 rounded-2xl p-5 shadow-sm"
+          className="mt-4 glass-card-static p-5"
+          style={{ background: 'rgba(219, 234, 254, 0.7)' }}
         >
           <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
             <BedDouble className="w-4 h-4" />
@@ -187,26 +188,26 @@ function MessCounter({ t }: { language: string; t: (en: string, mr: string) => s
   };
 
   const meals = [
-    { key: 'breakfast' as const, label: t('Breakfast', 'नाश्ता'), time: '7:00 AM', count: breakfastCount, emoji: '🍳' },
-    { key: 'lunch' as const, label: t('Lunch', 'दुपारचे जेवण'), time: '12:30 PM', count: lunchCount, emoji: '🍛' },
-    { key: 'dinner' as const, label: t('Dinner', 'रात्रीचे जेवण'), time: '7:30 PM', count: dinnerCount, emoji: '🍲' },
+    { key: 'breakfast' as const, label: t('Breakfast', 'नाश्ता'), time: '7:00 AM', count: breakfastCount, emoji: '🍳', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
+    { key: 'lunch' as const, label: t('Lunch', 'दुपारचे जेवण'), time: '12:30 PM', count: lunchCount, emoji: '🍛', gradient: 'linear-gradient(135deg, #059669, #0d9488)' },
+    { key: 'dinner' as const, label: t('Dinner', 'रात्रीचे जेवण'), time: '7:30 PM', count: dinnerCount, emoji: '🍲', gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)' },
   ];
 
   return (
     <div className="space-y-4">
-      {/* Meal summary strip */}
+      {/* Meal summary - gradient number cards */}
       <div className="grid grid-cols-3 gap-3 mb-2">
         {meals.map(meal => (
-          <div key={meal.key} className="bg-white border border-slate-200 rounded-xl p-3 text-center shadow-sm">
+          <div key={meal.key} className="glass-card-static p-3 text-center">
             <span className="text-2xl">{meal.emoji}</span>
-            <p className="text-2xl font-bold text-slate-800 mt-1">{meal.count}</p>
+            <p className="text-2xl font-extrabold mt-1 gradient-text-gold">{meal.count}</p>
             <p className="text-[10px] text-slate-500">{meal.label}</p>
           </div>
         ))}
       </div>
 
       {meals.map((meal) => (
-        <div key={meal.key} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm transition-all hover:shadow-md">
+        <div key={meal.key} className="glass-card-static p-5 transition-all hover:shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <span className="text-3xl">{meal.emoji}</span>
@@ -240,10 +241,10 @@ function MessCounter({ t }: { language: string; t: (en: string, mr: string) => s
             </motion.button>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: 'rgba(241, 245, 249, 0.8)' }}>
               <motion.div
                 className="h-full rounded-full"
-                style={{ background: 'linear-gradient(90deg, #059669, #14b8a6)' }}
+                style={{ background: meal.gradient }}
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(100, (meal.count / totalStudents) * 100)}%` }}
                 transition={{ duration: 0.5 }}
@@ -290,8 +291,8 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
 
   return (
     <div className="space-y-5">
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      {/* Form - Glass Card */}
+      <form onSubmit={handleSubmit} className="glass-card-static p-5">
         <h4 className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
           <Stethoscope className="w-4 h-4 text-emerald-600" />
           {t('New Sick Bay Entry', 'नवीन आरोग्य नोंद')}
@@ -304,11 +305,11 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
               value={nameQuery}
               onChange={(e) => { setNameQuery(e.target.value); setForm({ ...form, name: e.target.value }); setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
               placeholder={t('Type to search...', 'शोधण्यासाठी टाइप करा...')}
             />
             {showSuggestions && nameQuery && filteredStudents.length > 0 && (
-              <div className="absolute z-10 top-full left-0 right-0 bg-white border border-slate-200 rounded-xl mt-1 shadow-lg max-h-32 overflow-y-auto">
+              <div className="absolute z-10 top-full left-0 right-0 mt-1 shadow-lg max-h-32 overflow-y-auto rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
                 {filteredStudents.map(s => (
                   <button
                     key={s.id}
@@ -328,7 +329,7 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
               type="text"
               value={form.complaint}
               onChange={(e) => setForm({ ...form, complaint: e.target.value })}
-              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
             />
           </div>
           <div>
@@ -337,7 +338,7 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
               type="text"
               value={form.medication}
               onChange={(e) => setForm({ ...form, medication: e.target.value })}
-              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
             />
           </div>
           <div>
@@ -345,7 +346,7 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
             <select
               value={form.severity}
               onChange={(e) => setForm({ ...form, severity: e.target.value })}
-              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
             >
               <option value="mild">{t('Mild', 'सौम्य')}</option>
               <option value="moderate">{t('Moderate', 'मध्यम')}</option>
@@ -353,7 +354,7 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
             </select>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100/50">
           <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
             <input
               type="checkbox"
@@ -376,17 +377,23 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
         </div>
       </form>
 
-      {/* Recent Entries */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-        <div className="px-5 py-3 bg-slate-50/80 border-b border-slate-200">
+      {/* Recent Entries - Timeline Cards */}
+      <div className="glass-card-static overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-200/50" style={{ background: 'rgba(248, 250, 252, 0.6)' }}>
           <h4 className="text-sm font-semibold text-slate-700">{t('Recent Entries', 'अलीकडील नोंदी')}</h4>
         </div>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-slate-100/50">
           {entries.map((entry, idx) => (
-            <div key={idx} className="px-5 py-3.5 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
-              <div>
-                <p className="text-sm font-medium text-slate-800">{entry.name}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{entry.complaint} - {entry.medication}</p>
+            <div key={idx} className="px-5 py-3.5 flex items-center justify-between hover:bg-white/40 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-2 rounded-full shrink-0 ${
+                  entry.severity === 'mild' ? 'bg-green-500' :
+                  entry.severity === 'moderate' ? 'bg-amber-500' : 'bg-red-500'
+                }`} />
+                <div>
+                  <p className="text-sm font-medium text-slate-800">{entry.name}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{entry.complaint} - {entry.medication}</p>
+                </div>
               </div>
               <div className="text-right flex items-center gap-3">
                 <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${severityColors[entry.severity]}`}>

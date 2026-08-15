@@ -1,0 +1,37 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Complete UI/UX redesign: transform the app with glassmorphism, bento grid, gradient backgrounds, decorative elements, and modernize all component visuals per the specified design system",
+  "status": "in_progress",
+  "steps": [
+    "Overhaul src/index.css: Add CSS-only decorative background elements (gradient orbs in corners, subtle grid pattern overlay, animated floating shapes with CSS keyframes). Add the dark navy gradient background to body. Add bento grid utility classes. Enhance the glassmorphism card pattern to match the spec: background rgba(255,255,255,0.7), backdrop-filter blur(12px), border 1px solid rgba(255,255,255,0.3), border-radius 1.25rem, box-shadow 0 8px 32px rgba(0,0,0,0.08). Add hover state with scale(1.02) and shadow increase. Add gradient text utility class for stat numbers. Ensure all colors match the strict palette specified.",
+    "Redesign src/App.tsx: Add the dark navy gradient background to the root container. Add decorative CSS gradient orbs (positioned absolute in corners). Add a subtle dot grid pattern overlay at low opacity. Update the sidebar with glassmorphism background (backdrop-blur), icons with colored pill-shaped backgrounds, active state with gradient highlight + left gold border, decorative separator under school name. Apply smooth page transitions.",
+    "Redesign src/components/Header.tsx: Apply full glassmorphism effect to header. Add decorative gold circular badge for school logo area. Add animated gradient border at the bottom (CSS animation). Improve spacing and typography.",
+    "Redesign src/components/AdmissionPortal.tsx: Convert stats cards to bento grid layout (use CSS grid with different sized cards - 2 large, 2 small). Wrap the form in a glassmorphism card with gold accent sections. Redesign the table with rounded corners, hover gradient, better spacing. Apply the glass card pattern to all card elements.",
+    "Redesign src/components/ClassTeacherPortal.tsx: Style stats as large gradient cards. Apply glassmorphism to the controls section and attendance grid container. Add colored glow to attendance buttons (emerald for present, red for absent, amber for late).",
+    "Redesign src/components/HostelPortal.tsx: Apply glassmorphism to all cards. Style the bed grid container with the glass card pattern. Style mess counter numbers as large animated number cards with gradient backgrounds. Style sick bay entries as timeline cards.",
+    "Redesign src/components/AiAssistant.tsx UI: Apply glassmorphism background to chat area. Style user messages as gold gradient bubbles (right-aligned). Style bot messages as glass white bubbles with subtle border (left-aligned). Style quick action buttons as gradient pill buttons with icons. Style voice button as circular gradient button with pulse animation when active. Add speaker button styling for bot messages.",
+    "Redesign src/components/ClerkPortal.tsx: Apply glassmorphism cards to staff directory cards and dispatch form. Add gradient accents to tab indicators.",
+    "Redesign src/components/SuperAdminCenter.tsx: Apply glassmorphism to system health cards and event cards. Style audit log table with the glass card pattern.",
+    "Update src/components/StatsCard.tsx: Apply the glassmorphism card pattern with gradient number text effect for key stat values. Add hover scale(1.02) animation."
+  ],
+  "acceptance_criteria": [
+    "The app body has a dark navy gradient background with decorative CSS-only orbs and grid pattern",
+    "All cards throughout the app use the specified glassmorphism pattern with hover effects",
+    "The header has a glassmorphism effect with animated gradient border",
+    "The sidebar has glassmorphism background with pill-shaped icon backgrounds and gold active border",
+    "AiAssistant has gold gradient user bubbles and glass white bot bubbles",
+    "Quick action buttons are styled as gradient pills",
+    "Stat numbers use gradient text effect",
+    "No external image files are used - all decorative elements are CSS gradients and patterns",
+    "The strict color palette is followed throughout",
+    "npm run lint passes with 0 errors",
+    "npm run build succeeds"
+  ],
+  "verification": [
+    "Run npm run lint to confirm TypeScript compilation passes",
+    "Run npm run build to confirm the build succeeds"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

@@ -19,12 +19,12 @@ export default function ClerkPortal() {
       transition={{ duration: 0.3 }}
       className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
-      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-5">
+      <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] mb-5">
         {t('Clerk Portal', 'लिपिक पोर्टल')}
       </h2>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-slate-100 rounded-xl p-1">
+      {/* Tabs - Glassmorphism */}
+      <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
         <button
           onClick={() => setActiveTab('staff')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
@@ -91,13 +91,13 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('Search staff...', 'कर्मचारी शोधा...')}
-            className="flex-1 px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+            className="flex-1 px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
           />
         </div>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as 'name' | 'designation' | 'department')}
-          className="px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 transition-all"
+          className="px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 transition-all bg-white/80"
         >
           <option value="name">{t('Sort by Name', 'नावानुसार')}</option>
           <option value="designation">{t('Sort by Designation', 'पदानुसार')}</option>
@@ -114,18 +114,19 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
         </motion.button>
       </div>
 
-      {/* Staff Cards Grid (for first 12) + Table for rest */}
+      {/* Staff Cards Grid - Glassmorphism */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
         {filteredStaff.slice(0, 6).map((s) => (
           <motion.div
             key={s.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
+            whileHover={{ scale: 1.02 }}
+            className="glass-card-static p-4 transition-all"
           >
             <div className="flex items-center gap-3">
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-md"
                 style={{ backgroundColor: getAvatarColor(s.full_name) }}
               >
                 {getInitials(s.full_name)}
@@ -135,7 +136,7 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
                 <p className="text-xs text-slate-500 truncate">{language === 'mr' ? s.designation_marathi : s.designation}</p>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div className="mt-3 pt-3 border-t border-slate-100/50 flex items-center justify-between">
               <span className="text-[10px] text-slate-400">{s.department}</span>
               <span className="text-[10px] font-mono text-slate-400">{s.mobile_number}</span>
             </div>
@@ -143,11 +144,11 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
         ))}
       </div>
 
-      {/* Table for all */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      {/* Table - Glass */}
+      <div className="glass-card-static overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50/80 border-b border-slate-200">
+            <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Name', 'नाव')}</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Designation', 'पद')}</th>
@@ -158,7 +159,7 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
             </thead>
             <tbody>
               {filteredStaff.map((s, idx) => (
-                <tr key={s.id} className={`border-b border-slate-100 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
+                <tr key={s.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2.5">
                       <div
@@ -174,7 +175,7 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
                   <td className="px-4 py-2.5 text-xs text-slate-600">{s.department}</td>
                   <td className="px-4 py-2.5 font-mono text-xs text-slate-500">{s.mobile_number}</td>
                   <td className="px-4 py-2.5">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 capitalize">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100/80 text-slate-600 capitalize">
                       {s.role}
                     </span>
                   </td>
@@ -183,7 +184,7 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
             </tbody>
           </table>
         </div>
-        <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
+        <div className="px-4 py-2.5 border-t border-slate-200/50 text-xs text-slate-500" style={{ background: 'rgba(248, 250, 252, 0.6)' }}>
           {t(`${filteredStaff.length} staff members`, `${filteredStaff.length} कर्मचारी`)}
         </div>
       </div>
@@ -206,8 +207,8 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      {/* Form */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      {/* Form - Glass Card */}
+      <div className="glass-card-static p-5">
         <h4 className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
           <FileText className="w-4 h-4 text-amber-600" />
           {t('PO Letter Generator', 'प्र.अ. पत्र निर्माता')}
@@ -219,7 +220,7 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
               type="text"
               value={form.to}
               onChange={(e) => setForm({ ...form, to: e.target.value })}
-              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
             />
           </div>
           <div>
@@ -228,7 +229,7 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
               type="text"
               value={form.subject}
               onChange={(e) => setForm({ ...form, subject: e.target.value })}
-              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
               placeholder={t('Enter subject...', 'विषय प्रविष्ट करा...')}
             />
           </div>
@@ -237,13 +238,13 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
             <textarea
               value={form.body}
               onChange={(e) => setForm({ ...form, body: e.target.value })}
-              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 h-36 resize-none transition-all"
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 h-36 resize-none transition-all bg-white/80"
               placeholder={t('Enter letter body...', 'पत्राचा मजकूर प्रविष्ट करा...')}
             />
           </div>
 
           {/* Status Badge & Actions */}
-          <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-between pt-3 border-t border-slate-100/50">
             <div className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-sm font-medium ${
               letterStatus === 'draft' ? 'bg-slate-50 text-slate-700 border-slate-200' :
               letterStatus === 'sealed' ? 'bg-amber-50 text-amber-800 border-amber-200' :
@@ -271,10 +272,10 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
         </div>
       </div>
 
-      {/* Preview */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      {/* Preview - Glass Card */}
+      <div className="glass-card-static p-5">
         <h4 className="font-semibold text-slate-700 mb-4">{t('Letter Preview', 'पत्र पूर्वावलोकन')}</h4>
-        <div className="border border-slate-200 rounded-xl p-5 min-h-72 bg-slate-50/50 text-sm relative">
+        <div className="border border-slate-200/50 rounded-xl p-5 min-h-72 text-sm relative" style={{ background: 'rgba(248, 250, 252, 0.5)' }}>
           <div className="text-center border-b border-slate-300 pb-4 mb-4">
             <p className="text-xs text-slate-500">आदिवासी विकास विभाग, महाराष्ट्र शासन</p>
             <p className="font-bold text-slate-800 mt-0.5">शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज</p>

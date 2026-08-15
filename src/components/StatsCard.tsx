@@ -16,26 +16,30 @@ interface StatsCardProps {
   language?: string;
 }
 
-const variantStyles: Record<CardVariant, { border: string; iconBg: string; iconColor: string }> = {
+const variantStyles: Record<CardVariant, { border: string; iconBg: string; iconColor: string; gradient: string }> = {
   navy: {
     border: 'border-l-[#1e293b]',
     iconBg: 'bg-slate-100',
     iconColor: 'text-slate-700',
+    gradient: 'from-slate-700 to-slate-900',
   },
   gold: {
     border: 'border-l-[#d4af37]',
     iconBg: 'bg-amber-50',
     iconColor: 'text-amber-700',
+    gradient: 'from-amber-500 to-yellow-600',
   },
   emerald: {
     border: 'border-l-[#059669]',
     iconBg: 'bg-emerald-50',
     iconColor: 'text-emerald-700',
+    gradient: 'from-emerald-500 to-teal-600',
   },
   danger: {
     border: 'border-l-red-500',
     iconBg: 'bg-red-50',
     iconColor: 'text-red-700',
+    gradient: 'from-red-500 to-rose-600',
   },
 };
 
@@ -55,7 +59,16 @@ export default function StatsCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 border-l-4 ${styles.border} transition-all duration-250 hover:shadow-lg hover:-translate-y-0.5`}
+      whileHover={{ scale: 1.02 }}
+      className={`rounded-[1.25rem] p-4 sm:p-5 border-l-4 ${styles.border} transition-all duration-250`}
+      style={{
+        background: 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+        borderLeftWidth: '4px',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+      }}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -66,7 +79,9 @@ export default function StatsCard({
             <p className="text-xs text-slate-500 mb-0.5">
               {language === 'mr' && labelMr ? labelMr : label}
             </p>
-            <p className="text-2xl font-bold text-slate-800">{value}</p>
+            <p className={`text-2xl font-extrabold bg-gradient-to-r ${styles.gradient} bg-clip-text text-transparent`}>
+              {value}
+            </p>
           </div>
         </div>
         {trend && (

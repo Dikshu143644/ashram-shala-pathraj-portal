@@ -24,17 +24,19 @@ interface TabConfig {
   labelMr: string;
   icon: typeof GraduationCap;
   roles: AppRole[];
+  iconBg: string;
+  iconColor: string;
 }
 
 const tabs: TabConfig[] = [
-  { key: 'admission', labelEn: 'Admission', labelMr: 'प्रवेश', icon: GraduationCap, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'student_parent'] },
-  { key: 'classTeacher', labelEn: 'Class Teacher', labelMr: 'वर्गशिक्षक', icon: ClipboardList, roles: ['web_creator', 'principal', 'class_teacher', 'subject_teacher'] },
-  { key: 'hostel', labelEn: 'Hostel', labelMr: 'वसतिगृह', icon: Building2, roles: ['web_creator', 'principal', 'class_teacher'] },
-  { key: 'whatsapp', labelEn: 'WhatsApp', labelMr: 'व्हॉट्सअॅप', icon: MessageCircle, roles: ['web_creator', 'principal', 'class_teacher'] },
-  { key: 'clerk', labelEn: 'Clerk', labelMr: 'लिपिक', icon: FileStack, roles: ['web_creator', 'principal', 'clerk'] },
-  { key: 'superAdmin', labelEn: 'Admin', labelMr: 'अॅडमिन', icon: Shield, roles: ['web_creator'] },
-  { key: 'aiAssistant', labelEn: 'AI Assistant', labelMr: 'AI सहाय्यक', icon: Bot, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher', 'student_parent'] },
-  { key: 'prd', labelEn: 'Docs', labelMr: 'दस्तऐवज', icon: Book, roles: ['web_creator', 'principal'] },
+  { key: 'admission', labelEn: 'Admission', labelMr: 'प्रवेश', icon: GraduationCap, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'student_parent'], iconBg: 'bg-amber-100', iconColor: 'text-amber-700' },
+  { key: 'classTeacher', labelEn: 'Class Teacher', labelMr: 'वर्गशिक्षक', icon: ClipboardList, roles: ['web_creator', 'principal', 'class_teacher', 'subject_teacher'], iconBg: 'bg-blue-100', iconColor: 'text-blue-700' },
+  { key: 'hostel', labelEn: 'Hostel', labelMr: 'वसतिगृह', icon: Building2, roles: ['web_creator', 'principal', 'class_teacher'], iconBg: 'bg-teal-100', iconColor: 'text-teal-700' },
+  { key: 'whatsapp', labelEn: 'WhatsApp', labelMr: 'व्हॉट्सअॅप', icon: MessageCircle, roles: ['web_creator', 'principal', 'class_teacher'], iconBg: 'bg-green-100', iconColor: 'text-green-700' },
+  { key: 'clerk', labelEn: 'Clerk', labelMr: 'लिपिक', icon: FileStack, roles: ['web_creator', 'principal', 'clerk'], iconBg: 'bg-purple-100', iconColor: 'text-purple-700' },
+  { key: 'superAdmin', labelEn: 'Admin', labelMr: 'अॅडमिन', icon: Shield, roles: ['web_creator'], iconBg: 'bg-red-100', iconColor: 'text-red-700' },
+  { key: 'aiAssistant', labelEn: 'AI Assistant', labelMr: 'AI सहाय्यक', icon: Bot, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher', 'student_parent'], iconBg: 'bg-emerald-100', iconColor: 'text-emerald-700' },
+  { key: 'prd', labelEn: 'Docs', labelMr: 'दस्तऐवज', icon: Book, roles: ['web_creator', 'principal'], iconBg: 'bg-slate-100', iconColor: 'text-slate-700' },
 ];
 
 function SplashScreen({ onComplete }: { onComplete: () => void }) {
@@ -96,16 +98,29 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col animate-fadeIn">
+    <div className="min-h-screen bg-app-gradient flex flex-col animate-fadeIn relative">
+      {/* Decorative Gradient Orbs */}
+      <div className="decorative-orb orb-gold floating-shape-1" style={{ width: '400px', height: '400px', top: '-100px', right: '-100px' }} />
+      <div className="decorative-orb orb-emerald floating-shape-2" style={{ width: '350px', height: '350px', bottom: '10%', left: '-80px' }} />
+      <div className="decorative-orb orb-blue floating-shape-3" style={{ width: '300px', height: '300px', top: '40%', right: '5%' }} />
+
+      {/* Dot Grid Overlay */}
+      <div className="dot-grid-overlay" />
+
+      {/* Floating decorative shapes */}
+      <div className="floating-shape floating-shape-1" style={{ top: '20%', left: '5%', width: '60px', height: '60px', borderRadius: '30%', border: '1px solid rgba(212, 175, 55, 0.15)', background: 'rgba(212, 175, 55, 0.03)' }} />
+      <div className="floating-shape floating-shape-2" style={{ top: '60%', right: '8%', width: '40px', height: '40px', borderRadius: '50%', border: '1px solid rgba(5, 150, 105, 0.15)', background: 'rgba(5, 150, 105, 0.03)' }} />
+      <div className="floating-shape floating-shape-3" style={{ bottom: '15%', left: '30%', width: '50px', height: '50px', borderRadius: '40%', border: '1px solid rgba(59, 130, 246, 0.12)', background: 'rgba(59, 130, 246, 0.02)' }} />
+
       <Header onOpenPromptModal={() => setPromptModalOpen(true)} />
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex flex-col w-60 bg-white border-r border-slate-200 shrink-0 shadow-sm">
+      <div className="flex flex-1 overflow-hidden relative z-10">
+        {/* Desktop Sidebar - Glassmorphism */}
+        <aside className="hidden lg:flex flex-col w-60 sidebar-glass shrink-0">
           {/* School Logo Area */}
-          <div className="p-4 border-b border-slate-100">
+          <div className="p-4 border-b border-white/20">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center shadow-md" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
                 <School className="w-5 h-5 text-slate-900" />
               </div>
               <div className="min-w-0">
@@ -113,6 +128,8 @@ function AppContent() {
                 <p className="text-[10px] text-slate-400 truncate">Pathraj, Raigad</p>
               </div>
             </div>
+            {/* Decorative separator */}
+            <div className="mt-3 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-transparent" />
           </div>
 
           {/* Navigation */}
@@ -121,22 +138,26 @@ function AppContent() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border-l-[3px] ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border-l-[3px] ${
                   activeTab === tab.key
-                    ? 'border-l-[#d4af37] bg-amber-50/70 text-slate-800 shadow-sm'
-                    : 'border-l-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                    ? 'border-l-[#d4af37] bg-gradient-to-r from-amber-50/80 to-transparent text-slate-800 shadow-sm'
+                    : 'border-l-transparent text-slate-500 hover:bg-white/40 hover:text-slate-700'
                 }`}
               >
-                <tab.icon className={`w-4 h-4 shrink-0 ${
-                  activeTab === tab.key ? 'text-amber-600' : 'text-slate-400'
-                }`} />
+                <div className={`icon-pill ${
+                  activeTab === tab.key ? tab.iconBg : 'bg-slate-100/60'
+                }`}>
+                  <tab.icon className={`w-4 h-4 shrink-0 ${
+                    activeTab === tab.key ? tab.iconColor : 'text-slate-400'
+                  }`} />
+                </div>
                 <span className="truncate">{language === 'en' ? tab.labelEn : tab.labelMr}</span>
               </button>
             ))}
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="p-3 border-t border-slate-100">
+          <div className="p-3 border-t border-white/20">
             <p className="text-[10px] text-slate-400 text-center leading-relaxed">
               &copy; 2024 Tribal Development Dept.
               <br />
@@ -162,18 +183,18 @@ function AppContent() {
                 exit={{ x: -280 }}
                 transition={{ type: 'tween', duration: 0.2 }}
                 onClick={(e) => e.stopPropagation()}
-                className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl z-50 flex flex-col"
+                className="absolute left-0 top-0 bottom-0 w-72 sidebar-glass shadow-xl z-50 flex flex-col"
               >
-                <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+                <div className="p-4 border-b border-white/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-md" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
                       <School className="w-4 h-4 text-slate-900" />
                     </div>
                     <span className="text-sm font-semibold text-slate-700">
                       {language === 'en' ? 'Navigation' : 'नेव्हिगेशन'}
                     </span>
                   </div>
-                  <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                  <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg hover:bg-white/40 transition-colors">
                     <X className="w-5 h-5 text-slate-600" />
                   </button>
                 </div>
@@ -182,18 +203,22 @@ function AppContent() {
                     <button
                       key={tab.key}
                       onClick={() => { setActiveTab(tab.key); setSidebarOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border-l-[3px] ${
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border-l-[3px] ${
                         activeTab === tab.key
-                          ? 'border-l-[#d4af37] bg-amber-50/70 text-slate-800'
-                          : 'border-l-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                          ? 'border-l-[#d4af37] bg-gradient-to-r from-amber-50/80 to-transparent text-slate-800'
+                          : 'border-l-transparent text-slate-500 hover:bg-white/40 hover:text-slate-700'
                       }`}
                     >
-                      <tab.icon className={`w-4 h-4 ${activeTab === tab.key ? 'text-amber-600' : 'text-slate-400'}`} />
+                      <div className={`icon-pill ${
+                        activeTab === tab.key ? tab.iconBg : 'bg-slate-100/60'
+                      }`}>
+                        <tab.icon className={`w-4 h-4 ${activeTab === tab.key ? tab.iconColor : 'text-slate-400'}`} />
+                      </div>
                       {language === 'en' ? tab.labelEn : tab.labelMr}
                     </button>
                   ))}
                 </nav>
-                <div className="p-3 border-t border-slate-100">
+                <div className="p-3 border-t border-white/20">
                   <p className="text-[10px] text-slate-400 text-center">
                     &copy; 2024 Tribal Development Dept.
                   </p>
@@ -206,10 +231,10 @@ function AppContent() {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-20 lg:pb-4">
           {/* Mobile menu button */}
-          <div className="lg:hidden p-2 border-b border-slate-200 bg-white sticky top-0 z-10">
+          <div className="lg:hidden p-2 border-b border-white/10 sticky top-0 z-10" style={{ background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(12px)' }}>
             <button
               onClick={() => setSidebarOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-white/50 transition-colors"
             >
               <Menu className="w-4 h-4" />
               {language === 'en' ? 'Menu' : 'मेनू'}
@@ -231,7 +256,7 @@ function AppContent() {
       </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 shadow-lg">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 shadow-lg" style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(16px)', borderTop: '1px solid rgba(255, 255, 255, 0.3)' }}>
         <div className="flex overflow-x-auto scrollbar-hide">
           {visibleTabs.map((tab) => (
             <button
