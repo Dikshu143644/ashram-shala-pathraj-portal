@@ -1,0 +1,7 @@
+{
+  "task_id": "task-ashram-shala-app",
+  "task_description": "Build a production-ready full-stack React+Express TypeScript web application for Shashkeey Madhyamik v Uchh Madhyamik Ashram Shala Pathraj - a tribal school management system with bilingual Marathi/English UI, role-based access, and 7 functional modules including admissions, attendance, hostel management, WhatsApp integration, clerk office, admin center, and AI assistant.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}
