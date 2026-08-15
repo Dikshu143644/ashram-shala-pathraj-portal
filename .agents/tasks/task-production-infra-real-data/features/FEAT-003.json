@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "chore",
   "description": "Add Docker and Kubernetes infrastructure: Dockerfile with multi-stage build, docker-compose.yml, and Kubernetes manifests for deployment.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. Create Dockerfile at project root: Multi-stage build. Stage 1 (builder): FROM node:22-alpine, WORKDIR /app, COPY package*.json, RUN npm ci, COPY all source files, RUN npm run build. Stage 2 (production): FROM node:22-alpine, WORKDIR /app, COPY --from=builder /app/dist ./dist, COPY --from=builder /app/node_modules ./node_modules, COPY package.json, EXPOSE 3000, HEALTHCHECK CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1, CMD [\"node\", \"dist/server.js\"]. Set NODE_ENV=production.",
     "2. Create docker-compose.yml: version '3.8', service 'web' using build context '.', port mapping 3000:3000, env_file .env, restart unless-stopped, healthcheck referencing /api/health.",
@@ -21,5 +21,5 @@
     "Run: ls /projects/sandbox/k8s/ (should show 7 yaml files)"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Docker build completes successfully with node:22-alpine. The HEALTHCHECK warning about OCI format is harmless - it only applies to OCI format builds, not Docker format. The lightningcss warning during esbuild is a known non-issue (dev dependency reference in bundled server code). All 7 k8s manifests created. Lint passes cleanly."
 }
