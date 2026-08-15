@@ -2,7 +2,7 @@
   "id": "FEAT-005",
   "type": "fix",
   "description": "Address semantic review findings: add rate limiting, input validation, .dockerignore, Docker image optimization, fix K8s image path, and improve user-facing error message.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. Add in-memory rate limiting to /api/ai-chat and /api/voice/tts endpoints (sliding window, per-IP, no new deps)",
     "2. Add input length validation: cap message at 1000 chars, text at 2000 chars",
@@ -23,5 +23,5 @@
     "docker build succeeds"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "All 6 review issues addressed. Rate limiting uses a sliding window Map (20 req/min/IP) with periodic cleanup. Input validation returns 400 for oversized messages. Docker image now uses 3 stages (builder, deps with --omit=dev, production). Production deps install went from full devDependencies to only 109 production packages. K8s image uses OWNER/REPO placeholder. The no-API-key message now says 'AI assistant is temporarily unavailable' instead of revealing config details. Lint, build, and docker build all pass."
 }
