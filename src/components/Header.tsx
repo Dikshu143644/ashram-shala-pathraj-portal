@@ -1,28 +1,15 @@
-import { School, Globe, Shield, ChevronDown, Image, Wifi } from 'lucide-react';
-import { useAppContext, roleLabels, type AppRole } from '../contexts/AppContext';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { School, Globe, Image, Wifi, LogOut, User } from 'lucide-react';
+import { useAppContext, roleLabels } from '../contexts/AppContext';
+import { motion } from 'motion/react';
 
 interface HeaderProps {
   onOpenPromptModal: () => void;
 }
 
 export default function Header({ onOpenPromptModal }: HeaderProps) {
-  const { language, setLanguage, role, setRole } = useAppContext();
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const { language, setLanguage, role, currentUser, logout } = useAppContext();
 
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
-
-  const roles: AppRole[] = ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher', 'student_parent'];
-
-  const roleIcons: Record<AppRole, string> = {
-    web_creator: '#d4af37',
-    principal: '#059669',
-    class_teacher: '#3b82f6',
-    clerk: '#8b5cf6',
-    subject_teacher: '#06b6d4',
-    student_parent: '#f97316',
-  };
 
   return (
     <header className="relative z-50 gold-border-bottom" style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
@@ -72,6 +59,18 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
             <span className="text-emerald-300">{t('System Active', 'सिस्टम सक्रिय')}</span>
           </div>
 
+          {/* Welcome User Info */}
+          {currentUser && (
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-200" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <User className="w-3.5 h-3.5 text-amber-400" />
+              <span>
+                {t(`Welcome, ${currentUser.username}`, `स्वागत, ${currentUser.username}`)}
+                <span className="text-slate-400 mx-1">|</span>
+                <span style={{ color: '#d4af37' }}>{roleLabels[role][language]}</span>
+              </span>
+            </div>
+          )}
+
           {/* UI Prompts Button */}
           <button
             onClick={onOpenPromptModal}
@@ -95,48 +94,17 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
             <span>{language === 'en' ? 'मराठी' : 'EN'}</span>
           </motion.button>
 
-          {/* Role Switcher */}
-          <div className="relative">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-semibold transition-all duration-200 shadow-md"
-              style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', color: '#1e293b' }}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{roleLabels[role][language]}</span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${roleDropdownOpen ? 'rotate-180' : ''}`} />
-            </motion.button>
-            <AnimatePresence>
-              {roleDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full mt-2 rounded-xl shadow-xl py-2 min-w-52 z-50 overflow-hidden"
-                  style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}
-                >
-                  {roles.map((r) => (
-                    <button
-                      key={r}
-                      onClick={() => { setRole(r); setRoleDropdownOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-slate-800 ${
-                        r === role ? 'bg-amber-50 font-semibold' : 'hover:bg-slate-50'
-                      }`}
-                    >
-                      <span
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: roleIcons[r] }}
-                      />
-                      {roleLabels[r][language]}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          {/* Logout Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={logout}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 text-white hover:bg-red-500/20 hover:border-red-500/30"
+            style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+          >
+            <LogOut className="w-3.5 h-3.5 text-red-400" />
+            <span className="hidden sm:inline text-red-300">{t('Logout', 'लॉगआउट')}</span>
+          </motion.button>
         </div>
       </div>
     </header>

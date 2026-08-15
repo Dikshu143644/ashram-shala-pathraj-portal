@@ -35,7 +35,7 @@ const ttsRateLimitStore = new Map<string, RateLimitEntry>();
 // Periodically clean up stale entries every 5 minutes
 const cleanupInterval = setInterval(() => {
   const now = Date.now();
-  for (const store of [chatRateLimitStore, ttsRateLimitStore]) {
+  for (const store of [chatRateLimitStore, ttsRateLimitStore, loginRateLimitStore]) {
     for (const [key, entry] of store) {
       entry.timestamps = entry.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
       if (entry.timestamps.length === 0) {
@@ -63,6 +63,41 @@ function isRateLimited(ip: string, store: Map<string, RateLimitEntry>): boolean 
 }
 
 // ============================================================
+// Login Rate Limiting (stricter: 5 attempts per IP per minute)
+// ============================================================
+// TODO: Replace with real JWT auth + Supabase Auth when database is connected
+
+const LOGIN_RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const LOGIN_RATE_LIMIT_MAX_REQUESTS = 5; // max 5 login attempts per window per IP
+
+const loginRateLimitStore = new Map<string, RateLimitEntry>();
+
+function isLoginRateLimited(ip: string): boolean {
+  const now = Date.now();
+  let entry = loginRateLimitStore.get(ip);
+  if (!entry) {
+    entry = { timestamps: [] };
+    loginRateLimitStore.set(ip, entry);
+  }
+  entry.timestamps = entry.timestamps.filter(t => now - t < LOGIN_RATE_LIMIT_WINDOW_MS);
+  if (entry.timestamps.length >= LOGIN_RATE_LIMIT_MAX_REQUESTS) {
+    return true;
+  }
+  entry.timestamps.push(now);
+  return false;
+}
+
+// Login credentials (hardcoded until real auth is connected)
+const LOGIN_CREDENTIALS = [
+  { username: 'admin', password: 'Admin@2024', role: 'web_creator', nameEn: 'Super Admin', nameMr: 'सुपर अॅडमिन' },
+  { username: 'principal', password: 'Principal@2024', role: 'principal', nameEn: 'Principal', nameMr: 'मुख्याध्यापक' },
+  { username: 'teacher', password: 'Teacher@2024', role: 'class_teacher', nameEn: 'Class Teacher', nameMr: 'वर्गशिक्षक' },
+  { username: 'clerk', password: 'Clerk@2024', role: 'clerk', nameEn: 'Clerk', nameMr: 'लिपिक' },
+  { username: 'sports', password: 'Sports@2024', role: 'subject_teacher', nameEn: 'Subject Teacher', nameMr: 'विषय शिक्षक' },
+  { username: 'parent', password: 'Parent@2024', role: 'student_parent', nameEn: 'Student/Parent', nameMr: 'विद्यार्थी/पालक' },
+];
+
+// ============================================================
 // Input validation constants
 // ============================================================
 
@@ -85,6 +120,48 @@ app.get('/api/students', async (_req: Request, res: Response) => {
 app.get('/api/staff', async (_req: Request, res: Response) => {
   const { staff } = await import('./src/data/mockData.js');
   res.json({ data: staff, total: staff.length });
+});
+
+// ============================================================
+// Authentication Login Endpoint
+// ============================================================
+// TODO: Replace with real JWT auth + Supabase Auth when database is connected
+
+app.post('/api/auth/login', (req: Request, res: Response) => {
+  const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+
+  if (isLoginRateLimited(clientIp)) {
+    res.status(429).json({ success: false, error: 'Too many login attempts. Please try again after 1 minute.' });
+    return;
+  }
+
+  const { username, password } = req.body as { username?: string; password?: string };
+
+  if (!username || !password) {
+    res.status(400).json({ success: false, error: 'Username and password are required.' });
+    return;
+  }
+
+  if (username.length > 50 || password.length > 100) {
+    res.status(400).json({ success: false, error: 'Invalid credentials.' });
+    return;
+  }
+
+  const found = LOGIN_CREDENTIALS.find(c => c.username === username && c.password === password);
+
+  if (found) {
+    res.json({
+      success: true,
+      user: {
+        username: found.username,
+        role: found.role,
+        nameEn: found.nameEn,
+        nameMr: found.nameMr,
+      },
+    });
+  } else {
+    res.status(401).json({ success: false, error: 'Invalid username or password.' });
+  }
 });
 
 // ============================================================

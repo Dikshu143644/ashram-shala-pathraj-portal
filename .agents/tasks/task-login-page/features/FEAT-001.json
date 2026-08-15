@@ -1,0 +1,22 @@
+{
+  "id": "FEAT-001",
+  "title": "Login Page with Authentication Gate",
+  "status": "in_progress",
+  "description": "Add a glassmorphism login page that gates the entire app behind authentication, with server-side login validation and rate limiting.",
+  "steps": [
+    "Create src/components/LoginPage.tsx with glassmorphism UI",
+    "Update src/contexts/AppContext.tsx with auth state",
+    "Update src/App.tsx to gate behind login",
+    "Update src/components/Header.tsx to show user info and logout",
+    "Add POST /api/auth/login endpoint with stricter rate limiting in server.ts"
+  ],
+  "acceptance_criteria": [
+    "Login page shows before any app content",
+    "Valid credentials authenticate user and show main app",
+    "Invalid credentials show error message",
+    "Logout clears session and returns to login",
+    "Rate limiting on login endpoint (5 per minute per IP)",
+    "npm run lint passes",
+    "npm run build succeeds"
+  ]
+}

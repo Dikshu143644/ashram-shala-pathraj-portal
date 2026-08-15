@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { AppProvider, useAppContext, type AppRole } from './contexts/AppContext';
 import Header from './components/Header';
+import LoginPage from './components/LoginPage';
 import AdmissionPortal from './components/AdmissionPortal';
 import ClassTeacherPortal from './components/ClassTeacherPortal';
 import HostelPortal from './components/HostelPortal';
@@ -63,7 +64,7 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
 }
 
 function AppContent() {
-  const { language, role } = useAppContext();
+  const { language, role, isAuthenticated } = useAppContext();
   const [activeTab, setActiveTab] = useState<TabKey>('admission');
   const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -92,6 +93,11 @@ function AppContent() {
       default: return <AdmissionPortal />;
     }
   };
+
+  // Show login page if not authenticated (before any other content)
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
 
   if (showSplash) {
     return <SplashScreen onComplete={() => setShowSplash(false)} />;
