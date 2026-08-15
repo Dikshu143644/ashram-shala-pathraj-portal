@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   GraduationCap, ClipboardList, Building2, MessageCircle,
@@ -46,9 +46,12 @@ function AppContent() {
   const visibleTabs = tabs.filter(tab => tab.roles.includes(role));
 
   // If current tab is not visible for current role, switch to first available
-  if (!visibleTabs.find(t => t.key === activeTab) && visibleTabs.length > 0) {
-    setActiveTab(visibleTabs[0].key);
-  }
+  useEffect(() => {
+    const currentVisible = tabs.filter(tab => tab.roles.includes(role));
+    if (!currentVisible.find(t => t.key === activeTab) && currentVisible.length > 0) {
+      setActiveTab(currentVisible[0].key);
+    }
+  }, [role, activeTab]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -168,17 +171,17 @@ function AppContent() {
 
       {/* Mobile Bottom Tab Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30">
-        <div className="flex overflow-x-auto">
-          {visibleTabs.slice(0, 5).map((tab) => (
+        <div className="flex overflow-x-auto scrollbar-hide">
+          {visibleTabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 flex flex-col items-center py-2 px-1 min-w-0 transition-colors ${
+              className={`flex flex-col items-center py-2 px-3 min-w-[4rem] shrink-0 transition-colors ${
                 activeTab === tab.key ? 'text-slate-800' : 'text-slate-400'
               }`}
             >
               <tab.icon className="w-5 h-5" style={activeTab === tab.key ? { color: '#d4af37' } : {}} />
-              <span className="text-[10px] mt-0.5 truncate w-full text-center">
+              <span className="text-[10px] mt-0.5 whitespace-nowrap">
                 {language === 'en' ? tab.labelEn : tab.labelMr}
               </span>
             </button>

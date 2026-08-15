@@ -203,7 +203,7 @@ export default function AdmissionPortal() {
                         {aadhaarVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> :
                          aadhaarVerified ? <CheckCircle className="w-4 h-4" /> :
                          <Fingerprint className="w-4 h-4" />}
-                        {aadhaarVerified ? t('Verified', 'सत्यापित') : t('Verify', 'सत्यापन')}
+                        {aadhaarVerified ? t('Verified (Demo)', 'सत्यापित (डेमो)') : t('Verify (Demo)', 'सत्यापन (डेमो)')}
                       </button>
                     </div>
                   </div>
