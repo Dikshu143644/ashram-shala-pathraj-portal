@@ -5,6 +5,7 @@ import { students } from '../data/mockData';
 import { useAppContext } from '../contexts/AppContext';
 import type { Student, Standard } from '../types';
 import StatsCard from './StatsCard';
+import { sanitizeInput } from '../utils/sanitize';
 
 const allStandards: Standard[] = ['1 ली', '2 री', '3 री', '4 थी', '5 वी', '6 वी', '7 वी', '8 वी', '9 वी', '10 वी', '11 वी', '12 वी'];
 
@@ -47,6 +48,17 @@ export default function AdmissionPortal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Sanitize all form inputs before processing
+    const sanitizedData = {
+      full_name: sanitizeInput(formData.full_name),
+      standard: formData.standard,
+      guardian_name: sanitizeInput(formData.guardian_name),
+      village: sanitizeInput(formData.village),
+      mobile_number: formData.mobile_number.replace(/\D/g, ''),
+      apaar_id: formData.apaar_id.replace(/\D/g, ''),
+    };
+    // Use sanitizedData for submission (currently generates mock ID)
+    void sanitizedData;
     const id = `ASPS-2025-${Math.floor(10000 + Math.random() * 90000)}`;
     setApplicationId(id);
     setSubmitted(true);

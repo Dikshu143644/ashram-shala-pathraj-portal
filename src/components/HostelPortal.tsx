@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { hostelBeds, hostelRooms, students, messRecords } from '../data/mockData';
 import { useAppContext } from '../contexts/AppContext';
 import type { HostelWing } from '../types';
+import { sanitizeInput } from '../utils/sanitize';
 
 type HostelTab = 'rooms' | 'mess' | 'sickbay';
 
@@ -276,9 +277,16 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.complaint) return;
+    // Sanitize form inputs before processing
+    const sanitizedForm = {
+      name: sanitizeInput(form.name),
+      complaint: sanitizeInput(form.complaint),
+      medication: sanitizeInput(form.medication),
+      severity: form.severity,
+    };
     const now = new Date();
     const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    setEntries(prev => [{ ...form, time }, ...prev]);
+    setEntries(prev => [{ ...sanitizedForm, time }, ...prev]);
     setForm({ name: '', complaint: '', medication: '', severity: 'mild' });
     setNameQuery('');
   };

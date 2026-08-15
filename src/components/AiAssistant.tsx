@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Bot, User, FileText, CheckSquare, Search, Home, Mic, MicOff, Volume2, RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
+import { sanitizeChatMessage } from '../utils/sanitize';
 
 interface ChatMessage {
   role: 'user' | 'bot';
@@ -149,11 +150,14 @@ export default function AiAssistant() {
     setIsTyping(true);
     setLastFailedMessage(null);
 
+    // Sanitize the message before sending to the API
+    const sanitizedMessage = sanitizeChatMessage(messageText);
+
     try {
       const response = await fetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: messageText, language }),
+        body: JSON.stringify({ message: sanitizedMessage, language }),
       });
 
       if (response.status === 429) {

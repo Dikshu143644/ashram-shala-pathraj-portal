@@ -88,6 +88,23 @@ app.get('/api/staff', async (_req: Request, res: Response) => {
 // ============================================================
 // Future: Connect to Supabase/MongoDB here to fetch real-time data
 // for each agent (student records, attendance logs, hostel data, etc.)
+//
+// SECURITY NOTE: When connecting a real database, ALWAYS use parameterized
+// queries / prepared statements to prevent SQL injection. Never concatenate
+// user input directly into query strings. Examples:
+//
+//   Supabase (parameterized by default):
+//     const { data } = await supabase.from('students').select('*').eq('id', studentId);
+//
+//   Raw SQL with parameterized query:
+//     const result = await pool.query('SELECT * FROM students WHERE id = $1', [studentId]);
+//
+//   MongoDB (uses BSON, not SQL, but still sanitize inputs):
+//     const student = await db.collection('students').findOne({ _id: new ObjectId(studentId) });
+//
+// The client-side sanitization in src/utils/sanitize.ts provides defense-in-depth
+// but is NOT a substitute for server-side parameterized queries.
+//
 // Example:
 //   import { createClient } from '@supabase/supabase-js';
 //   const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
