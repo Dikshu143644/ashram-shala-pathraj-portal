@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ashram-shala-config
+  namespace: ashram-shala
+  labels:
+    app: ashram-shala-pathraj
+data:
+  PORT: "3000"
+  NODE_ENV: "production"

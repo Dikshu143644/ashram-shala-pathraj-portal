@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ashram-shala-pathraj
+  namespace: ashram-shala
+  labels:
+    app: ashram-shala-pathraj
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ashram-shala-pathraj
+  template:
+    metadata:
+      labels:
+        app: ashram-shala-pathraj
+    spec:
+      containers:
+        - name: ashram-shala-pathraj
+          image: ghcr.io/ashram-shala/pathraj:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: ashram-shala-config
+            - secretRef:
+                name: ashram-shala-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3

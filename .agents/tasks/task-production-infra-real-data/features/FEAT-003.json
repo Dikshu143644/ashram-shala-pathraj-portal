@@ -1,0 +1,25 @@
+{
+  "id": "FEAT-003",
+  "type": "chore",
+  "description": "Add Docker and Kubernetes infrastructure: Dockerfile with multi-stage build, docker-compose.yml, and Kubernetes manifests for deployment.",
+  "status": "in_progress",
+  "steps": [
+    "1. Create Dockerfile at project root: Multi-stage build. Stage 1 (builder): FROM node:22-alpine, WORKDIR /app, COPY package*.json, RUN npm ci, COPY all source files, RUN npm run build. Stage 2 (production): FROM node:22-alpine, WORKDIR /app, COPY --from=builder /app/dist ./dist, COPY --from=builder /app/node_modules ./node_modules, COPY package.json, EXPOSE 3000, HEALTHCHECK CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1, CMD [\"node\", \"dist/server.js\"]. Set NODE_ENV=production.",
+    "2. Create docker-compose.yml: version '3.8', service 'web' using build context '.', port mapping 3000:3000, env_file .env, restart unless-stopped, healthcheck referencing /api/health.",
+    "3. Create k8s/ directory with these files: namespace.yaml (ashram-shala namespace), deployment.yaml (2 replicas, resource limits 256Mi/500m, liveness/readiness probes on /api/health, env from configmap and secret), service.yaml (ClusterIP port 3000), ingress.yaml (with TLS and host placeholder), configmap.yaml (PORT=3000, NODE_ENV=production), secret.yaml (template with base64 placeholder values for GEMINI_API_KEY, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID with comments explaining how to set real values), hpa.yaml (min 2, max 5, CPU target 70%).",
+    "4. Verify Dockerfile builds successfully: run docker build -t ashram-shala-pathraj-test . and confirm it completes without error."
+  ],
+  "acceptance_criteria": [
+    "Dockerfile exists and uses multi-stage build with node:22-alpine",
+    "docker-compose.yml exists with correct service configuration",
+    "k8s/ directory contains all 7 manifest files (namespace, deployment, service, ingress, configmap, secret, hpa)",
+    "Docker build completes successfully",
+    "Kubernetes manifests reference correct image, ports, and health check paths"
+  ],
+  "verification": [
+    "Run: cd /projects/sandbox && docker build -t ashram-shala-pathraj-test . 2>&1 | tail -5",
+    "Run: ls /projects/sandbox/k8s/ (should show 7 yaml files)"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
