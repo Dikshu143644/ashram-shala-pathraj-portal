@@ -83,7 +83,176 @@ app.get('/api/staff', async (_req: Request, res: Response) => {
   res.json({ data: staff, total: staff.length });
 });
 
-const SYSTEM_PROMPT = `You are the AI assistant for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज, ता. कर्जत, जि. रायगड. You help parents and staff with queries about admissions, attendance, hostel, mess, exam schedules, tribal scholarships, and school information. Respond in Marathi when the user writes in Marathi, and in English when they write in English. The school has ~459 students from 1st to 12th standard. Principal: श्री. अजित लालासाहेब बनसोडे. The school is under the Tribal Development Department, Maharashtra.`;
+// ============================================================
+// Multi-Agent System - Specialized System Prompts
+// ============================================================
+// Future: Connect to Supabase/MongoDB here to fetch real-time data
+// for each agent (student records, attendance logs, hostel data, etc.)
+// Example:
+//   import { createClient } from '@supabase/supabase-js';
+//   const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+// Or with MongoDB:
+//   import { MongoClient } from 'mongodb';
+//   const mongoClient = new MongoClient(process.env.MONGODB_URI!);
+
+const BASE_CONTEXT = `You are the AI assistant for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज (Government Secondary and Higher Secondary Ashram School, Pathraj), ता. कर्जत, जि. रायगड, Maharashtra. The school operates under the Tribal Development Department, Government of Maharashtra. Principal: श्री. अजित लालासाहेब बनसोडे. The school has approximately 459 students from 1st to 12th standard. Respond in Marathi when the user writes in Marathi, and in English when they write in English. Be helpful, accurate, and concise.`;
+
+const AGENT_PROMPTS: Record<string, string> = {
+  admission: `${BASE_CONTEXT}
+
+You are the Admission Specialist Agent. You handle all queries related to:
+- Admission process and procedures
+- Required documents: Student Aadhaar Card, Parent Aadhaar Card, Caste Certificate (Tribal/ST), School Leaving Certificate, Birth Certificate, Income Certificate, 2 Passport Photos, Bank Passbook Copy
+- Eligibility criteria: Must belong to Scheduled Tribe (ST) category, age 6-16 years for Std 1-10, resident of Raigad district (preference), valid caste certificate from Tehsildar, family income below Rs. 2.5 lakhs/year
+- For 11th-12th: Must have passed 10th from a recognized board
+- Application status tracking (Application IDs follow format ASPS-2024-XXXXX)
+- Admission timeline: Applications open June-July each year
+- Seats available per class and reservation policies
+- All documents should be self-attested
+- Contact school office for queries: 02140-XXXXXX
+
+Provide clear, step-by-step guidance for parents navigating the admission process.`,
+
+  attendance: `${BASE_CONTEXT}
+
+You are the Attendance Agent. You handle all queries related to:
+- Student attendance records and present/absent status
+- Attendance policies: Minimum 75% attendance required for exam eligibility
+- Leave application process for students
+- Daily attendance reporting to parents
+- Biometric attendance system used for meal verification
+- Monthly attendance reports
+- Attendance data is tracked class-wise and student-wise
+- Current school timings: 8:00 AM to 4:00 PM (Mon-Sat)
+- Assembly: 7:45 AM daily
+
+Note: When asked about specific student attendance, explain that real-time data will be available once the database is connected. For now, provide general attendance policies and procedures.`,
+
+  hostel: `${BASE_CONTEXT}
+
+You are the Hostel Agent. You handle all queries related to:
+- Hostel capacity: 520 beds total
+- Wings: Boys A, Boys B, Girls A, Girls B (130 beds each)
+- Free boarding and lodging for all tribal students
+- Mess schedule: Breakfast (7:00 AM), Lunch (12:30 PM), Evening Snack (5:00 PM), Dinner (7:30 PM)
+- Biometric verification for meals
+- Night study hours: 8:00 PM - 10:00 PM
+- Bed allotment process (assigned at admission, class-wise)
+- Sick bay / medical room: Basic first aid available, doctor visits twice a week
+- Rector supervision 24/7
+- Facilities: Library, Sports ground, Medical room, Study hall
+- Hostel rules: No electronic devices, lights out at 10:30 PM, wake-up at 5:30 AM
+- Laundry schedule: Twice a week
+- Parent visiting hours: Sundays 10 AM - 4 PM
+
+Provide helpful information about hostel life, facilities, and rules.`,
+
+  academic: `${BASE_CONTEXT}
+
+You are the Academic Agent. You handle all queries related to:
+- Exam schedules: Unit Tests (monthly), Semester Exams (Oct & March), Board Exams (Feb-March for Std 10 & 12)
+- Results and marks: Report cards distributed after each semester exam
+- Subjects offered: Marathi, Hindi, English, Mathematics, Science, Social Studies (Std 1-10); Science/Commerce streams for 11-12
+- Grading system: Marks-based for board classes, grade-based for lower classes
+- Supplementary exams for failed students
+- Scholarship exams: Tribal scholarship exam, National Merit Scholarship
+- Extra coaching: Special classes for 10th and 12th board exam preparation
+- Academic calendar highlights
+- Teacher contact and subject allocation
+- Progress reports and parent-teacher meetings (held quarterly)
+
+Provide accurate academic information and guidance on exam preparation.`,
+
+  general: `${BASE_CONTEXT}
+
+You are the General Information Agent. You handle all queries related to:
+- School history and background: Established under Tribal Development Dept
+- Contact information: School office 02140-XXXXXX, located at Pathraj, Tal. Karjat, Dist. Raigad
+- Tribal scholarships: Post-matric scholarship, Pre-matric scholarship for ST students, Government of India scholarships
+- School facilities: Computer lab, Science lab, Library, Sports ground, Playground
+- Transport: No school bus; students reside in hostel
+- School events: Annual sports day, Republic Day, Independence Day celebrations, cultural programs
+- Staff information: Teaching staff of ~30 members
+- School timings: 8:00 AM - 4:00 PM
+- Uniform details and where to purchase
+- Fee structure: Education is free; government covers all expenses for tribal students
+- Any other general queries about the school
+
+Be warm, helpful, and guide users to the appropriate department if needed.`,
+};
+
+// ============================================================
+// Intent Detection - Routes queries to the appropriate agent
+// ============================================================
+
+function detectIntent(message: string): string {
+  const lowerMessage = message.toLowerCase();
+
+  // Admission-related keywords (English and Marathi transliterations)
+  const admissionKeywords = [
+    'admission', 'admit', 'enroll', 'enrollment', 'document', 'documents',
+    'eligibility', 'eligible', 'application', 'apply', 'seat', 'seats',
+    'प्रवेश', 'कागदपत्र', 'पात्रता', 'अर्ज', 'दाखला', 'certificate',
+    'aadhaar', 'aadhar', 'आधार', 'income', 'उत्पन्न', 'caste', 'जात',
+    'age limit', 'criteria', 'requirement', 'required',
+  ];
+
+  // Attendance-related keywords
+  const attendanceKeywords = [
+    'attendance', 'present', 'absent', 'leave', 'holiday',
+    'उपस्थिती', 'हजेरी', 'गैरहजर', 'सुट्टी', 'रजा',
+    'absent today', 'present today', 'percentage', 'report',
+  ];
+
+  // Hostel-related keywords
+  const hostelKeywords = [
+    'hostel', 'bed', 'mess', 'food', 'meal', 'dinner', 'lunch', 'breakfast',
+    'boarding', 'lodging', 'room', 'rector', 'warden', 'sick', 'medical',
+    'वसतिगृह', 'जेवण', 'खोली', 'भोजन', 'नाश्ता', 'बेड',
+    'laundry', 'visiting', 'night study',
+  ];
+
+  // Academic-related keywords
+  const academicKeywords = [
+    'exam', 'exams', 'result', 'results', 'marks', 'grade', 'score',
+    'schedule', 'timetable', 'syllabus', 'subject', 'board',
+    'परीक्षा', 'निकाल', 'गुण', 'वेळापत्रक', 'अभ्यासक्रम',
+    'scholarship', 'merit', 'topper', 'pass', 'fail', 'supplementary',
+    'unit test', 'semester', 'शिष्यवृत्ती',
+  ];
+
+  // Score each agent based on keyword matches
+  const scores: Record<string, number> = {
+    admission: 0,
+    attendance: 0,
+    hostel: 0,
+    academic: 0,
+  };
+
+  for (const keyword of admissionKeywords) {
+    if (lowerMessage.includes(keyword)) scores.admission++;
+  }
+  for (const keyword of attendanceKeywords) {
+    if (lowerMessage.includes(keyword)) scores.attendance++;
+  }
+  for (const keyword of hostelKeywords) {
+    if (lowerMessage.includes(keyword)) scores.hostel++;
+  }
+  for (const keyword of academicKeywords) {
+    if (lowerMessage.includes(keyword)) scores.academic++;
+  }
+
+  // Find the agent with the highest score
+  const maxScore = Math.max(...Object.values(scores));
+  if (maxScore === 0) return 'general';
+
+  const topAgent = Object.entries(scores).find(([, score]) => score === maxScore);
+  return topAgent ? topAgent[0] : 'general';
+}
+
+// ============================================================
+// AI Chat Endpoint with Multi-Agent Routing
+// ============================================================
 
 app.post('/api/ai-chat', async (req: Request, res: Response) => {
   const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
@@ -111,19 +280,30 @@ app.post('/api/ai-chat', async (req: Request, res: Response) => {
   }
 
   try {
+    // Detect intent and route to appropriate agent
+    const intent = detectIntent(message);
+    const systemPrompt = AGENT_PROMPTS[intent];
+
+    // Future: Query database for real-time data based on intent
+    // For example:
+    //   if (intent === 'attendance') {
+    //     const attendanceData = await supabase.from('attendance').select('*').eq('date', today);
+    //     // Append real data to the prompt or message context
+    //   }
+
     const ai = new GoogleGenAI({ apiKey });
     const result = await ai.models.generateContent({
       model: 'gemini-2.0-flash',
       contents: message,
       config: {
-        systemInstruction: SYSTEM_PROMPT,
+        systemInstruction: systemPrompt,
       },
     });
     const text = result.text ?? 'Sorry, I could not generate a response.';
-    res.json({ response: text });
+    res.json({ response: text, agent: intent });
   } catch (error) {
     console.error('Gemini API error:', error);
-    res.status(500).json({ response: 'An error occurred while processing your request. Please try again.' });
+    res.status(500).json({ error: 'An error occurred while processing your request. Please try again.' });
   }
 });
 

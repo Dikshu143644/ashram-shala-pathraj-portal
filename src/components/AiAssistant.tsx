@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Bot, User, FileText, CheckSquare, Search, Home, Mic, MicOff, Volume2 } from 'lucide-react';
+import { Send, Bot, User, FileText, CheckSquare, Search, Home, Mic, MicOff, Volume2, RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
 
 interface ChatMessage {
   role: 'user' | 'bot';
   text: string;
+  isError?: boolean;
 }
 
 interface SpeechRecognitionEvent {
@@ -34,38 +35,6 @@ const quickActions = [
   { key: 'hostel', labelEn: 'Hostel Info', labelMr: 'वसतिगृह माहिती', icon: Home },
 ];
 
-const mockResponses: Record<string, Record<string, string>> = {
-  docs: {
-    en: 'For admission, please keep the following documents ready:\n\n1. Student Aadhaar Card\n2. Parent Aadhaar Card\n3. Caste Certificate (Tribal)\n4. School Leaving Certificate\n5. Birth Certificate\n6. Income Certificate\n7. 2 Passport Photos\n8. Bank Passbook Copy\n\nAll documents should be self-attested.',
-    mr: 'प्रवेशासाठी कृपया खालील कागदपत्रे तयार ठेवा:\n\n1. विद्यार्थ्याचे आधार कार्ड\n2. पालकांचे आधार कार्ड\n3. जातीचा दाखला (आदिवासी)\n4. शाळा सोडल्याचा दाखला\n5. जन्म दाखला\n6. उत्पन्नाचा दाखला\n7. 2 पासपोर्ट फोटो\n8. बँक पासबुक प्रत\n\nसर्व कागदपत्रे स्वयंसाक्षांकित असावीत.',
-  },
-  eligibility: {
-    en: 'Eligibility criteria for Ashram Shala admission:\n\n- Student must belong to Scheduled Tribe (ST) category\n- Age: 6-16 years for Std 1-10\n- Resident of Raigad district (preference)\n- Valid caste certificate from Tehsildar\n- Family income below Rs. 2.5 lakhs/year\n\nFor 11th-12th: Must have passed 10th from recognized board.',
-    mr: 'आश्रमशाळा प्रवेश पात्रता:\n\n- विद्यार्थी अनुसूचित जमाती (ST) प्रवर्गातील असावा\n- वय: इ. 1 ली ते 10 वी साठी 6-16 वर्षे\n- रायगड जिल्ह्यातील रहिवासी (प्राधान्य)\n- तहसीलदारांचा वैध जातीचा दाखला\n- कुटुंबाचे उत्पन्न रु. 2.5 लाख/वर्ष पेक्षा कमी\n\n11वी-12वी साठी: मान्यताप्राप्त बोर्डातून 10वी उत्तीर्ण.',
-  },
-  status: {
-    en: 'To check your application status:\n\n1. Go to Admission Portal tab\n2. Search by your Application ID (ASPS-2024-XXXXX)\n3. Or search by student name\n\nStatus stages:\n- Submitted: Application received\n- Verified: Documents checked\n- Approved: Admission confirmed\n- Enrolled: Student registered\n\nFor queries, contact school office: 02140-XXXXXX',
-    mr: 'अर्जाची स्थिती तपासण्यासाठी:\n\n1. प्रवेश पोर्टल टॅबवर जा\n2. अर्ज क्रमांकाने शोधा (ASPS-2024-XXXXX)\n3. किंवा विद्यार्थ्याच्या नावाने शोधा\n\nस्थिती टप्पे:\n- सादर: अर्ज प्राप्त\n- सत्यापित: कागदपत्रे तपासली\n- मंजूर: प्रवेश निश्चित\n- नोंदणी: विद्यार्थी नोंदणीकृत\n\nशंका असल्यास शाळा कार्यालयाशी संपर्क: 02140-XXXXXX',
-  },
-  hostel: {
-    en: 'Hostel Information:\n\n- Total capacity: 520 beds\n- Wings: Boys A, Boys B, Girls A, Girls B (130 beds each)\n- Free boarding & lodging for all tribal students\n- Meals: Breakfast (7 AM), Lunch (12:30 PM), Dinner (7:30 PM)\n- Biometric verification for meals\n- Night study hours: 8 PM - 10 PM\n- Rector supervision 24/7\n\nFacilities: Library, Sports ground, Medical room',
-    mr: 'वसतिगृह माहिती:\n\n- एकूण क्षमता: 520 बेड\n- विंग: मुले A, मुले B, मुली A, मुली B (प्रत्येकी 130 बेड)\n- सर्व आदिवासी विद्यार्थ्यांसाठी मोफत निवास व भोजन\n- जेवण: नाश्ता (सकाळी 7), दुपार (12:30), रात्र (7:30)\n- जेवणासाठी बायोमेट्रिक सत्यापन\n- रात्री अभ्यास: रात्री 8 - 10\n- रेक्टर 24/7 देखरेख\n\nसुविधा: ग्रंथालय, क्रीडांगण, वैद्यकीय कक्ष',
-  },
-};
-
-const generalResponses = {
-  en: [
-    'Thank you for your question. Let me help you with that information.',
-    'I understand your concern. Here is what I can tell you about our school.',
-    'That is a great question. Based on our records, here is the information.',
-  ],
-  mr: [
-    'तुमच्या प्रश्नाबद्दल धन्यवाद. मी तुम्हाला त्या माहितीत मदत करतो.',
-    'मला तुमची चिंता समजते. आमच्या शाळेबद्दल मी तुम्हाला सांगू शकतो.',
-    'हा एक चांगला प्रश्न आहे. आमच्या नोंदींनुसार, ही माहिती आहे.',
-  ],
-};
-
 function getSpeechRecognition(): (new () => SpeechRecognitionInstance) | null {
   const win = window as unknown as Record<string, unknown>;
   return (win.SpeechRecognition || win.webkitSpeechRecognition) as (new () => SpeechRecognitionInstance) | null;
@@ -84,6 +53,7 @@ export default function AiAssistant() {
   const [isTyping, setIsTyping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [lastFailedMessage, setLastFailedMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -175,6 +145,58 @@ export default function AiAssistant() {
     }
   }, [language, playingIndex]);
 
+  const sendMessage = useCallback(async (messageText: string) => {
+    setIsTyping(true);
+    setLastFailedMessage(null);
+
+    try {
+      const response = await fetch('/api/ai-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: messageText, language }),
+      });
+
+      if (response.status === 429) {
+        const rateLimitMsg = language === 'en'
+          ? 'Too many requests, please try again in a minute.'
+          : 'खूप विनंत्या आल्या आहेत, कृपया एका मिनिटानंतर पुन्हा प्रयत्न करा.';
+        setMessages(prev => [...prev, { role: 'bot', text: rateLimitMsg }]);
+      } else if (!response.ok) {
+        const errorMsg = language === 'en'
+          ? 'Sorry, something went wrong. Please try again.'
+          : 'क्षमस्व, काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.';
+        setMessages(prev => [...prev, { role: 'bot', text: errorMsg, isError: true }]);
+        setLastFailedMessage(messageText);
+      } else {
+        const data = await response.json();
+        const replyText = data.response || (language === 'en'
+          ? 'Sorry, I could not generate a response. Please try again.'
+          : 'क्षमस्व, मी प्रतिसाद तयार करू शकलो नाही. कृपया पुन्हा प्रयत्न करा.');
+        setMessages(prev => [...prev, { role: 'bot', text: replyText }]);
+      }
+    } catch {
+      const errorMsg = language === 'en'
+        ? 'Network error. Please check your connection and try again.'
+        : 'नेटवर्क त्रुटी. कृपया तुमचे कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.';
+      setMessages(prev => [...prev, { role: 'bot', text: errorMsg, isError: true }]);
+      setLastFailedMessage(messageText);
+    }
+    setIsTyping(false);
+  }, [language]);
+
+  const handleRetry = useCallback(() => {
+    if (!lastFailedMessage) return;
+    // Remove the last error message
+    setMessages(prev => {
+      const lastIdx = prev.length - 1;
+      if (lastIdx >= 0 && prev[lastIdx].isError) {
+        return prev.slice(0, lastIdx);
+      }
+      return prev;
+    });
+    sendMessage(lastFailedMessage);
+  }, [lastFailedMessage, sendMessage]);
+
   const handleQuickAction = (key: string) => {
     const actionLabels: Record<string, Record<string, string>> = {
       docs: { en: 'What documents do I need for admission?', mr: 'प्रवेशासाठी कोणती कागदपत्रे आवश्यक आहेत?' },
@@ -185,13 +207,7 @@ export default function AiAssistant() {
 
     const userMsg = actionLabels[key][language];
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
-    setIsTyping(true);
-
-    setTimeout(() => {
-      const response = mockResponses[key][language];
-      setMessages(prev => [...prev, { role: 'bot', text: response }]);
-      setIsTyping(false);
-    }, 1500);
+    sendMessage(userMsg);
   };
 
   const handleSend = async () => {
@@ -199,32 +215,7 @@ export default function AiAssistant() {
     const userText = input;
     setMessages(prev => [...prev, { role: 'user', text: userText }]);
     setInput('');
-    setIsTyping(true);
-
-    try {
-      const response = await fetch('/api/ai-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userText, language }),
-      });
-
-      if (response.status === 429) {
-        const rateLimitMsg = language === 'en'
-          ? 'Too many requests, please try again in a minute.'
-          : 'खूप विनंत्या आल्या आहेत, कृपया एका मिनिटानंतर पुन्हा प्रयत्न करा.';
-        setMessages(prev => [...prev, { role: 'bot', text: rateLimitMsg }]);
-      } else if (!response.ok) {
-        const fallback = generalResponses[language][Math.floor(Math.random() * 3)];
-        setMessages(prev => [...prev, { role: 'bot', text: fallback }]);
-      } else {
-        const data = await response.json();
-        setMessages(prev => [...prev, { role: 'bot', text: data.response || data.reply || generalResponses[language][Math.floor(Math.random() * 3)] }]);
-      }
-    } catch {
-      const fallback = generalResponses[language][Math.floor(Math.random() * 3)];
-      setMessages(prev => [...prev, { role: 'bot', text: fallback }]);
-    }
-    setIsTyping(false);
+    sendMessage(userText);
   };
 
   return (
@@ -246,7 +237,8 @@ export default function AiAssistant() {
             whileTap={{ scale: 0.97 }}
             key={action.key}
             onClick={() => handleQuickAction(action.key)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-full text-sm font-medium hover:border-amber-300 hover:bg-amber-50 transition-all shadow-sm"
+            disabled={isTyping}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-full text-sm font-medium hover:border-amber-300 hover:bg-amber-50 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <action.icon className="w-4 h-4 text-amber-600" />
             <span className="text-slate-700">{language === 'en' ? action.labelEn : action.labelMr}</span>
@@ -275,13 +267,26 @@ export default function AiAssistant() {
                 <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${
                   msg.role === 'user'
                     ? 'rounded-br-md text-slate-900'
-                    : 'bg-white border border-slate-100 text-slate-800 rounded-bl-md'
+                    : msg.isError
+                      ? 'bg-red-50 border border-red-200 text-red-700 rounded-bl-md'
+                      : 'bg-white border border-slate-100 text-slate-800 rounded-bl-md'
                 }`}
                 style={msg.role === 'user' ? { background: 'linear-gradient(135deg, #fef3c7, #fde68a)' } : {}}
                 >
                   {msg.text}
                 </div>
-                {msg.role === 'bot' && idx > 0 && (
+                {msg.role === 'bot' && msg.isError && idx === messages.length - 1 && lastFailedMessage && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    onClick={handleRetry}
+                    className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-all"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    {t('Retry', 'पुन्हा प्रयत्न करा')}
+                  </motion.button>
+                )}
+                {msg.role === 'bot' && !msg.isError && idx > 0 && (
                   <button
                     onClick={() => handleSpeak(msg.text, idx)}
                     className={`self-start flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
