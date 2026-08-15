@@ -1,6 +1,7 @@
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
+import { GoogleGenAI } from '@google/genai';
 import type { Request, Response } from 'express';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,6 +17,10 @@ const isProduction = process.env.NODE_ENV === 'production';
 // API Routes
 // ============================================================
 
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.get('/api/students', async (_req: Request, res: Response) => {
   const { students } = await import('./src/data/mockData.js');
   res.json({ data: students, total: students.length });
@@ -26,20 +31,87 @@ app.get('/api/staff', async (_req: Request, res: Response) => {
   res.json({ data: staff, total: staff.length });
 });
 
+const SYSTEM_PROMPT = `You are the AI assistant for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज, ता. कर्जत, जि. रायगड. You help parents and staff with queries about admissions, attendance, hostel, mess, exam schedules, tribal scholarships, and school information. Respond in Marathi when the user writes in Marathi, and in English when they write in English. The school has ~459 students from 1st to 12th standard. Principal: श्री. अजित लालासाहेब बनसोडे. The school is under the Tribal Development Department, Maharashtra.`;
+
 app.post('/api/ai-chat', async (req: Request, res: Response) => {
-  const { message } = req.body as { message?: string };
+  const { message } = req.body as { message?: string; language?: string };
 
   if (!message) {
     res.status(400).json({ error: 'Message is required' });
     return;
   }
 
-  // Mock Gemini response for now
-  const mockResponse = `I am the Ashram Shala AI Assistant. You asked: "${message}". 
-This is a mock response. When the GEMINI_API_KEY is configured, I will provide 
-intelligent responses about student data, attendance, hostel management, and more.`;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    res.json({ response: 'AI is not configured. Set GEMINI_API_KEY environment variable.' });
+    return;
+  }
 
-  res.json({ response: mockResponse });
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: message,
+      config: {
+        systemInstruction: SYSTEM_PROMPT,
+      },
+    });
+    const text = result.text ?? 'Sorry, I could not generate a response.';
+    res.json({ response: text });
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    res.status(500).json({ response: 'An error occurred while processing your request. Please try again.' });
+  }
+});
+
+app.post('/api/voice/tts', async (req: Request, res: Response) => {
+  const { text } = req.body as { text?: string; language?: 'mr' | 'en' };
+
+  if (!text) {
+    res.status(400).json({ error: 'Text is required' });
+    return;
+  }
+
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  const voiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
+
+  if (!apiKey) {
+    res.status(400).json({ error: 'Voice service is not configured. Set ELEVENLABS_API_KEY environment variable.' });
+    return;
+  }
+
+  try {
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+      method: 'POST',
+      headers: {
+        'xi-api-key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.5,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('ElevenLabs API error:', errorText);
+      res.status(500).json({ error: 'Failed to generate speech' });
+      return;
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    res.set('Content-Type', 'audio/mpeg');
+    res.send(buffer);
+  } catch (error) {
+    console.error('ElevenLabs TTS error:', error);
+    res.status(500).json({ error: 'An error occurred while generating speech' });
+  }
 });
 
 // ============================================================

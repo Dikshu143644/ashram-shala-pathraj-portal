@@ -1,11 +1,30 @@
-import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, FileText, CheckSquare, Search, Home } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Send, Bot, User, FileText, CheckSquare, Search, Home, Mic, MicOff, Volume2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
 
 interface ChatMessage {
   role: 'user' | 'bot';
   text: string;
+}
+
+interface SpeechRecognitionEvent {
+  results: { [index: number]: { [index: number]: { transcript: string } } };
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
+
+interface SpeechRecognitionInstance {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
 }
 
 const quickActions = [
@@ -47,6 +66,11 @@ const generalResponses = {
   ],
 };
 
+function getSpeechRecognition(): (new () => SpeechRecognitionInstance) | null {
+  const win = window as unknown as Record<string, unknown>;
+  return (win.SpeechRecognition || win.webkitSpeechRecognition) as (new () => SpeechRecognitionInstance) | null;
+}
+
 export default function AiAssistant() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
@@ -58,11 +82,98 @@ export default function AiAssistant() {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const hasSpeechRecognition = typeof window !== 'undefined' && getSpeechRecognition() !== null;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
+
+  const startRecording = useCallback(() => {
+    const SpeechRecognitionClass = getSpeechRecognition();
+    if (!SpeechRecognitionClass) return;
+
+    const recognition = new SpeechRecognitionClass();
+    recognition.lang = language === 'mr' ? 'mr-IN' : 'en-US';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(prev => prev + transcript);
+    };
+
+    recognition.onerror = () => {
+      setIsRecording(false);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsRecording(true);
+  }, [language]);
+
+  const stopRecording = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsRecording(false);
+  }, []);
+
+  const handleSpeak = useCallback(async (text: string, index: number) => {
+    if (playingIndex === index) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      setPlayingIndex(null);
+      return;
+    }
+
+    try {
+      setPlayingIndex(index);
+      const response = await fetch('/api/voice/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, language }),
+      });
+
+      if (!response.ok) {
+        setPlayingIndex(null);
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setPlayingIndex(null);
+        URL.revokeObjectURL(url);
+        audioRef.current = null;
+      };
+
+      audio.onerror = () => {
+        setPlayingIndex(null);
+        URL.revokeObjectURL(url);
+        audioRef.current = null;
+      };
+
+      await audio.play();
+    } catch {
+      setPlayingIndex(null);
+    }
+  }, [language, playingIndex]);
 
   const handleQuickAction = (key: string) => {
     const actionLabels: Record<string, Record<string, string>> = {
@@ -149,14 +260,30 @@ export default function AiAssistant() {
                   <Bot className="w-4 h-4 text-slate-900" />
                 </div>
               )}
-              <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${
-                msg.role === 'user'
-                  ? 'rounded-br-md text-slate-900'
-                  : 'bg-white border border-slate-100 text-slate-800 rounded-bl-md'
-              }`}
-              style={msg.role === 'user' ? { background: 'linear-gradient(135deg, #fef3c7, #fde68a)' } : {}}
-              >
-                {msg.text}
+              <div className="flex flex-col gap-1 max-w-[75%]">
+                <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${
+                  msg.role === 'user'
+                    ? 'rounded-br-md text-slate-900'
+                    : 'bg-white border border-slate-100 text-slate-800 rounded-bl-md'
+                }`}
+                style={msg.role === 'user' ? { background: 'linear-gradient(135deg, #fef3c7, #fde68a)' } : {}}
+                >
+                  {msg.text}
+                </div>
+                {msg.role === 'bot' && idx > 0 && (
+                  <button
+                    onClick={() => handleSpeak(msg.text, idx)}
+                    className={`self-start flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
+                      playingIndex === idx
+                        ? 'bg-amber-100 text-amber-700'
+                        : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                    }`}
+                    title={t('Read aloud', 'मोठ्याने वाचा')}
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                    <span>{playingIndex === idx ? t('Playing...', 'चालू आहे...') : t('Listen', 'ऐका')}</span>
+                  </button>
+                )}
               </div>
               {msg.role === 'user' && (
                 <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0 shadow-sm">
@@ -184,12 +311,27 @@ export default function AiAssistant() {
 
         {/* Input */}
         <div className="border-t border-slate-200 p-4 flex items-center gap-3 bg-white">
+          {hasSpeechRecognition && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={isRecording ? stopRecording : startRecording}
+              className={`p-3 rounded-xl transition-all shadow-sm ${
+                isRecording
+                  ? 'bg-red-500 text-white animate-pulse'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+              title={isRecording ? t('Stop recording', 'रेकॉर्डिंग थांबवा') : t('Voice input', 'आवाज इनपुट')}
+            >
+              {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </motion.button>
+          )}
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={t('Ask anything about admissions, school, hostel...', 'प्रवेश, शाळा, वसतिगृहाबद्दल काहीही विचारा...')}
+            placeholder={isRecording ? t('Listening...', 'ऐकत आहे...') : t('Ask anything about admissions, school, hostel...', 'प्रवेश, शाळा, वसतिगृहाबद्दल काहीही विचारा...')}
             className="flex-1 px-4 py-3 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
           />
           <motion.button
