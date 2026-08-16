@@ -235,6 +235,224 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
 });
 
 // ============================================================
+// Student CRUD Endpoints
+// ============================================================
+
+app.post('/api/students', async (req: Request, res: Response) => {
+  const { full_name, standard, ...rest } = req.body;
+
+  if (!full_name || !standard) {
+    res.status(400).json({ error: 'full_name and standard are required.' });
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('students')
+      .insert({ full_name, standard, ...rest })
+      .select()
+      .single();
+
+    if (error) {
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    // Log the action
+    await supabase.from('security_logs').insert({
+      action: 'student_created',
+      details: `Created student: ${full_name} (${standard})`,
+    });
+
+    res.status(201).json({ data });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.put('/api/students/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const updates = req.body;
+
+  if (!id) {
+    res.status(400).json({ error: 'Student ID is required.' });
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('students')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        res.status(404).json({ error: 'Student not found.' });
+        return;
+      }
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    await supabase.from('security_logs').insert({
+      action: 'student_updated',
+      details: `Updated student: ${id}`,
+    });
+
+    res.json({ data });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/students/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    // First check if student exists
+    const { data: existing, error: findError } = await supabase
+      .from('students')
+      .select('id, full_name')
+      .eq('id', id)
+      .single();
+
+    if (findError || !existing) {
+      res.status(404).json({ error: 'Student not found.' });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('students')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    await supabase.from('security_logs').insert({
+      action: 'student_deleted',
+      details: `Deleted student: ${existing.full_name} (${id})`,
+    });
+
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================================
+// Staff CRUD Endpoints
+// ============================================================
+
+app.post('/api/staff', async (req: Request, res: Response) => {
+  const { full_name, designation, ...rest } = req.body;
+
+  if (!full_name || !designation) {
+    res.status(400).json({ error: 'full_name and designation are required.' });
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('staff')
+      .insert({ full_name, designation, ...rest })
+      .select()
+      .single();
+
+    if (error) {
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    await supabase.from('security_logs').insert({
+      action: 'staff_created',
+      details: `Created staff: ${full_name} (${designation})`,
+    });
+
+    res.status(201).json({ data });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.put('/api/staff/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const updates = req.body;
+
+  if (!id) {
+    res.status(400).json({ error: 'Staff ID is required.' });
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('staff')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        res.status(404).json({ error: 'Staff member not found.' });
+        return;
+      }
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    await supabase.from('security_logs').insert({
+      action: 'staff_updated',
+      details: `Updated staff: ${id}`,
+    });
+
+    res.json({ data });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/staff/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const { data: existing, error: findError } = await supabase
+      .from('staff')
+      .select('id, full_name')
+      .eq('id', id)
+      .single();
+
+    if (findError || !existing) {
+      res.status(404).json({ error: 'Staff member not found.' });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('staff')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    await supabase.from('security_logs').insert({
+      action: 'staff_deleted',
+      details: `Deleted staff: ${existing.full_name} (${id})`,
+    });
+
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================================
 // Multi-Agent System - Specialized System Prompts
 // ============================================================
 // Future: Connect to Supabase/MongoDB here to fetch real-time data
