@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, Plus, CheckCircle, Loader2, Fingerprint, X, Users, UserCheck, ShieldCheck, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { students } from '../data/mockData';
 import { useAppContext } from '../contexts/AppContext';
 import type { Student, Standard } from '../types';
 import StatsCard from './StatsCard';
@@ -17,6 +16,10 @@ export default function AdmissionPortal() {
   const [search, setSearch] = useState('');
   const [filterStd, setFilterStd] = useState('');
 
+  // Students data from API
+  const [studentsData, setStudentsData] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // Form state
   const [formData, setFormData] = useState({
     full_name: '',
@@ -31,11 +34,35 @@ export default function AdmissionPortal() {
   const [submitted, setSubmitted] = useState(false);
   const [applicationId, setApplicationId] = useState('');
 
+  // Fetch students from API with debounce
+  const fetchStudents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filterStd) params.set('standard', filterStd);
+      if (search) params.set('search', search);
+      const response = await fetch(`/api/students?${params.toString()}`);
+      const result = await response.json();
+      setStudentsData(result.data || []);
+    } catch (err) {
+      console.error('Failed to fetch students:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [search, filterStd]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchStudents();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [fetchStudents]);
+
   // Stats
-  const totalStudents = students.length;
-  const enrolledCount = students.filter(s => s.status === 'Enrolled').length;
-  const villageCount = new Set(students.map(s => s.village)).size;
-  const standardCount = new Set(students.map(s => s.standard)).size;
+  const totalStudents = studentsData.length;
+  const enrolledCount = studentsData.filter(s => s.status === 'Enrolled').length;
+  const villageCount = new Set(studentsData.map(s => s.village)).size;
+  const standardCount = new Set(studentsData.map(s => s.standard)).size;
 
   const handleApaarVerify = () => {
     if (formData.apaar_id.length < 5) return;
@@ -46,9 +73,8 @@ export default function AdmissionPortal() {
     }, 2000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Sanitize all form inputs before processing
     const sanitizedData = {
       full_name: sanitizeInput(formData.full_name),
       standard: formData.standard,
@@ -57,11 +83,26 @@ export default function AdmissionPortal() {
       mobile_number: formData.mobile_number.replace(/\D/g, ''),
       apaar_id: formData.apaar_id.replace(/\D/g, ''),
     };
-    // Use sanitizedData for submission (currently generates mock ID)
-    void sanitizedData;
-    const id = `ASPS-2025-${Math.floor(10000 + Math.random() * 90000)}`;
-    setApplicationId(id);
-    setSubmitted(true);
+
+    try {
+      const response = await fetch('/api/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sanitizedData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setApplicationId(result.data?.id || 'SUCCESS');
+        setSubmitted(true);
+        fetchStudents();
+      } else {
+        const err = await response.json();
+        alert(err.error || 'Failed to submit application');
+      }
+    } catch {
+      alert('Failed to submit application. Please try again.');
+    }
   };
 
   const resetForm = () => {
@@ -70,14 +111,6 @@ export default function AdmissionPortal() {
     setApaarVerified(false);
     setFormData({ full_name: '', standard: '5 वी', guardian_name: '', village: '', mobile_number: '', apaar_id: '' });
   };
-
-  const filteredStudents = students.filter((s: Student) => {
-    const matchSearch = s.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      s.guardian_name.toLowerCase().includes(search.toLowerCase()) ||
-      s.village.toLowerCase().includes(search.toLowerCase());
-    const matchStd = filterStd ? s.standard === filterStd : true;
-    return matchSearch && matchStd;
-  });
 
   return (
     <motion.div
@@ -298,6 +331,12 @@ export default function AdmissionPortal() {
 
       {/* Table */}
       <div className="glass-card-static overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+            <span className="ml-3 text-sm text-slate-500">{t('Loading students...', 'विद्यार्थी लोड करत आहे...')}</span>
+          </div>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
@@ -311,7 +350,7 @@ export default function AdmissionPortal() {
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.slice(0, 50).map((student, idx) => (
+              {studentsData.slice(0, 50).map((student, idx) => (
                 <tr key={student.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
                   <td className="px-4 py-2.5 font-mono text-xs text-slate-600">{student.sr_no}</td>
                   <td className="px-4 py-2.5 font-medium text-slate-800">{student.full_name}</td>
@@ -329,9 +368,10 @@ export default function AdmissionPortal() {
             </tbody>
           </table>
         </div>
+        )}
         <div className="px-4 py-2.5 border-t border-slate-200/50 text-xs text-slate-500" style={{ background: 'rgba(248, 250, 252, 0.6)' }}>
-          {t(`Showing ${Math.min(50, filteredStudents.length)} of ${filteredStudents.length} students`,
-             `${filteredStudents.length} पैकी ${Math.min(50, filteredStudents.length)} विद्यार्थी दर्शवित आहे`)}
+          {t(`Showing ${Math.min(50, studentsData.length)} of ${studentsData.length} students`,
+             `${studentsData.length} पैकी ${Math.min(50, studentsData.length)} विद्यार्थी दर्शवित आहे`)}
         </div>
       </div>
     </motion.div>

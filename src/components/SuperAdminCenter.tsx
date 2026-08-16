@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi } from 'lucide-react';
+import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
+import AdminCrudPanel from './AdminCrudPanel';
 
-type AdminTab = 'events' | 'audit';
+type AdminTab = 'events' | 'audit' | 'students';
 
 interface PendingEvent {
   id: string;
@@ -166,6 +167,15 @@ export default function SuperAdminCenter() {
           <Shield className="w-4 h-4" />
           {t('Audit Logs', 'ऑडिट लॉग')}
         </button>
+        <button
+          onClick={() => setActiveTab('students')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
+            activeTab === 'students' ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <GraduationCap className="w-4 h-4" />
+          {t('Student Management', 'विद्यार्थी व्यवस्थापन')}
+        </button>
       </div>
 
       {activeTab === 'events' && (
@@ -287,6 +297,10 @@ export default function SuperAdminCenter() {
             </table>
           </div>
         </div>
+      )}
+
+      {activeTab === 'students' && (
+        <AdminCrudPanel />
       )}
     </motion.div>
   );
