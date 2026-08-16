@@ -1,12 +1,8 @@
-import { School, Globe, Image, Wifi, LogOut, User } from 'lucide-react';
+import { School, Globe, Wifi, LogOut, User } from 'lucide-react';
 import { useAppContext, roleLabels } from '../contexts/AppContext';
 import { motion } from 'motion/react';
 
-interface HeaderProps {
-  onOpenPromptModal: () => void;
-}
-
-export default function Header({ onOpenPromptModal }: HeaderProps) {
+export default function Header() {
   const { language, setLanguage, role, currentUser, logout } = useAppContext();
 
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
@@ -70,17 +66,6 @@ export default function Header({ onOpenPromptModal }: HeaderProps) {
               </span>
             </div>
           )}
-
-          {/* UI Prompts Button */}
-          <button
-            onClick={onOpenPromptModal}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition-all duration-200 hover:scale-105 text-white"
-            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
-            title="UI Prompts"
-          >
-            <Image className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Prompts</span>
-          </button>
 
           {/* Language Toggle */}
           <motion.button

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   GraduationCap, ClipboardList, Building2, MessageCircle,
-  FileStack, Shield, Bot, Book, Menu, X, School
+  FileStack, Shield, Bot, Menu, X, School
 } from 'lucide-react';
 import { AppProvider, useAppContext, type AppRole } from './contexts/AppContext';
 import Header from './components/Header';
@@ -14,10 +14,8 @@ import WhatsAppHub from './components/WhatsAppHub';
 import ClerkPortal from './components/ClerkPortal';
 import SuperAdminCenter from './components/SuperAdminCenter';
 import AiAssistant from './components/AiAssistant';
-import PrdViewer from './components/PrdViewer';
-import ImagePromptViewerModal from './components/ImagePromptViewerModal';
 
-type TabKey = 'admission' | 'classTeacher' | 'hostel' | 'whatsapp' | 'clerk' | 'superAdmin' | 'aiAssistant' | 'prd';
+type TabKey = 'admission' | 'classTeacher' | 'hostel' | 'whatsapp' | 'clerk' | 'superAdmin' | 'aiAssistant';
 
 interface TabConfig {
   key: TabKey;
@@ -37,7 +35,6 @@ const tabs: TabConfig[] = [
   { key: 'clerk', labelEn: 'Clerk', labelMr: 'लिपिक', icon: FileStack, roles: ['web_creator', 'principal', 'clerk'], iconBg: 'bg-purple-100', iconColor: 'text-purple-700' },
   { key: 'superAdmin', labelEn: 'Admin', labelMr: 'अॅडमिन', icon: Shield, roles: ['web_creator'], iconBg: 'bg-red-100', iconColor: 'text-red-700' },
   { key: 'aiAssistant', labelEn: 'AI Assistant', labelMr: 'AI सहाय्यक', icon: Bot, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher', 'student_parent'], iconBg: 'bg-emerald-100', iconColor: 'text-emerald-700' },
-  { key: 'prd', labelEn: 'Docs', labelMr: 'दस्तऐवज', icon: Book, roles: ['web_creator', 'principal'], iconBg: 'bg-slate-100', iconColor: 'text-slate-700' },
 ];
 
 function SplashScreen({ onComplete }: { onComplete: () => void }) {
@@ -66,7 +63,6 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
 function AppContent() {
   const { language, role, isAuthenticated } = useAppContext();
   const [activeTab, setActiveTab] = useState<TabKey>('admission');
-  const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 
@@ -89,7 +85,6 @@ function AppContent() {
       case 'clerk': return <ClerkPortal />;
       case 'superAdmin': return <SuperAdminCenter />;
       case 'aiAssistant': return <AiAssistant />;
-      case 'prd': return <PrdViewer />;
       default: return <AdmissionPortal />;
     }
   };
@@ -118,7 +113,7 @@ function AppContent() {
       <div className="floating-shape floating-shape-2" style={{ top: '60%', right: '8%', width: '40px', height: '40px', borderRadius: '50%', border: '1px solid rgba(5, 150, 105, 0.15)', background: 'rgba(5, 150, 105, 0.03)' }} />
       <div className="floating-shape floating-shape-3" style={{ bottom: '15%', left: '30%', width: '50px', height: '50px', borderRadius: '40%', border: '1px solid rgba(59, 130, 246, 0.12)', background: 'rgba(59, 130, 246, 0.02)' }} />
 
-      <Header onOpenPromptModal={() => setPromptModalOpen(true)} />
+      <Header />
 
       <div className="flex flex-1 overflow-hidden relative z-10">
         {/* Desktop Sidebar - Glassmorphism */}
@@ -288,8 +283,6 @@ function AppContent() {
         </div>
       </div>
 
-      {/* Image Prompt Modal */}
-      <ImagePromptViewerModal isOpen={promptModalOpen} onClose={() => setPromptModalOpen(false)} />
     </div>
   );
 }
