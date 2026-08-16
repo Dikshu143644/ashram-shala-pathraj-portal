@@ -1,8 +1,14 @@
+import 'dotenv/config';
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { GoogleGenAI } from '@google/genai';
+import { createClient } from '@supabase/supabase-js';
 import type { Request, Response } from 'express';
+
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -65,7 +71,6 @@ function isRateLimited(ip: string, store: Map<string, RateLimitEntry>): boolean 
 // ============================================================
 // Login Rate Limiting (stricter: 5 attempts per IP per minute)
 // ============================================================
-// TODO: Replace with real JWT auth + Supabase Auth when database is connected
 
 const LOGIN_RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const LOGIN_RATE_LIMIT_MAX_REQUESTS = 5; // max 5 login attempts per window per IP
@@ -87,16 +92,6 @@ function isLoginRateLimited(ip: string): boolean {
   return false;
 }
 
-// Login credentials (hardcoded until real auth is connected)
-const LOGIN_CREDENTIALS = [
-  { username: 'admin', password: 'Admin@2024', role: 'web_creator', nameEn: 'Super Admin', nameMr: 'सुपर अॅडमिन' },
-  { username: 'principal', password: 'Principal@2024', role: 'principal', nameEn: 'Principal', nameMr: 'मुख्याध्यापक' },
-  { username: 'teacher', password: 'Teacher@2024', role: 'class_teacher', nameEn: 'Class Teacher', nameMr: 'वर्गशिक्षक' },
-  { username: 'clerk', password: 'Clerk@2024', role: 'clerk', nameEn: 'Clerk', nameMr: 'लिपिक' },
-  { username: 'sports', password: 'Sports@2024', role: 'subject_teacher', nameEn: 'Subject Teacher', nameMr: 'विषय शिक्षक' },
-  { username: 'parent', password: 'Parent@2024', role: 'student_parent', nameEn: 'Student/Parent', nameMr: 'विद्यार्थी/पालक' },
-];
-
 // ============================================================
 // Input validation constants
 // ============================================================
@@ -112,22 +107,55 @@ app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.get('/api/students', async (_req: Request, res: Response) => {
-  const { students } = await import('./src/data/mockData.js');
-  res.json({ data: students, total: students.length });
+app.get('/api/students', async (req: Request, res: Response) => {
+  try {
+    let query = supabase.from('students').select('*', { count: 'exact' });
+
+    const { standard, search } = req.query;
+    if (standard && typeof standard === 'string') {
+      query = query.eq('standard', standard);
+    }
+    if (search && typeof search === 'string') {
+      query = query.or(`full_name.ilike.%${search}%,guardian_name.ilike.%${search}%,village.ilike.%${search}%`);
+    }
+
+    query = query.order('sr_no', { ascending: true });
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    res.json({ data: data || [], total: count || 0 });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.get('/api/staff', async (_req: Request, res: Response) => {
-  const { staff } = await import('./src/data/mockData.js');
-  res.json({ data: staff, total: staff.length });
+  try {
+    const { data, error, count } = await supabase
+      .from('staff')
+      .select('*', { count: 'exact' });
+
+    if (error) {
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    res.json({ data: data || [], total: count || 0 });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // ============================================================
 // Authentication Login Endpoint
 // ============================================================
-// TODO: Replace with real JWT auth + Supabase Auth when database is connected
 
-app.post('/api/auth/login', (req: Request, res: Response) => {
+app.post('/api/auth/login', async (req: Request, res: Response) => {
   const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
 
   if (isLoginRateLimited(clientIp)) {
@@ -147,20 +175,62 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
     return;
   }
 
-  const found = LOGIN_CREDENTIALS.find(c => c.username === username && c.password === password);
+  try {
+    // Query auth_users table
+    const { data: user, error } = await supabase
+      .from('auth_users')
+      .select('*')
+      .eq('username', username)
+      .eq('is_active', true)
+      .single();
 
-  if (found) {
+    if (error || !user) {
+      // Log failed attempt
+      await supabase.from('security_logs').insert({
+        action: 'login_failed',
+        username,
+        ip_address: clientIp,
+        details: `Failed login attempt for username: ${username}`,
+      });
+
+      res.status(401).json({ success: false, error: 'Invalid username or password.' });
+      return;
+    }
+
+    // Compare password (plaintext for now - TODO: use bcrypt)
+    if (user.password_hash !== password) {
+      // Log failed attempt
+      await supabase.from('security_logs').insert({
+        action: 'login_failed',
+        username,
+        ip_address: clientIp,
+        details: `Invalid password for username: ${username}`,
+      });
+
+      res.status(401).json({ success: false, error: 'Invalid username or password.' });
+      return;
+    }
+
+    // Log successful login
+    await supabase.from('security_logs').insert({
+      action: 'login_success',
+      user_id: user.id,
+      username,
+      ip_address: clientIp,
+      details: `Successful login`,
+    });
+
     res.json({
       success: true,
       user: {
-        username: found.username,
-        role: found.role,
-        nameEn: found.nameEn,
-        nameMr: found.nameMr,
+        username: user.username,
+        role: user.role,
+        nameEn: user.name_en,
+        nameMr: user.name_mr,
       },
     });
-  } else {
-    res.status(401).json({ success: false, error: 'Invalid username or password.' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Internal server error.' });
   }
 });
 
