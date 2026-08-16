@@ -116,7 +116,11 @@ app.get('/api/students', async (req: Request, res: Response) => {
       query = query.eq('standard', standard);
     }
     if (search && typeof search === 'string') {
-      query = query.or(`full_name.ilike.%${search}%,guardian_name.ilike.%${search}%,village.ilike.%${search}%`);
+      // Sanitize search to prevent PostgREST filter injection
+      const sanitizedSearch = search.replace(/[,.()"\\]/g, '');
+      if (sanitizedSearch) {
+        query = query.or(`full_name.ilike.%${sanitizedSearch}%,guardian_name.ilike.%${sanitizedSearch}%,village.ilike.%${sanitizedSearch}%`);
+      }
     }
 
     query = query.order('sr_no', { ascending: true });
@@ -239,17 +243,31 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
 // ============================================================
 
 app.post('/api/students', async (req: Request, res: Response) => {
-  const { full_name, standard, ...rest } = req.body;
+  const body = req.body;
 
-  if (!full_name || !standard) {
+  if (!body.full_name || !body.standard) {
     res.status(400).json({ error: 'full_name and standard are required.' });
     return;
+  }
+
+  // Whitelist allowed fields only
+  const studentData: Record<string, unknown> = {
+    full_name: body.full_name,
+    standard: body.standard,
+  };
+
+  // Optional fields
+  const allowedFields = ['date_of_birth', 'blood_group', 'apaar_id', 'mobile_number', 'guardian_name', 'village', 'taluka', 'district', 'pincode', 'guardian_mobile', 'guardian_relation', 'status'];
+  for (const field of allowedFields) {
+    if (body[field] !== undefined) {
+      studentData[field] = body[field];
+    }
   }
 
   try {
     const { data, error } = await supabase
       .from('students')
-      .insert({ full_name, standard, ...rest })
+      .insert(studentData)
       .select()
       .single();
 
@@ -261,7 +279,7 @@ app.post('/api/students', async (req: Request, res: Response) => {
     // Log the action
     await supabase.from('security_logs').insert({
       action: 'student_created',
-      details: `Created student: ${full_name} (${standard})`,
+      details: `Created student: ${body.full_name} (${body.standard})`,
     });
 
     res.status(201).json({ data });
@@ -272,17 +290,26 @@ app.post('/api/students', async (req: Request, res: Response) => {
 
 app.put('/api/students/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
-  const updates = req.body;
 
   if (!id) {
     res.status(400).json({ error: 'Student ID is required.' });
     return;
   }
 
+  // Whitelist allowed update fields
+  const allowedUpdateFields = ['full_name', 'standard', 'date_of_birth', 'blood_group', 'apaar_id', 'mobile_number', 'guardian_name', 'village', 'taluka', 'district', 'pincode', 'guardian_mobile', 'guardian_relation', 'status'];
+  const updates: Record<string, unknown> = {};
+  for (const field of allowedUpdateFields) {
+    if (req.body[field] !== undefined) {
+      updates[field] = req.body[field];
+    }
+  }
+  updates.updated_at = new Date().toISOString();
+
   try {
     const { data, error } = await supabase
       .from('students')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update(updates)
       .eq('id', id)
       .select()
       .single();
@@ -349,17 +376,30 @@ app.delete('/api/students/:id', async (req: Request, res: Response) => {
 // ============================================================
 
 app.post('/api/staff', async (req: Request, res: Response) => {
-  const { full_name, designation, ...rest } = req.body;
+  const body = req.body;
 
-  if (!full_name || !designation) {
+  if (!body.full_name || !body.designation) {
     res.status(400).json({ error: 'full_name and designation are required.' });
     return;
+  }
+
+  // Whitelist allowed fields only
+  const staffData: Record<string, unknown> = {
+    full_name: body.full_name,
+    designation: body.designation,
+  };
+
+  const allowedStaffFields = ['department', 'mobile_number', 'email', 'joining_date', 'status'];
+  for (const field of allowedStaffFields) {
+    if (body[field] !== undefined) {
+      staffData[field] = body[field];
+    }
   }
 
   try {
     const { data, error } = await supabase
       .from('staff')
-      .insert({ full_name, designation, ...rest })
+      .insert(staffData)
       .select()
       .single();
 
@@ -370,7 +410,7 @@ app.post('/api/staff', async (req: Request, res: Response) => {
 
     await supabase.from('security_logs').insert({
       action: 'staff_created',
-      details: `Created staff: ${full_name} (${designation})`,
+      details: `Created staff: ${body.full_name} (${body.designation})`,
     });
 
     res.status(201).json({ data });
@@ -381,11 +421,19 @@ app.post('/api/staff', async (req: Request, res: Response) => {
 
 app.put('/api/staff/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
-  const updates = req.body;
 
   if (!id) {
     res.status(400).json({ error: 'Staff ID is required.' });
     return;
+  }
+
+  // Whitelist allowed update fields
+  const allowedStaffUpdateFields = ['full_name', 'designation', 'department', 'mobile_number', 'email', 'joining_date', 'status'];
+  const updates: Record<string, unknown> = {};
+  for (const field of allowedStaffUpdateFields) {
+    if (req.body[field] !== undefined) {
+      updates[field] = req.body[field];
+    }
   }
 
   try {
