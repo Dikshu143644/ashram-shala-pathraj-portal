@@ -1,7 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 
-// TODO: Replace with real JWT auth + Supabase Auth when database is connected
-
 export type Language = 'en' | 'mr';
 
 export type AppRole = 'web_creator' | 'principal' | 'class_teacher' | 'clerk' | 'subject_teacher' | 'student_parent';
@@ -12,15 +10,6 @@ export interface AuthUser {
   nameEn: string;
   nameMr: string;
 }
-
-const credentials = [
-  { username: 'admin', password: 'Admin@2024', role: 'web_creator' as AppRole, nameEn: 'Super Admin', nameMr: 'सुपर अॅडमिन' },
-  { username: 'principal', password: 'Principal@2024', role: 'principal' as AppRole, nameEn: 'Principal', nameMr: 'मुख्याध्यापक' },
-  { username: 'teacher', password: 'Teacher@2024', role: 'class_teacher' as AppRole, nameEn: 'Class Teacher', nameMr: 'वर्गशिक्षक' },
-  { username: 'clerk', password: 'Clerk@2024', role: 'clerk' as AppRole, nameEn: 'Clerk', nameMr: 'लिपिक' },
-  { username: 'sports', password: 'Sports@2024', role: 'subject_teacher' as AppRole, nameEn: 'Subject Teacher', nameMr: 'विषय शिक्षक' },
-  { username: 'parent', password: 'Parent@2024', role: 'student_parent' as AppRole, nameEn: 'Student/Parent', nameMr: 'विद्यार्थी/पालक' },
-];
 
 interface AppContextType {
   language: Language;
@@ -90,17 +79,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       return { success: false, error: data.error || 'Invalid username or password' };
     } catch {
-      // Fallback to client-side validation if server is unreachable
-      const found = credentials.find(c => c.username === username && c.password === password);
-      if (found) {
-        const user: AuthUser = { username: found.username, role: found.role, nameEn: found.nameEn, nameMr: found.nameMr };
-        setCurrentUser(user);
-        setIsAuthenticated(true);
-        setRole(user.role);
-        sessionStorage.setItem('ashram_auth', JSON.stringify(user));
-        return { success: true };
-      }
-      return { success: false, error: 'Invalid username or password' };
+      // No client-side fallback - if server is unreachable, show error
+      return { success: false, error: 'Server unreachable. Please try again later.' };
     }
   }, []);
 
