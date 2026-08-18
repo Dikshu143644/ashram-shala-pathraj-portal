@@ -1,4 +1,5 @@
 from google import genai
+from google.genai import types
 from config import GEMINI_API_KEY, GEMINI_MODEL
 
 SYSTEM_PROMPT = """You are the Admission Agent for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज (Government Secondary and Higher Secondary Ashram School, Pathraj).
@@ -63,8 +64,17 @@ class AdmissionAgent:
             else "Respond in English."
         )
 
-        response = self.client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=f"{SYSTEM_PROMPT}\n\n{lang_instruction}\n\nUser query: {message}",
-        )
-        return response.text or "I could not generate a response. Please try again."
+        system_instruction = f"{SYSTEM_PROMPT}\n\n{lang_instruction}"
+
+        try:
+            response = self.client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=message,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                ),
+            )
+            return response.text or "I could not generate a response. Please try again."
+        except Exception as e:
+            print(f"[AdmissionAgent] Gemini API error: {e}")
+            return "I'm sorry, I'm temporarily unable to process your request. Please try again later."

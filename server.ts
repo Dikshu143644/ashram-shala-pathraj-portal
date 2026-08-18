@@ -697,7 +697,7 @@ app.post('/api/ai-chat', async (req: Request, res: Response) => {
     return;
   }
 
-  const { message } = req.body as { message?: string; language?: string };
+  const { message, language } = req.body as { message?: string; language?: string };
 
   if (!message) {
     res.status(400).json({ error: 'Message is required' });
@@ -709,6 +709,36 @@ app.post('/api/ai-chat', async (req: Request, res: Response) => {
     return;
   }
 
+  // Try Python ADK service first, fall back to Node.js Gemini implementation
+  const adkServiceUrl = process.env.ADK_SERVICE_URL || 'http://localhost:8000';
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    const adkResponse = await fetch(`${adkServiceUrl}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, language: language || 'en' }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (adkResponse.ok) {
+      const adkData = (await adkResponse.json()) as { response: string; agent: string };
+      res.json({ response: adkData.response, agent: adkData.agent });
+      return;
+    }
+    // If ADK responded with an error status, fall through to Node.js implementation
+    console.warn(`ADK service returned status ${adkResponse.status}, falling back to Node.js Gemini`);
+  } catch (adkError: unknown) {
+    // Connection refused, timeout, or other network error - fall back silently
+    const errMsg = adkError instanceof Error ? adkError.message : String(adkError);
+    console.warn(`ADK service unavailable (${errMsg}), falling back to Node.js Gemini`);
+  }
+
+  // Fallback: Node.js Gemini implementation
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     res.json({ response: 'AI assistant is temporarily unavailable. Please try again later.' });
@@ -719,13 +749,6 @@ app.post('/api/ai-chat', async (req: Request, res: Response) => {
     // Detect intent and route to appropriate agent
     const intent = detectIntent(message);
     const systemPrompt = AGENT_PROMPTS[intent];
-
-    // Future: Query database for real-time data based on intent
-    // For example:
-    //   if (intent === 'attendance') {
-    //     const attendanceData = await supabase.from('attendance').select('*').eq('date', today);
-    //     // Append real data to the prompt or message context
-    //   }
 
     const ai = new GoogleGenAI({ apiKey });
     const result = await ai.models.generateContent({

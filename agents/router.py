@@ -62,9 +62,11 @@ def detect_intent(message: str) -> str:
     if max_score == 0:
         return "general"
 
-    # Return the category with the highest score
-    for category, score in scores.items():
-        if score == max_score:
+    # Use explicit priority list for deterministic tie-breaking,
+    # matching the Node.js implementation's priority order
+    priority = ["admission", "attendance", "hostel", "academic"]
+    for category in priority:
+        if scores[category] == max_score:
             return category
 
     return "general"

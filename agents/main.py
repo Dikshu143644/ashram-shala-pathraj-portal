@@ -8,11 +8,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 
 from config import PORT
 from router import route_message
+
+# Maximum message length (matches the Express server's MAX_CHAT_MESSAGE_LENGTH)
+MAX_MESSAGE_LENGTH = 1000
 
 app = FastAPI(
     title="Ashram Shala Pathraj - ADK Multi-Agent System",
@@ -20,11 +23,12 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Enable CORS
+# Enable CORS for server-to-server communication from Express proxy.
+# Note: allow_credentials is omitted (defaults to False) because wildcard
+# origins with credentials=True is rejected by browsers per the Fetch spec.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -34,6 +38,17 @@ class ChatRequest(BaseModel):
     """Request model for chat endpoint."""
     message: str
     language: Optional[str] = "en"
+
+    @field_validator("message")
+    @classmethod
+    def validate_message_length(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Message must not be empty")
+        if len(v) > MAX_MESSAGE_LENGTH:
+            raise ValueError(
+                f"Message too long. Maximum {MAX_MESSAGE_LENGTH} characters allowed."
+            )
+        return v
 
 
 class ChatResponse(BaseModel):
