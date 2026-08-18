@@ -10,6 +10,7 @@
     "lint": "tsc --noEmit",
     "adk:install": "cd agents && pip install -r requirements.txt",
     "adk:start": "cd agents && python main.py",
+    "vercel-build": "vite build",
     "docker:build": "docker build -t ashram-shala-pathraj .",
     "docker:run": "docker run -p 3000:3000 --env-file .env ashram-shala-pathraj"
   },
