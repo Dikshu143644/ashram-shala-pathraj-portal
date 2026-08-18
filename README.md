@@ -62,11 +62,27 @@ cp .env.example .env
 | `GEMINI_API_KEY` | Google Gemini AI API key |
 | `ELEVENLABS_API_KEY` | ElevenLabs text-to-speech API key |
 | `ELEVENLABS_VOICE_ID` | ElevenLabs voice ID for TTS |
-| `SUPABASE_URL` | Supabase project URL (future) |
-| `SUPABASE_ANON_KEY` | Supabase anonymous key (future) |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_ANON_KEY` | Supabase browser-safe anonymous key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only key for database API access |
+| `SUPABASE_ACCESS_TOKEN` | Management API token used only by the schema setup script |
+| `RESEND_API_KEY` | Server-only Resend API key for login codes |
+| `RESEND_FROM_EMAIL` | Verified sender, for example `Ashram Shala <login@example.org>` |
+| `OTP_HMAC_SECRET` | Random secret of at least 32 characters used to hash OTPs |
+| `OTP_DEFAULT_EMAIL` | Optional seed-script email for demo login accounts |
 | `WHATSAPP_API_TOKEN` | WhatsApp Business API token (future) |
 | `WHATSAPP_PHONE_NUMBER_ID` | WhatsApp phone number ID (future) |
 | `GHCR_TOKEN` | GitHub Container Registry token |
+
+### Database setup
+
+Apply the schema before enabling email OTP:
+
+```bash
+npx tsx scripts/setup-db.ts
+```
+
+The setup creates `otp_verifications`, adds durable `auth_rate_limits`, and adds an `email` column to `auth_users`. Assign a verified email to every active account that should be able to sign in. OTP codes are hashed, expire within the parent 10-minute challenge, allow at most three sends and five atomically reserved verification attempts, and are consumed after successful use.
 
 ---
 

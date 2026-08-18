@@ -5,6 +5,7 @@ import { dirname, resolve } from 'path';
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
 import type { Request, Response } from 'express';
+import { registerAuthRoutes } from './server/auth.ts';
 
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -41,7 +42,7 @@ const ttsRateLimitStore = new Map<string, RateLimitEntry>();
 // Periodically clean up stale entries every 5 minutes
 const cleanupInterval = setInterval(() => {
   const now = Date.now();
-  for (const store of [chatRateLimitStore, ttsRateLimitStore, loginRateLimitStore]) {
+  for (const store of [chatRateLimitStore, ttsRateLimitStore]) {
     for (const [key, entry] of store) {
       entry.timestamps = entry.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
       if (entry.timestamps.length === 0) {
@@ -69,30 +70,6 @@ function isRateLimited(ip: string, store: Map<string, RateLimitEntry>): boolean 
 }
 
 // ============================================================
-// Login Rate Limiting (stricter: 5 attempts per IP per minute)
-// ============================================================
-
-const LOGIN_RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const LOGIN_RATE_LIMIT_MAX_REQUESTS = 5; // max 5 login attempts per window per IP
-
-const loginRateLimitStore = new Map<string, RateLimitEntry>();
-
-function isLoginRateLimited(ip: string): boolean {
-  const now = Date.now();
-  let entry = loginRateLimitStore.get(ip);
-  if (!entry) {
-    entry = { timestamps: [] };
-    loginRateLimitStore.set(ip, entry);
-  }
-  entry.timestamps = entry.timestamps.filter(t => now - t < LOGIN_RATE_LIMIT_WINDOW_MS);
-  if (entry.timestamps.length >= LOGIN_RATE_LIMIT_MAX_REQUESTS) {
-    return true;
-  }
-  entry.timestamps.push(now);
-  return false;
-}
-
-// ============================================================
 // Input validation constants
 // ============================================================
 
@@ -106,6 +83,8 @@ const MAX_TTS_TEXT_LENGTH = 2000;
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+registerAuthRoutes(app, supabase);
 
 app.get('/api/students', async (req: Request, res: Response) => {
   try {
@@ -152,89 +131,6 @@ app.get('/api/staff', async (_req: Request, res: Response) => {
     res.json({ data: data || [], total: count || 0 });
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// ============================================================
-// Authentication Login Endpoint
-// ============================================================
-
-app.post('/api/auth/login', async (req: Request, res: Response) => {
-  const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
-
-  if (isLoginRateLimited(clientIp)) {
-    res.status(429).json({ success: false, error: 'Too many login attempts. Please try again after 1 minute.' });
-    return;
-  }
-
-  const { username, password } = req.body as { username?: string; password?: string };
-
-  if (!username || !password) {
-    res.status(400).json({ success: false, error: 'Username and password are required.' });
-    return;
-  }
-
-  if (username.length > 50 || password.length > 100) {
-    res.status(400).json({ success: false, error: 'Invalid credentials.' });
-    return;
-  }
-
-  try {
-    // Query auth_users table
-    const { data: user, error } = await supabase
-      .from('auth_users')
-      .select('*')
-      .eq('username', username)
-      .eq('is_active', true)
-      .single();
-
-    if (error || !user) {
-      // Log failed attempt
-      await supabase.from('security_logs').insert({
-        action: 'login_failed',
-        username,
-        ip_address: clientIp,
-        details: `Failed login attempt for username: ${username}`,
-      });
-
-      res.status(401).json({ success: false, error: 'Invalid username or password.' });
-      return;
-    }
-
-    // Compare password (plaintext for now - TODO: use bcrypt)
-    if (user.password_hash !== password) {
-      // Log failed attempt
-      await supabase.from('security_logs').insert({
-        action: 'login_failed',
-        username,
-        ip_address: clientIp,
-        details: `Invalid password for username: ${username}`,
-      });
-
-      res.status(401).json({ success: false, error: 'Invalid username or password.' });
-      return;
-    }
-
-    // Log successful login
-    await supabase.from('security_logs').insert({
-      action: 'login_success',
-      user_id: user.id,
-      username,
-      ip_address: clientIp,
-      details: `Successful login`,
-    });
-
-    res.json({
-      success: true,
-      user: {
-        username: user.username,
-        role: user.role,
-        nameEn: user.name_en,
-        nameMr: user.name_mr,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, error: 'Internal server error.' });
   }
 });
 
@@ -839,7 +735,7 @@ if (!isProduction) {
   });
   app.use(vite.middlewares);
 } else {
-  const distPath = resolve(__dirname, 'dist');
+  const distPath = resolve(process.cwd(), 'dist');
   app.use(express.static(distPath));
   app.get('*', (_req: Request, res: Response) => {
     res.sendFile(resolve(distPath, 'index.html'));

@@ -11,6 +11,21 @@ export interface AuthUser {
   nameMr: string;
 }
 
+interface OperationResult {
+  success: boolean;
+  error?: string;
+}
+
+interface BeginLoginResult extends OperationResult {
+  challengeToken?: string;
+  maskedEmail?: string;
+}
+
+interface SendOtpResult extends OperationResult {
+  maskedEmail?: string;
+  resendAfterSeconds?: number;
+}
+
 interface AppContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
@@ -18,7 +33,9 @@ interface AppContextType {
   setRole: (role: AppRole) => void;
   isAuthenticated: boolean;
   currentUser: AuthUser | null;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  beginLogin: (username: string, password: string) => Promise<BeginLoginResult>;
+  sendOtp: (challengeToken: string) => Promise<SendOtpResult>;
+  verifyOtp: (challengeToken: string, code: string) => Promise<OperationResult>;
   logout: () => void;
 }
 
@@ -34,9 +51,21 @@ function getStoredAuth(): { isAuthenticated: boolean; currentUser: AuthUser | nu
       }
     }
   } catch {
-    // Ignore parse errors
+    // Ignore invalid browser session data.
   }
   return { isAuthenticated: false, currentUser: null };
+}
+
+async function readApiResponse(response: Response): Promise<Record<string, unknown>> {
+  try {
+    return await response.json() as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+function apiError(data: Record<string, unknown>, fallback: string): string {
+  return typeof data.error === 'string' ? data.error : fallback;
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -47,39 +76,80 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<AppRole>(storedAuth.currentUser?.role || 'web_creator');
 
   useEffect(() => {
-    if (currentUser) {
-      setRole(currentUser.role);
-    }
+    if (currentUser) setRole(currentUser.role);
   }, [currentUser]);
 
-  const login = useCallback(async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const beginLogin = useCallback(async (username: string, password: string): Promise<BeginLoginResult> => {
     try {
-      // Call server-side validation endpoint
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
+      const data = await readApiResponse(response);
 
-      const data = await response.json();
-
-      if (response.status === 429) {
-        return { success: false, error: data.error || 'Too many login attempts. Please try again after 1 minute.' };
+      if (
+        response.ok &&
+        data.success === true &&
+        data.otpRequired === true &&
+        typeof data.challengeToken === 'string'
+      ) {
+        return {
+          success: true,
+          challengeToken: data.challengeToken,
+          maskedEmail: typeof data.maskedEmail === 'string' ? data.maskedEmail : undefined,
+        };
       }
 
-      if (data.success && data.user) {
-        const user: AuthUser = data.user;
+      return { success: false, error: apiError(data, 'Invalid username or password') };
+    } catch {
+      return { success: false, error: 'Server unreachable. Please try again later.' };
+    }
+  }, []);
+
+  const sendOtp = useCallback(async (challengeToken: string): Promise<SendOtpResult> => {
+    try {
+      const response = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeToken }),
+      });
+      const data = await readApiResponse(response);
+
+      if (response.ok && data.success === true) {
+        return {
+          success: true,
+          maskedEmail: typeof data.maskedEmail === 'string' ? data.maskedEmail : undefined,
+          resendAfterSeconds: typeof data.resendAfterSeconds === 'number' ? data.resendAfterSeconds : 60,
+        };
+      }
+
+      return { success: false, error: apiError(data, 'Could not send the verification email.') };
+    } catch {
+      return { success: false, error: 'Server unreachable. Please try again later.' };
+    }
+  }, []);
+
+  const verifyOtp = useCallback(async (challengeToken: string, code: string): Promise<OperationResult> => {
+    try {
+      const response = await fetch('/api/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeToken, code }),
+      });
+      const data = await readApiResponse(response);
+
+      if (response.ok && data.success === true && data.user && typeof data.user === 'object') {
+        const user = data.user as unknown as AuthUser;
         setCurrentUser(user);
         setIsAuthenticated(true);
         setRole(user.role);
-        // Store in sessionStorage (never localStorage for security)
         sessionStorage.setItem('ashram_auth', JSON.stringify(user));
         return { success: true };
       }
 
-      return { success: false, error: data.error || 'Invalid username or password' };
+      return { success: false, error: apiError(data, 'Verification code is invalid or expired.') };
     } catch {
-      // No client-side fallback - if server is unreachable, show error
       return { success: false, error: 'Server unreachable. Please try again later.' };
     }
   }, []);
@@ -92,16 +162,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, role, setRole, isAuthenticated, currentUser, login, logout }}>
+    <AppContext.Provider value={{ language, setLanguage, role, setRole, isAuthenticated, currentUser, beginLogin, sendOtp, verifyOtp, logout }}>
       {children}
     </AppContext.Provider>
   );
 }
 
 export function useAppContext(): AppContextType {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useAppContext must be used within AppProvider');
-  return ctx;
+  const context = useContext(AppContext);
+  if (!context) throw new Error('useAppContext must be used within AppProvider');
+  return context;
 }
 
 export const roleLabels: Record<AppRole, { en: string; mr: string }> = {
