@@ -2,7 +2,7 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
-import { registerAuthRoutes } from '../server/auth.ts';
+import { registerAuthRoutes } from '../server/auth';
 
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
