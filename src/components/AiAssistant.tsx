@@ -224,14 +224,14 @@ export default function AiAssistant() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="p-4 sm:p-6 max-w-4xl mx-auto"
+      initial={false}
+      className="portal-page max-w-5xl!"
     >
-      <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] mb-5">
-        {t('AI Inquiry Assistant', 'AI चौकशी सहाय्यक')}
-      </h2>
+      <div className="portal-heading">
+        <p className="portal-kicker">{t('ONLINE · READY TO ASSIST', 'ऑनलाइन · मदतीसाठी सज्ज')}</p>
+        <h2 className="portal-title">{t('Ashram Guide AI', 'आश्रम मार्गदर्शक AI')}</h2>
+        <p className="portal-subtitle">{t('Ask about admissions, documents, hostel services and school processes.', 'प्रवेश, कागदपत्रे, वसतिगृह सेवा आणि शालेय प्रक्रियांबद्दल विचारा.')}</p>
+      </div>
 
       {/* Quick Actions as gradient pill buttons */}
       <div className="flex flex-wrap gap-2 mb-5">
@@ -263,8 +263,8 @@ export default function AiAssistant() {
               className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'bot' && (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-md" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
-                  <Bot className="w-4 h-4 text-slate-900" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00855d] to-[#006948] text-white shadow-[0_7px_16px_rgba(0,105,72,.2)]">
+                  <Bot className="h-4 w-4 text-white!" />
                 </div>
               )}
               <div className="flex flex-col gap-1 max-w-[75%]">
@@ -304,7 +304,7 @@ export default function AiAssistant() {
                 )}
               </div>
               {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-md" style={{ background: 'linear-gradient(135deg, #1e293b, #334155)' }}>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#d5e0f8] text-[#3c475a] shadow-sm">
                   <User className="w-4 h-4 text-white" />
                 </div>
               )}
@@ -361,8 +361,7 @@ export default function AiAssistant() {
             whileTap={{ scale: 0.95 }}
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
-            className="p-3 rounded-full text-white transition-all disabled:opacity-50 shadow-md"
-            style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#00855d] to-[#006948] text-white shadow-[0_8px_18px_rgba(0,105,72,.22)] transition-all disabled:opacity-50"
           >
             <Send className="w-4 h-4" />
           </motion.button>

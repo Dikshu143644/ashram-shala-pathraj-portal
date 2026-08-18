@@ -64,31 +64,29 @@ export default function WhatsAppHub() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="p-4 sm:p-6 max-w-7xl mx-auto"
+      initial={false}
+      className="portal-page"
     >
-      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-4">
-        {t('WhatsApp Hub', 'व्हॉट्सअॅप केंद्र')}
-      </h2>
+      <div className="portal-heading">
+        <p className="portal-kicker">{t('COMMUNICATION TRACKING', 'संवाद नोंद')}</p>
+        <h2 className="portal-title">{t('WhatsApp Hub', 'व्हॉट्सअॅप केंद्र')}</h2>
+        <p className="portal-subtitle">{t('Review family notifications and simulate common support conversations.', 'पालक सूचना पहा आणि सामान्य सहाय्य संभाषणांची चाचणी करा.')}</p>
+      </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-slate-100 rounded-lg p-1">
+      <div className="segmented-control">
         <button
           onClick={() => setActiveTab('logs')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 justify-center ${
-            activeTab === 'logs' ? 'bg-white shadow text-slate-800' : 'text-slate-600 hover:text-slate-800'
-          }`}
+          aria-pressed={activeTab === 'logs'}
+          className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 text-sm font-semibold ${activeTab === 'logs' ? 'segmented-active' : 'text-[#545f73]'}`}
         >
           <MessageSquare className="w-4 h-4" />
           {t('Dispatch Logs', 'पाठवलेल्या सूचना')}
         </button>
         <button
           onClick={() => setActiveTab('chatbot')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 justify-center ${
-            activeTab === 'chatbot' ? 'bg-white shadow text-slate-800' : 'text-slate-600 hover:text-slate-800'
-          }`}
+          aria-pressed={activeTab === 'chatbot'}
+          className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 text-sm font-semibold ${activeTab === 'chatbot' ? 'segmented-active' : 'text-[#545f73]'}`}
         >
           <Bot className="w-4 h-4" />
           {t('AI Chatbot', 'AI चॅटबॉट')}
@@ -96,9 +94,9 @@ export default function WhatsAppHub() {
       </div>
 
       {activeTab === 'logs' && (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="glass-card-static overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="portal-table w-full text-sm">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold text-slate-600">{t('Date', 'तारीख')}</th>
@@ -136,7 +134,7 @@ export default function WhatsAppHub() {
       )}
 
       {activeTab === 'chatbot' && (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col" style={{ height: '500px' }}>
+        <div className="glass-card-static flex h-[540px] flex-col overflow-hidden">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.map((msg, idx) => (
@@ -152,7 +150,7 @@ export default function WhatsAppHub() {
                   </div>
                 )}
                 <div className={`max-w-[75%] rounded-xl px-3 py-2 text-sm whitespace-pre-wrap ${
-                  msg.role === 'user' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-800'
+                  msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-bot text-[#171d19]'
                 }`}>
                   {msg.text}
                 </div>
@@ -191,8 +189,7 @@ export default function WhatsAppHub() {
             <button
               onClick={handleSend}
               disabled={!input.trim()}
-              className="p-2 rounded-lg text-white transition-colors disabled:opacity-50"
-              style={{ backgroundColor: '#059669' }}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#00855d] to-[#006948] text-white shadow-[0_8px_18px_rgba(0,105,72,.22)] transition-all disabled:opacity-50"
             >
               <Send className="w-4 h-4" />
             </button>

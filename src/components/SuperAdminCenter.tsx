@@ -98,14 +98,14 @@ export default function SuperAdminCenter() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="p-4 sm:p-6 max-w-7xl mx-auto"
+      initial={false}
+      className="portal-page"
     >
-      <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] mb-5">
-        {t('Web Creator Control Center', 'वेब क्रिएटर नियंत्रण केंद्र')}
-      </h2>
+      <div className="portal-heading">
+        <p className="portal-kicker">{t('SYSTEM HEALTH & AUDIT', 'प्रणाली आरोग्य व ऑडिट')}</p>
+        <h2 className="portal-title">{t('Security Dashboard', 'सुरक्षा डॅशबोर्ड')}</h2>
+        <p className="portal-subtitle">{t('Review operational health, approvals and administrative records.', 'प्रणाली आरोग्य, मंजुरी आणि प्रशासकीय नोंदींचा आढावा घ्या.')}</p>
+      </div>
 
       {/* System Health - Glass Cards */}
       <div className="grid grid-cols-3 gap-3 mb-5">
@@ -148,30 +148,27 @@ export default function SuperAdminCenter() {
       </div>
 
       {/* Tabs - Glass */}
-      <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
+      <div className="segmented-control">
         <button
           onClick={() => setActiveTab('events')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
-            activeTab === 'events' ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
-          }`}
+          aria-pressed={activeTab === 'events'}
+          className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${activeTab === 'events' ? 'segmented-active' : 'text-[#545f73]'}`}
         >
           <CheckCircle className="w-4 h-4" />
           {t('Event Approvals', 'कार्यक्रम मंजुरी')}
         </button>
         <button
           onClick={() => setActiveTab('audit')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
-            activeTab === 'audit' ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
-          }`}
+          aria-pressed={activeTab === 'audit'}
+          className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${activeTab === 'audit' ? 'segmented-active' : 'text-[#545f73]'}`}
         >
           <Shield className="w-4 h-4" />
           {t('Audit Logs', 'ऑडिट लॉग')}
         </button>
         <button
           onClick={() => setActiveTab('students')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
-            activeTab === 'students' ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
-          }`}
+          aria-pressed={activeTab === 'students'}
+          className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${activeTab === 'students' ? 'segmented-active' : 'text-[#545f73]'}`}
         >
           <GraduationCap className="w-4 h-4" />
           {t('Student Management', 'विद्यार्थी व्यवस्थापन')}
@@ -263,7 +260,7 @@ export default function SuperAdminCenter() {
       {activeTab === 'audit' && (
         <div className="glass-card-static overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="portal-table w-full text-sm">
               <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">

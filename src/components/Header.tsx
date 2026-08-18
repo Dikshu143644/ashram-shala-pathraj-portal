@@ -1,94 +1,55 @@
-import { School, Globe, Wifi, LogOut, User } from 'lucide-react';
-import { useAppContext, roleLabels } from '../contexts/AppContext';
+import { Globe, LogOut, School, User, Wifi } from 'lucide-react';
 import { motion } from 'motion/react';
+import { roleLabels, useAppContext } from '../contexts/AppContext';
 
 export default function Header() {
   const { language, setLanguage, role, currentUser, logout } = useAppContext();
-
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
   return (
-    <header className="relative z-50 gold-border-bottom" style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-      {/* Government Banner */}
-      <div className="py-1.5 px-4 text-center" style={{ background: 'rgba(0,0,0,0.25)' }}>
-        <p className="text-xs sm:text-sm flex items-center justify-center gap-2">
-          <span className="font-medium font-devanagari" style={{ color: '#d4af37' }}>
-            आदिवासी विकास विभाग, महाराष्ट्र शासन
-          </span>
-          <span className="text-slate-400">|</span>
-          <span className="text-slate-300">Tribal Development Department, Maharashtra</span>
+    <header className="relative z-50 border-b border-white/70 bg-white/68 shadow-[inset_0_1px_0_rgba(255,255,255,.9),0_4px_22px_rgba(0,54,36,.05)] backdrop-blur-xl">
+      <div className="flex min-h-7 items-center justify-center border-b border-[#bccac0]/25 bg-[#eff5ef]/55 px-4 py-1 text-center">
+        <p className="flex flex-wrap items-center justify-center gap-2 text-[11px] text-[#545f73]">
+          <span className="font-devanagari font-semibold text-[#006948]">आदिवासी विकास विभाग, महाराष्ट्र शासन</span>
+          <span className="text-[#bccac0]">•</span>
+          <span>Tribal Development Department, Maharashtra</span>
         </p>
       </div>
 
-      {/* Main Header */}
-      <div className="px-4 py-3 sm:py-4 flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-3 sm:gap-4">
-          {/* Gold circular badge */}
-          <div className="govt-seal animate-pulse-gold">
-            <School className="w-6 h-6 text-slate-900" />
+      <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <div className="govt-seal hidden h-11 w-11 shrink-0 sm:flex">
+            <School className="h-5 w-5 text-white!" />
           </div>
-
-          <div>
-            <h1 className="text-sm sm:text-lg font-bold leading-tight font-devanagari" style={{ color: '#d4af37' }}>
-              {t(
-                'Govt. Secondary & Higher Secondary Ashram School Pathraj',
-                'शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज'
-              )}
+          <div className="min-w-0">
+            <h1 className="font-devanagari truncate text-sm font-bold leading-tight text-[#006948] sm:text-lg">
+              {t('Govt. Secondary & Higher Secondary Ashram School Pathraj', 'शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज')}
             </h1>
-            <p className="text-xs text-slate-300 mt-0.5">
-              {t(
-                'Tal. Karjat, Dist. Raigad, Maharashtra 410201',
-                'ता. कर्जत, जि. रायगड, पिनकोड ४१०२०१'
-              )}
+            <p className="mt-0.5 hidden text-xs text-[#545f73] sm:block">
+              {t('Tal. Karjat, Dist. Raigad, Maharashtra 410201', 'ता. कर्जत, जि. रायगड, पिनकोड ४१०२०१')}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          {/* System Active Indicator */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs" style={{ background: 'rgba(5, 150, 105, 0.15)', border: '1px solid rgba(5, 150, 105, 0.2)' }}>
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            <Wifi className="w-3 h-3 text-emerald-400" />
-            <span className="text-emerald-300">{t('System Active', 'सिस्टम सक्रिय')}</span>
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="hidden items-center gap-1.5 rounded-full border border-[#00855d]/15 bg-[#85f8c4]/20 px-3 py-2 text-xs text-[#006948] md:flex">
+            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#68dba9] opacity-70" /><span className="relative inline-flex h-2 w-2 rounded-full bg-[#00855d]" /></span>
+            <Wifi className="h-3.5 w-3.5" />
+            <span>{t('System Active', 'सिस्टम सक्रिय')}</span>
           </div>
 
-          {/* Welcome User Info */}
           {currentUser && (
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-200" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <User className="w-3.5 h-3.5 text-amber-400" />
-              <span>
-                {t(`Welcome, ${currentUser.username}`, `स्वागत, ${currentUser.username}`)}
-                <span className="text-slate-400 mx-1">|</span>
-                <span style={{ color: '#d4af37' }}>{roleLabels[role][language]}</span>
-              </span>
+            <div className="hidden items-center gap-2 rounded-full border border-[#bccac0]/30 bg-white/55 px-3 py-2 text-xs text-[#3d4a42] xl:flex">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#d5e0f8]/70 text-[#545f73]"><User className="h-3.5 w-3.5" /></span>
+              <span><strong className="font-semibold text-[#171d19]">{currentUser.username}</strong><span className="mx-1.5 text-[#bccac0]">•</span><span className="text-[#006948]">{roleLabels[role][language]}</span></span>
             </div>
           )}
 
-          {/* Language Toggle */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 text-white"
-            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
-          >
-            <Globe className="w-3.5 h-3.5" />
-            <span>{language === 'en' ? 'मराठी' : 'EN'}</span>
+          <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }} type="button" onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')} className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#bccac0]/45 bg-white/55 px-3 text-xs font-semibold text-[#006948] hover:bg-white">
+            <Globe className="h-3.5 w-3.5" /><span>{language === 'en' ? 'मराठी' : 'EN'}</span>
           </motion.button>
-
-          {/* Logout Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={logout}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 text-white hover:bg-red-500/20 hover:border-red-500/30"
-            style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
-          >
-            <LogOut className="w-3.5 h-3.5 text-red-400" />
-            <span className="hidden sm:inline text-red-300">{t('Logout', 'लॉगआउट')}</span>
+          <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }} type="button" onClick={logout} aria-label={t('Logout', 'लॉगआउट')} className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#ba1a1a]/15 bg-[#ffdad6]/45 px-3 text-xs font-semibold text-[#93000a] hover:bg-[#ffdad6]">
+            <LogOut className="h-3.5 w-3.5" /><span className="hidden sm:inline">{t('Logout', 'लॉगआउट')}</span>
           </motion.button>
         </div>
       </div>

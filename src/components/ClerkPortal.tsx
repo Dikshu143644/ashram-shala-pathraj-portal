@@ -14,31 +14,29 @@ export default function ClerkPortal() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="p-4 sm:p-6 max-w-7xl mx-auto"
+      initial={false}
+      className="portal-page"
     >
-      <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] mb-5">
-        {t('Clerk Portal', 'लिपिक पोर्टल')}
-      </h2>
+      <div className="portal-heading">
+        <p className="portal-kicker">{t('OFFICE OPERATIONS', 'कार्यालयीन कामकाज')}</p>
+        <h2 className="portal-title">{t('Staff & Dispatch', 'कर्मचारी व पत्रव्यवहार')}</h2>
+        <p className="portal-subtitle">{t('Find staff and prepare official correspondence.', 'कर्मचारी शोधा आणि अधिकृत पत्रव्यवहार तयार करा.')}</p>
+      </div>
 
       {/* Tabs - Glassmorphism */}
-      <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
+      <div className="segmented-control">
         <button
           onClick={() => setActiveTab('staff')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
-            activeTab === 'staff' ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
-          }`}
+          aria-pressed={activeTab === 'staff'}
+          className={`flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold ${activeTab === 'staff' ? 'segmented-active' : 'text-[#545f73]'}`}
         >
           <Users className="w-4 h-4" />
           {t('Staff Directory', 'कर्मचारी निर्देशिका')}
         </button>
         <button
           onClick={() => setActiveTab('dispatch')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
-            activeTab === 'dispatch' ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
-          }`}
+          aria-pressed={activeTab === 'dispatch'}
+          className={`flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold ${activeTab === 'dispatch' ? 'segmented-active' : 'text-[#545f73]'}`}
         >
           <FileText className="w-4 h-4" />
           {t('PO Dispatch', 'प्र.अ. पत्रव्यवहार')}
@@ -106,8 +104,7 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white shadow-sm"
-          style={{ background: 'linear-gradient(135deg, #1e293b, #334155)' }}
+          className="primary-action"
         >
           <Download className="w-4 h-4" />
           {t('Export', 'निर्यात')}
@@ -147,7 +144,7 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
       {/* Table - Glass */}
       <div className="glass-card-static overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="portal-table w-full text-sm">
             <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Name', 'नाव')}</th>
@@ -261,8 +258,7 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={nextStatus}
-                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-white text-sm font-medium shadow-sm"
-                style={{ background: letterStatus === 'draft' ? 'linear-gradient(135deg, #d4af37, #f59e0b)' : 'linear-gradient(135deg, #059669, #0d9488)' }}
+                className="primary-action"
               >
                 {letterStatus === 'draft' ? t('Seal Letter', 'पत्र शिक्कामोर्तब करा') : t('Dispatch', 'पाठवा')}
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -294,7 +290,7 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
               transition={{ type: 'spring', stiffness: 200 }}
               className="mt-8 flex justify-end"
             >
-              <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', boxShadow: '0 4px 20px rgba(212, 175, 55, 0.4)' }}>
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#cba72f] to-[#e9c349] shadow-[0_8px_20px_rgba(203,167,47,.28)]">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
             </motion.div>

@@ -28,24 +28,23 @@ export default function HostelPortal() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="p-4 sm:p-6 max-w-7xl mx-auto"
+      initial={false}
+      className="portal-page"
     >
-      <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] mb-5">
-        {t('Hostel, Mess & Sick Bay', 'वसतिगृह, भोजनालय व आरोग्य कक्ष')}
-      </h2>
+      <div className="portal-heading">
+        <p className="portal-kicker">{t('RESIDENTIAL LIFE', 'निवासी जीवन')}</p>
+        <h2 className="portal-title">{t('Hostel Command Center', 'वसतिगृह नियंत्रण केंद्र')}</h2>
+        <p className="portal-subtitle">{t('A live view of rooms, meals and student wellbeing.', 'खोल्या, भोजन आणि विद्यार्थ्यांच्या आरोग्याचा थेट आढावा.')}</p>
+      </div>
 
       {/* Tabs - Glassmorphism */}
-      <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
+      <div className="segmented-control">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
-              activeTab === tab.key ? 'bg-white shadow-md text-slate-800' : 'text-slate-500 hover:text-slate-700'
-            }`}
+            aria-pressed={activeTab === tab.key}
+            className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold transition-all ${activeTab === tab.key ? 'segmented-active' : 'text-[#545f73]'}`}
           >
             <tab.icon className="w-4 h-4" />
             <span className="hidden sm:inline">{tab.label}</span>
@@ -189,9 +188,9 @@ function MessCounter({ t }: { language: string; t: (en: string, mr: string) => s
   };
 
   const meals = [
-    { key: 'breakfast' as const, label: t('Breakfast', 'नाश्ता'), time: '7:00 AM', count: breakfastCount, emoji: '🍳', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
-    { key: 'lunch' as const, label: t('Lunch', 'दुपारचे जेवण'), time: '12:30 PM', count: lunchCount, emoji: '🍛', gradient: 'linear-gradient(135deg, #059669, #0d9488)' },
-    { key: 'dinner' as const, label: t('Dinner', 'रात्रीचे जेवण'), time: '7:30 PM', count: dinnerCount, emoji: '🍲', gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)' },
+    { key: 'breakfast' as const, label: t('Breakfast', 'नाश्ता'), time: '7:00 AM', count: breakfastCount, emoji: '🍳', gradient: 'linear-gradient(135deg, #cba72f, #e9c349)' },
+    { key: 'lunch' as const, label: t('Lunch', 'दुपारचे जेवण'), time: '12:30 PM', count: lunchCount, emoji: '🍛', gradient: 'linear-gradient(135deg, #006948, #68dba9)' },
+    { key: 'dinner' as const, label: t('Dinner', 'रात्रीचे जेवण'), time: '7:30 PM', count: dinnerCount, emoji: '🍲', gradient: 'linear-gradient(135deg, #545f73, #bcc7de)' },
   ];
 
   return (
@@ -225,9 +224,8 @@ function MessCounter({ t }: { language: string; t: (en: string, mr: string) => s
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm ${
                 verifying === meal.key ? 'bg-amber-50 text-amber-700 border border-amber-200' :
                 lastVerified === meal.key ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                'text-white'
+                'primary-action'
               }`}
-              style={verifying !== meal.key && lastVerified !== meal.key ? { background: 'linear-gradient(135deg, #1e293b, #334155)' } : {}}
             >
               {verifying === meal.key ? (
                 <Fingerprint className="w-4 h-4 animate-pulse" />
@@ -377,8 +375,7 @@ function SickBay({ t }: { language: string; t: (en: string, mr: string) => strin
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className="px-5 py-2.5 rounded-xl text-white text-sm font-medium shadow-sm"
-            style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
+            className="primary-action"
           >
             {t('Add Entry', 'नोंद करा')}
           </motion.button>

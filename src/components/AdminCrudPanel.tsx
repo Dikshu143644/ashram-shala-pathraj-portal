@@ -214,8 +214,7 @@ export default function AdminCrudPanel() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={openAddModal}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-md text-white"
-          style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
+          className="primary-action"
         >
           <Plus className="w-4 h-4" />
           {t('Add Student', 'विद्यार्थी जोडा')}
@@ -258,7 +257,7 @@ export default function AdminCrudPanel() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="portal-table w-full text-sm">
                 <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Sr No', 'अ.क्र.')}</th>
@@ -350,15 +349,14 @@ export default function AdminCrudPanel() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(0, 0, 0, 0.5)' }}
+            className="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
             onClick={() => setShowModal(false)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              className="modal-content w-full max-w-lg overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-5 border-b border-slate-100">
@@ -486,8 +484,7 @@ export default function AdminCrudPanel() {
                     whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={submitting}
-                    className="px-5 py-2.5 rounded-xl text-white text-sm font-medium shadow-md disabled:opacity-60 flex items-center gap-2"
-                    style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
+                    className="primary-action disabled:opacity-60"
                   >
                     {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                     {editingStudent
@@ -508,15 +505,14 @@ export default function AdminCrudPanel() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(0, 0, 0, 0.5)' }}
+            className="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
             onClick={() => setDeleteTarget(null)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6"
+              className="modal-content w-full max-w-sm p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">

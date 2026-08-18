@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { School, Eye, EyeOff, Globe, LogIn, User, Lock, ChevronDown } from 'lucide-react';
-import { useAppContext, type AppRole, roleLabels } from '../contexts/AppContext';
+import { ChevronDown, Eye, EyeOff, Globe, Lock, LogIn, School, ShieldCheck, User } from 'lucide-react';
+import { type AppRole, useAppContext } from '../contexts/AppContext';
 
 const roleOptions: { value: AppRole; labelEn: string; labelMr: string }[] = [
   { value: 'web_creator', labelEn: 'Super Admin', labelMr: 'सुपर अॅडमिन' },
@@ -20,208 +20,78 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError('');
-
     if (!username.trim() || !password.trim()) {
       setError(t('Please enter username and password', 'कृपया वापरकर्तानाव आणि पासवर्ड प्रविष्ट करा'));
       return;
     }
-
     setIsLoading(true);
     const result = await login(username.trim(), password);
     setIsLoading(false);
-
-    if (!result.success) {
-      setError(result.error || t('Invalid username or password', 'अवैध वापरकर्तानाव किंवा पासवर्ड'));
-    }
+    if (!result.success) setError(result.error || t('Invalid username or password', 'अवैध वापरकर्तानाव किंवा पासवर्ड'));
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)' }}>
-      {/* Decorative gradient orbs */}
-      <div className="absolute top-[-150px] right-[-150px] w-[500px] h-[500px] rounded-full opacity-30" style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%)' }} />
-      <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.3) 0%, transparent 70%)' }} />
-      <div className="absolute top-[40%] left-[60%] w-[300px] h-[300px] rounded-full opacity-15" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)' }} />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5fbf5] p-4 sm:p-8">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_5%,rgba(133,248,196,.36),transparent_34rem),radial-gradient(circle_at_88%_90%,rgba(203,167,47,.12),transparent_30rem)]" />
+      <div className="warli-pattern absolute inset-0 opacity-80" />
+      <div className="absolute inset-x-0 bottom-0 h-[40%] opacity-25" aria-hidden="true">
+        <div className="absolute inset-x-[-8%] bottom-[-48%] h-full rounded-[50%_50%_0_0] bg-[#68dba9]/40" />
+        <div className="absolute inset-x-[-20%] bottom-[-64%] h-full rounded-[50%_50%_0_0] bg-[#006948]/28" />
+      </div>
 
-      {/* Language Toggle - Top Right */}
-      <motion.button
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')}
-        className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium text-white z-10 transition-all duration-200 hover:scale-105"
-        style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}
-      >
-        <Globe className="w-3.5 h-3.5" />
-        <span>{language === 'en' ? 'मराठी' : 'EN'}</span>
+      <motion.button initial={false} onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')} type="button" className="glass absolute right-4 top-4 z-20 flex min-h-11 items-center gap-2 rounded-full px-4 text-xs font-semibold text-[#006948] shadow-sm sm:right-7 sm:top-6">
+        <Globe className="h-4 w-4" />{language === 'en' ? 'मराठी' : 'English'}
       </motion.button>
 
-      {/* Login Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 40, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="w-full max-w-md mx-4 rounded-2xl p-8 shadow-2xl relative z-10"
-        style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-        }}
-      >
-        {/* School Logo */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="flex flex-col items-center mb-6"
-        >
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg mb-4"
-            style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', boxShadow: '0 0 30px rgba(212, 175, 55, 0.3)' }}
-          >
-            <School className="w-8 h-8 text-slate-900" />
-          </div>
-          <h1 className="text-center text-lg font-bold font-devanagari leading-tight" style={{ color: '#d4af37' }}>
+      <motion.section initial={false} className="glass-card-static relative z-10 w-full max-w-md overflow-hidden p-7 sm:p-10" aria-labelledby="login-title">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#85f8c4]/25 blur-3xl" />
+        <div className="relative mb-8 flex flex-col items-center">
+          <motion.div initial={{ scale: .85 }} animate={{ scale: 1 }} transition={{ delay: .15 }} className="govt-seal mb-5 h-20 w-20 border-4 border-white/75">
+            <School className="h-9 w-9 text-white!" />
+          </motion.div>
+          <p className="font-label mb-2 text-[10px] text-[#006948]">GOVERNMENT OF MAHARASHTRA</p>
+          <h1 id="login-title" className="font-devanagari text-center text-xl font-bold leading-[1.45] text-[#006948] sm:text-2xl">
             शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज
           </h1>
-          <p className="text-center text-xs text-slate-400 mt-2">
-            ता. कर्जत, जि. रायगड | Tribal Development Department
-          </p>
-        </motion.div>
+          <p className="mt-2 text-center text-sm text-[#545f73]">{t('Secure Education Portal Login', 'सुरक्षित शिक्षण पोर्टल लॉगिन')}</p>
+        </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Role Selector */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              {t('Select Role', 'भूमिका निवडा')}
-            </label>
+        <form onSubmit={handleSubmit} className="relative space-y-4">
+          <div>
+            <label htmlFor="login-role" className="font-label mb-2 block text-[10px] text-[#3d4a42]">{t('Portal role', 'पोर्टल भूमिका')}</label>
             <div className="relative">
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as AppRole)}
-                className="w-full px-4 py-3 rounded-xl text-sm text-white appearance-none cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
-              >
-                {roleOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-slate-800 text-white">
-                    {language === 'en' ? opt.labelEn : opt.labelMr}
-                  </option>
-                ))}
+              <select id="login-role" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value as AppRole)} className="h-14 w-full appearance-none rounded-2xl border border-[#6d7a72]/20 bg-white/58 px-4 pr-11 text-sm text-[#171d19]">
+                {roleOptions.map((option) => <option key={option.value} value={option.value}>{language === 'en' ? option.labelEn : option.labelMr}</option>)}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6d7a72]" />
             </div>
-          </motion.div>
+          </div>
 
-          {/* Username Field */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              {t('Username', 'वापरकर्तानाव')}
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder={t('Enter username', 'वापरकर्तानाव प्रविष्ट करा')}
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
-                autoComplete="username"
-              />
-            </div>
-          </motion.div>
+          <div>
+            <label htmlFor="username" className="font-label mb-2 block text-[10px] text-[#3d4a42]">{t('Username or ID', 'वापरकर्तानाव किंवा आयडी')}</label>
+            <div className="relative"><User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#006948]" /><input id="username" type="text" value={username} onChange={(event) => setUsername(event.target.value)} placeholder={t('Enter username', 'वापरकर्तानाव प्रविष्ट करा')} className="h-14 w-full rounded-2xl border border-[#6d7a72]/20 bg-white/58 pl-11 pr-4 text-sm" autoComplete="username" /></div>
+          </div>
 
-          {/* Password Field */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              {t('Password', 'पासवर्ड')}
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t('Enter password', 'पासवर्ड प्रविष्ट करा')}
-                className="w-full pl-10 pr-12 py-3 rounded-xl text-sm text-white placeholder-slate-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
-                autoComplete="current-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-200 transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </motion.div>
+          <div>
+            <label htmlFor="password" className="font-label mb-2 block text-[10px] text-[#3d4a42]">{t('Password', 'पासवर्ड')}</label>
+            <div className="relative"><Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#006948]" /><input id="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t('Enter password', 'पासवर्ड प्रविष्ट करा')} className="h-14 w-full rounded-2xl border border-[#6d7a72]/20 bg-white/58 pl-11 pr-12 text-sm" autoComplete="current-password" /><button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? t('Hide password', 'पासवर्ड लपवा') : t('Show password', 'पासवर्ड दाखवा')} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-[#6d7a72] hover:bg-[#e9efe9] hover:text-[#006948]">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div>
+          </div>
 
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-red-400 text-xs text-center py-2 px-3 rounded-lg"
-              style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
-            >
-              {error}
-            </motion.div>
-          )}
+          {error && <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} role="alert" className="rounded-2xl border border-[#ba1a1a]/15 bg-[#ffdad6]/55 px-4 py-3 text-center text-xs text-[#93000a]">{error}</motion.div>}
 
-          {/* Login Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 rounded-xl text-sm font-bold text-slate-900 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', boxShadow: '0 4px 15px rgba(212, 175, 55, 0.3)' }}
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
-              ) : (
-                <>
-                  <LogIn className="w-4 h-4" />
-                  <span>Login / लॉगिन</span>
-                </>
-              )}
-            </button>
-          </motion.div>
+          <button type="submit" disabled={isLoading} className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#006948] to-[#00855d] text-sm font-bold text-white shadow-[0_8px_22px_rgba(0,105,72,.22)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(0,105,72,.3)] disabled:cursor-not-allowed disabled:opacity-55">
+            {isLoading ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/35 border-t-white" /> : <><LogIn className="h-4 w-4" />{t('Secure Login', 'सुरक्षित लॉगिन')}</>}
+          </button>
         </form>
 
-        {/* Footer */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-center text-[10px] text-slate-500 mt-6 font-devanagari"
-        >
-          &copy; 2024 आदिवासी विकास विभाग, महाराष्ट्र शासन
-        </motion.p>
-      </motion.div>
-    </div>
+        <div className="mt-6 flex items-center justify-center gap-2 text-[11px] text-[#545f73]"><ShieldCheck className="h-4 w-4 text-[#006948]" /><span>{t('Your session is encrypted and protected', 'तुमचे सत्र एन्क्रिप्टेड आणि संरक्षित आहे')}</span></div>
+        <p className="font-devanagari mt-5 text-center text-[10px] text-[#6d7a72]">© 2024 आदिवासी विकास विभाग, महाराष्ट्र शासन</p>
+      </motion.section>
+    </main>
   );
 }

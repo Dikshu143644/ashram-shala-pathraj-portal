@@ -1,10 +1,19 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import {
-  GraduationCap, ClipboardList, Building2, MessageCircle,
-  FileStack, Shield, Bot, Menu, X, School
+  Bot,
+  Building2,
+  ClipboardList,
+  FileStack,
+  GraduationCap,
+  Menu,
+  MessageCircle,
+  School,
+  Shield,
+  Sparkles,
+  X,
 } from 'lucide-react';
-import { AppProvider, useAppContext, type AppRole } from './contexts/AppContext';
+import { AppProvider, type AppRole, useAppContext } from './contexts/AppContext';
 import Header from './components/Header';
 import LoginPage from './components/LoginPage';
 import AdmissionPortal from './components/AdmissionPortal';
@@ -23,18 +32,16 @@ interface TabConfig {
   labelMr: string;
   icon: typeof GraduationCap;
   roles: AppRole[];
-  iconBg: string;
-  iconColor: string;
 }
 
 const tabs: TabConfig[] = [
-  { key: 'admission', labelEn: 'Admission', labelMr: 'प्रवेश', icon: GraduationCap, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'student_parent'], iconBg: 'bg-amber-100', iconColor: 'text-amber-700' },
-  { key: 'classTeacher', labelEn: 'Class Teacher', labelMr: 'वर्गशिक्षक', icon: ClipboardList, roles: ['web_creator', 'principal', 'class_teacher', 'subject_teacher'], iconBg: 'bg-blue-100', iconColor: 'text-blue-700' },
-  { key: 'hostel', labelEn: 'Hostel', labelMr: 'वसतिगृह', icon: Building2, roles: ['web_creator', 'principal', 'class_teacher'], iconBg: 'bg-teal-100', iconColor: 'text-teal-700' },
-  { key: 'whatsapp', labelEn: 'WhatsApp', labelMr: 'व्हॉट्सअॅप', icon: MessageCircle, roles: ['web_creator', 'principal', 'class_teacher'], iconBg: 'bg-green-100', iconColor: 'text-green-700' },
-  { key: 'clerk', labelEn: 'Clerk', labelMr: 'लिपिक', icon: FileStack, roles: ['web_creator', 'principal', 'clerk'], iconBg: 'bg-purple-100', iconColor: 'text-purple-700' },
-  { key: 'superAdmin', labelEn: 'Admin', labelMr: 'अॅडमिन', icon: Shield, roles: ['web_creator'], iconBg: 'bg-red-100', iconColor: 'text-red-700' },
-  { key: 'aiAssistant', labelEn: 'AI Assistant', labelMr: 'AI सहाय्यक', icon: Bot, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher', 'student_parent'], iconBg: 'bg-emerald-100', iconColor: 'text-emerald-700' },
+  { key: 'admission', labelEn: 'Admissions', labelMr: 'प्रवेश', icon: GraduationCap, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'student_parent'] },
+  { key: 'classTeacher', labelEn: 'Attendance', labelMr: 'उपस्थिती', icon: ClipboardList, roles: ['web_creator', 'principal', 'class_teacher', 'subject_teacher'] },
+  { key: 'hostel', labelEn: 'Hostel', labelMr: 'वसतिगृह', icon: Building2, roles: ['web_creator', 'principal', 'class_teacher'] },
+  { key: 'whatsapp', labelEn: 'Messages', labelMr: 'संदेश', icon: MessageCircle, roles: ['web_creator', 'principal', 'class_teacher'] },
+  { key: 'clerk', labelEn: 'Staff & Letters', labelMr: 'कर्मचारी व पत्रे', icon: FileStack, roles: ['web_creator', 'principal', 'clerk'] },
+  { key: 'superAdmin', labelEn: 'Administration', labelMr: 'प्रशासन', icon: Shield, roles: ['web_creator'] },
+  { key: 'aiAssistant', labelEn: 'AI Assistant', labelMr: 'AI सहाय्यक', icon: Bot, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher', 'student_parent'] },
 ];
 
 function SplashScreen({ onComplete }: { onComplete: () => void }) {
@@ -44,17 +51,22 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
   }, [onComplete]);
 
   return (
-    <div className="splash-screen">
-      <div className="splash-logo">
-        <div className="govt-seal" style={{ width: '5rem', height: '5rem' }}>
-          <School className="w-10 h-10 text-slate-900" />
+    <div className="splash-screen overflow-hidden">
+      <div className="decorative-orb orb-emerald h-80 w-80 -translate-x-32 -translate-y-32" />
+      <div className="splash-logo relative">
+        <div className="govt-seal h-24! w-24!">
+          <School className="h-11 w-11 text-white!" aria-hidden="true" />
         </div>
+        <span className="absolute -right-2 -top-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#ffe088] text-[#574500] shadow-md">
+          <Sparkles className="h-4 w-4" />
+        </span>
       </div>
-      <div className="splash-text mt-6 text-center">
-        <h1 className="text-xl sm:text-2xl font-bold font-devanagari" style={{ color: '#d4af37' }}>
-          शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथराज
+      <div className="splash-text mt-7 px-6 text-center">
+        <p className="font-label text-xs text-[#006948]">PATHRAJ ASHRAM · EDUCATION PORTAL</p>
+        <h1 className="font-devanagari mt-3 text-xl font-bold text-[#171d19] sm:text-2xl">
+          शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज
         </h1>
-        <p className="text-slate-400 text-sm mt-2">Loading portal...</p>
+        <p className="mt-3 text-sm text-[#545f73]">Preparing your workspace…</p>
       </div>
     </div>
   );
@@ -65,13 +77,11 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState<TabKey>('admission');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const visibleTabs = tabs.filter((tab) => tab.roles.includes(role));
 
-  const visibleTabs = tabs.filter(tab => tab.roles.includes(role));
-
-  // If current tab is not visible for current role, switch to first available
   useEffect(() => {
-    const currentVisible = tabs.filter(tab => tab.roles.includes(role));
-    if (!currentVisible.find(t => t.key === activeTab) && currentVisible.length > 0) {
+    const currentVisible = tabs.filter((tab) => tab.roles.includes(role));
+    if (!currentVisible.find((tab) => tab.key === activeTab) && currentVisible.length > 0) {
       setActiveTab(currentVisible[0].key);
     }
   }, [role, activeTab]);
@@ -89,208 +99,138 @@ function AppContent() {
     }
   };
 
-  // Show login page if not authenticated (before any other content)
-  if (!isAuthenticated) {
-    return <LoginPage />;
-  }
+  if (!isAuthenticated) return <LoginPage />;
+  if (showSplash) return <SplashScreen onComplete={() => setShowSplash(false)} />;
 
-  if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />;
-  }
+  const navigation = (closeAfterSelection = false) => (
+    <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-4" aria-label="Portal navigation">
+      {visibleTabs.map((tab) => {
+        const active = activeTab === tab.key;
+        return (
+          <button
+            key={tab.key}
+            type="button"
+            aria-current={active ? 'page' : undefined}
+            onClick={() => {
+              setActiveTab(tab.key);
+              if (closeAfterSelection) setSidebarOpen(false);
+            }}
+            className={`group flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left text-sm font-semibold transition-all duration-300 ${
+              active
+                ? 'bg-[#00855d] text-white shadow-[0_8px_22px_rgba(0,105,72,0.2)]'
+                : 'text-[#3d4a42] hover:translate-x-1 hover:bg-[#e4eae4]/70 hover:text-[#006948]'
+            }`}
+          >
+            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${active ? 'bg-white/16' : 'bg-white/60 group-hover:bg-white'}`}>
+              <tab.icon className="h-5 w-5" />
+            </span>
+            <span className="truncate">{language === 'en' ? tab.labelEn : tab.labelMr}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
 
   return (
-    <div className="min-h-screen bg-app-gradient flex flex-col animate-fadeIn relative">
-      {/* Decorative Gradient Orbs */}
-      <div className="decorative-orb orb-gold floating-shape-1" style={{ width: '400px', height: '400px', top: '-100px', right: '-100px' }} />
-      <div className="decorative-orb orb-emerald floating-shape-2" style={{ width: '350px', height: '350px', bottom: '10%', left: '-80px' }} />
-      <div className="decorative-orb orb-blue floating-shape-3" style={{ width: '300px', height: '300px', top: '40%', right: '5%' }} />
-
-      {/* Dot Grid Overlay */}
+    <div className="bg-app-gradient relative flex h-screen h-[100dvh] flex-col">
+      <div className="decorative-orb orb-emerald floating-shape-1 -right-24 -top-24 h-[420px] w-[420px]" />
+      <div className="decorative-orb orb-gold floating-shape-2 -left-28 bottom-[8%] h-[360px] w-[360px]" />
       <div className="dot-grid-overlay" />
-
-      {/* Floating decorative shapes */}
-      <div className="floating-shape floating-shape-1" style={{ top: '20%', left: '5%', width: '60px', height: '60px', borderRadius: '30%', border: '1px solid rgba(212, 175, 55, 0.15)', background: 'rgba(212, 175, 55, 0.03)' }} />
-      <div className="floating-shape floating-shape-2" style={{ top: '60%', right: '8%', width: '40px', height: '40px', borderRadius: '50%', border: '1px solid rgba(5, 150, 105, 0.15)', background: 'rgba(5, 150, 105, 0.03)' }} />
-      <div className="floating-shape floating-shape-3" style={{ bottom: '15%', left: '30%', width: '50px', height: '50px', borderRadius: '40%', border: '1px solid rgba(59, 130, 246, 0.12)', background: 'rgba(59, 130, 246, 0.02)' }} />
-
       <Header />
 
-      <div className="flex flex-1 overflow-hidden relative z-10">
-        {/* Desktop Sidebar - Glassmorphism */}
-        <aside className="hidden lg:flex flex-col w-60 sidebar-glass shrink-0">
-          {/* School Logo Area */}
-          <div className="p-4 border-b border-white/20">
+      <div className="relative z-10 flex min-h-0 min-w-0 flex-1 overflow-hidden">
+        <aside className="sidebar-glass hidden w-72 shrink-0 flex-col lg:flex">
+          <div className="border-b border-[#bccac0]/30 px-5 py-6">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center shadow-md" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
-                <School className="w-5 h-5 text-slate-900" />
+              <div className="govt-seal h-12 w-12 shrink-0">
+                <School className="h-6 w-6 text-white!" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-700 truncate">Ashram Shala</p>
-                <p className="text-[10px] text-slate-400 truncate">Pathraj, Raigad</p>
+                <p className="font-display truncate text-lg font-bold text-[#006948]">Pathraj Ashram</p>
+                <p className="font-label mt-0.5 text-[10px] text-[#545f73]">EDUCATION PORTAL</p>
               </div>
             </div>
-            {/* Decorative separator */}
-            <div className="mt-3 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-transparent" />
           </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 py-3 px-3 space-y-1 overflow-y-auto">
-            {visibleTabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border-l-[3px] ${
-                  activeTab === tab.key
-                    ? 'border-l-[#d4af37] bg-gradient-to-r from-amber-50/80 to-transparent text-slate-800 shadow-sm'
-                    : 'border-l-transparent text-slate-500 hover:bg-white/40 hover:text-slate-700'
-                }`}
-              >
-                <div className={`icon-pill ${
-                  activeTab === tab.key ? tab.iconBg : 'bg-slate-100/60'
-                }`}>
-                  <tab.icon className={`w-4 h-4 shrink-0 ${
-                    activeTab === tab.key ? tab.iconColor : 'text-slate-400'
-                  }`} />
-                </div>
-                <span className="truncate">{language === 'en' ? tab.labelEn : tab.labelMr}</span>
-              </button>
-            ))}
-          </nav>
-
-          {/* Sidebar Footer */}
-          <div className="p-3 border-t border-white/20">
-            <p className="text-[10px] text-slate-400 text-center leading-relaxed">
-              &copy; 2024 Tribal Development Dept.
-              <br />
-              Maharashtra State Government
-            </p>
+          {navigation()}
+          <div className="m-4 rounded-2xl border border-[#cba72f]/20 bg-[#ffe088]/25 p-4">
+            <p className="font-label text-[10px] text-[#735c00]">TRIBAL WELFARE DEPARTMENT</p>
+            <p className="mt-1 text-xs leading-relaxed text-[#3d4a42]">Serving Pathraj, Karjat · Raigad</p>
           </div>
         </aside>
 
-        {/* Mobile Sidebar Overlay */}
         <AnimatePresence>
           {sidebarOpen && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 z-40"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[70] lg:hidden"
               onClick={() => setSidebarOpen(false)}
             >
-              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+              <div className="absolute inset-0 bg-[#171d19]/35 backdrop-blur-sm" />
               <motion.aside
-                initial={{ x: -280 }}
-                animate={{ x: 0 }}
-                exit={{ x: -280 }}
-                transition={{ type: 'tween', duration: 0.2 }}
-                onClick={(e) => e.stopPropagation()}
-                className="absolute left-0 top-0 bottom-0 w-72 sidebar-glass shadow-xl z-50 flex flex-col"
+                initial={{ x: -288 }} animate={{ x: 0 }} exit={{ x: -288 }}
+                transition={{ type: 'tween', duration: 0.22 }}
+                onClick={(event) => event.stopPropagation()}
+                className="sidebar-glass absolute inset-y-0 left-0 z-10 flex w-72 flex-col shadow-2xl"
               >
-                <div className="p-4 border-b border-white/20 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-md" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
-                      <School className="w-4 h-4 text-slate-900" />
-                    </div>
-                    <span className="text-sm font-semibold text-slate-700">
-                      {language === 'en' ? 'Navigation' : 'नेव्हिगेशन'}
-                    </span>
+                <div className="flex items-center justify-between border-b border-[#bccac0]/30 p-4">
+                  <div className="flex items-center gap-3 text-[#006948]">
+                    <School className="h-6 w-6" />
+                    <span className="font-display font-bold">Pathraj Ashram</span>
                   </div>
-                  <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg hover:bg-white/40 transition-colors">
-                    <X className="w-5 h-5 text-slate-600" />
+                  <button type="button" aria-label="Close menu" onClick={() => setSidebarOpen(false)} className="rounded-full p-2 text-[#3d4a42] hover:bg-[#e4eae4]">
+                    <X className="h-5 w-5" />
                   </button>
                 </div>
-                <nav className="flex-1 py-3 px-3 space-y-1 overflow-y-auto">
-                  {visibleTabs.map((tab) => (
-                    <button
-                      key={tab.key}
-                      onClick={() => { setActiveTab(tab.key); setSidebarOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border-l-[3px] ${
-                        activeTab === tab.key
-                          ? 'border-l-[#d4af37] bg-gradient-to-r from-amber-50/80 to-transparent text-slate-800'
-                          : 'border-l-transparent text-slate-500 hover:bg-white/40 hover:text-slate-700'
-                      }`}
-                    >
-                      <div className={`icon-pill ${
-                        activeTab === tab.key ? tab.iconBg : 'bg-slate-100/60'
-                      }`}>
-                        <tab.icon className={`w-4 h-4 ${activeTab === tab.key ? tab.iconColor : 'text-slate-400'}`} />
-                      </div>
-                      {language === 'en' ? tab.labelEn : tab.labelMr}
-                    </button>
-                  ))}
-                </nav>
-                <div className="p-3 border-t border-white/20">
-                  <p className="text-[10px] text-slate-400 text-center">
-                    &copy; 2024 Tribal Development Dept.
-                  </p>
-                </div>
+                {navigation(true)}
               </motion.aside>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-y-auto pb-20 lg:pb-4">
-          {/* Mobile menu button */}
-          <div className="lg:hidden p-2 border-b border-white/10 sticky top-0 z-10" style={{ background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(12px)' }}>
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-white/50 transition-colors"
-            >
-              <Menu className="w-4 h-4" />
+        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-5">
+          <div className="sticky top-0 z-20 border-b border-white/60 bg-white/55 px-3 py-2 backdrop-blur-xl lg:hidden">
+            <button type="button" onClick={() => setSidebarOpen(true)} className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-[#006948] hover:bg-[#e9efe9]">
+              <Menu className="h-4 w-4" />
               {language === 'en' ? 'Menu' : 'मेनू'}
             </button>
           </div>
-
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-            >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div key={activeTab} initial={false} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
               {renderContent()}
             </motion.div>
           </AnimatePresence>
         </main>
       </div>
 
-      {/* Mobile Bottom Tab Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 shadow-lg" style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(16px)', borderTop: '1px solid rgba(255, 255, 255, 0.3)' }}>
-        <div className="flex overflow-x-auto scrollbar-hide">
-          {visibleTabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex flex-col items-center py-2 px-3 min-w-[4rem] shrink-0 transition-all duration-200 ${
-                activeTab === tab.key ? 'text-slate-800' : 'text-slate-400'
-              }`}
-            >
-              <tab.icon className="w-5 h-5" style={activeTab === tab.key ? { color: '#d4af37' } : {}} />
-              <span className="text-[10px] mt-0.5 whitespace-nowrap font-medium">
-                {language === 'en' ? tab.labelEn : tab.labelMr}
-              </span>
-              {activeTab === tab.key && (
-                <motion.div
-                  layoutId="mobileTabIndicator"
-                  className="w-4 h-0.5 rounded-full mt-0.5"
-                  style={{ backgroundColor: '#d4af37' }}
-                />
-              )}
-            </button>
-          ))}
+      <nav
+        className="fixed inset-x-3 z-40 rounded-[1.4rem] border border-white/75 bg-white/85 shadow-[0_12px_36px_rgba(0,54,36,0.16)] backdrop-blur-xl lg:hidden"
+        style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+        aria-label="Mobile portal navigation"
+      >
+        <div className="overflow-x-auto overscroll-x-contain rounded-[inherit] touch-pan-x">
+          <div className="flex w-max min-w-full">
+            {visibleTabs.map((tab) => {
+              const active = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  aria-current={active ? 'page' : undefined}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`relative flex min-w-[5.5rem] shrink-0 flex-col items-center px-2 py-2.5 text-[10px] font-semibold ${active ? 'text-[#006948]' : 'text-[#6d7a72]'}`}
+                >
+                  <span className={`mb-1 rounded-full px-3 py-1 ${active ? 'bg-[#85f8c4]/45' : ''}`}><tab.icon className="h-5 w-5" /></span>
+                  <span className="whitespace-nowrap">{language === 'en' ? tab.labelEn : tab.labelMr}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
-
+      </nav>
     </div>
   );
 }
 
 export default function App() {
-  return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
-  );
+  return <AppProvider><AppContent /></AppProvider>;
 }

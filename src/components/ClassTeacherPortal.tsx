@@ -40,15 +40,15 @@ export default function ClassTeacherPortal() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="p-4 sm:p-6 max-w-7xl mx-auto"
+      initial={false}
+      className="portal-page"
     >
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a]">
-          {t('Class Teacher Portal', 'वर्गशिक्षक पोर्टल')}
-        </h2>
+      <div className="portal-heading flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="portal-kicker">{t('DAILY OPERATIONS', 'दैनंदिन कामकाज')}</p>
+          <h2 className="portal-title">{t(`Standard ${selectedStd} Attendance`, `इयत्ता ${selectedStd} उपस्थिती`)}</h2>
+          <p className="portal-subtitle">{t('Mark attendance and notify guardians in real time.', 'उपस्थिती नोंदवा आणि पालकांना तत्काळ सूचित करा.')}</p>
+        </div>
         {/* Device Mode Indicator */}
         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ${
           isDesktop ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
@@ -100,7 +100,7 @@ export default function ClassTeacherPortal() {
       </div>
 
       {/* Stats Summary - Gradient Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+      <div className="bento-stats mb-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatsCard
           icon={Users}
           label="Total Students"
@@ -170,7 +170,7 @@ export default function ClassTeacherPortal() {
           </span>
         </div>
         <div className="overflow-x-auto max-h-96 overflow-y-auto">
-          <table className="w-full text-sm">
+          <table className="portal-table w-full text-sm">
             <thead className="sticky top-0 z-10" style={{ background: 'rgba(248, 250, 252, 0.9)', backdropFilter: 'blur(8px)' }}>
               <tr>
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase">#</th>
