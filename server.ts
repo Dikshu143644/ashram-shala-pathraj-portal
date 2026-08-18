@@ -752,7 +752,7 @@ app.post('/api/ai-chat', async (req: Request, res: Response) => {
 
     const ai = new GoogleGenAI({ apiKey });
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-3.6-flash',
       contents: message,
       config: {
         systemInstruction: systemPrompt,
