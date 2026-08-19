@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   ArrowLeft,
@@ -14,6 +14,7 @@ import {
   School,
   ShieldCheck,
   User,
+  UserPlus,
 } from 'lucide-react';
 import { type AppRole, useAppContext } from '../contexts/AppContext';
 
@@ -29,7 +30,7 @@ const roleOptions: { value: AppRole; labelEn: string; labelMr: string }[] = [
 type LoginStage = 'credentials' | 'otp';
 
 export default function LoginPage() {
-  const { language, setLanguage, beginLogin, sendOtp, verifyOtp } = useAppContext();
+  const { language, setLanguage, beginLogin, sendOtp, verifyOtp, setIsRegistering } = useAppContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState<AppRole>('web_creator');
@@ -41,6 +42,7 @@ export default function LoginPage() {
   const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const inFlightRef = useRef(false);
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
   useEffect(() => {
@@ -51,66 +53,89 @@ export default function LoginPage() {
 
   const handleCredentialSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
     setError('');
-    if (!username.trim() || !password.trim()) {
-      setError(t('Please enter username and password', 'कृपया वापरकर्तानाव आणि पासवर्ड प्रविष्ट करा'));
-      return;
-    }
 
-    setIsLoading(true);
-    const loginResult = await beginLogin(username.trim(), password);
-    if (!loginResult.success || !loginResult.challengeToken) {
+    try {
+      if (!username.trim() || !password.trim()) {
+        setError(t('Please enter username and password', 'कृपया वापरकर्तानाव आणि पासवर्ड प्रविष्ट करा'));
+        return;
+      }
+
+      setIsLoading(true);
+      const loginResult = await beginLogin(username.trim(), password);
+      if (!loginResult.success || !loginResult.challengeToken) {
+        setError(loginResult.error || t('Invalid username or password', 'अवैध वापरकर्तानाव किंवा पासवर्ड'));
+        return;
+      }
+
+      setChallengeToken(loginResult.challengeToken);
+      setMaskedEmail(loginResult.maskedEmail || '');
+      setOtpCode('');
+      setStage('otp');
+
+      const sendResult = await sendOtp(loginResult.challengeToken);
+      if (sendResult.success) {
+        setMaskedEmail(sendResult.maskedEmail || loginResult.maskedEmail || '');
+        setResendIn(sendResult.resendAfterSeconds || 60);
+      } else {
+        setResendIn(sendResult.retryAfter || 0);
+        setError(sendResult.error || t('Could not send the verification email.', 'पडताळणी ईमेल पाठवता आला नाही.'));
+      }
+    } finally {
+      inFlightRef.current = false;
       setIsLoading(false);
-      setError(loginResult.error || t('Invalid username or password', 'अवैध वापरकर्तानाव किंवा पासवर्ड'));
-      return;
-    }
-
-    setChallengeToken(loginResult.challengeToken);
-    setMaskedEmail(loginResult.maskedEmail || '');
-    setOtpCode('');
-    setStage('otp');
-
-    const sendResult = await sendOtp(loginResult.challengeToken);
-    setIsLoading(false);
-    if (sendResult.success) {
-      setMaskedEmail(sendResult.maskedEmail || loginResult.maskedEmail || '');
-      setResendIn(sendResult.resendAfterSeconds || 60);
-    } else {
-      setError(sendResult.error || t('Could not send the verification email.', 'पडताळणी ईमेल पाठवता आला नाही.'));
     }
   };
 
   const handleOtpSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
     setError('');
-    if (!/^\d{6}$/.test(otpCode)) {
-      setError(t('Enter the 6-digit code from your email.', 'तुमच्या ईमेलमधील ६ अंकी कोड प्रविष्ट करा.'));
-      return;
-    }
 
-    setIsLoading(true);
-    const result = await verifyOtp(challengeToken, otpCode);
-    setIsLoading(false);
-    if (!result.success) {
-      setError(result.error || t('Verification code is invalid or expired.', 'पडताळणी कोड अवैध आहे किंवा कालबाह्य झाला आहे.'));
+    try {
+      if (!/^\d{6}$/.test(otpCode)) {
+        setError(t('Enter the 6-digit code from your email.', 'तुमच्या ईमेलमधील ६ अंकी कोड प्रविष्ट करा.'));
+        return;
+      }
+
+      setIsLoading(true);
+      const result = await verifyOtp(challengeToken, otpCode);
+      if (!result.success) {
+        if (result.retryAfter) setResendIn(result.retryAfter);
+        setError(result.error || t('Verification code is invalid or expired.', 'पडताळणी कोड अवैध आहे किंवा कालबाह्य झाला आहे.'));
+      }
+    } finally {
+      inFlightRef.current = false;
+      setIsLoading(false);
     }
   };
 
   const handleResend = async () => {
-    if (!challengeToken || resendIn > 0 || isLoading) return;
+    if (!challengeToken || resendIn > 0 || inFlightRef.current) return;
+    inFlightRef.current = true;
     setError('');
     setIsLoading(true);
-    const result = await sendOtp(challengeToken);
-    setIsLoading(false);
-    if (result.success) {
-      setMaskedEmail(result.maskedEmail || maskedEmail);
-      setResendIn(result.resendAfterSeconds || 60);
-    } else {
-      setError(result.error || t('Could not resend the code.', 'कोड पुन्हा पाठवता आला नाही.'));
+
+    try {
+      const result = await sendOtp(challengeToken);
+      if (result.success) {
+        setMaskedEmail(result.maskedEmail || maskedEmail);
+        setResendIn(result.resendAfterSeconds || 60);
+      } else {
+        setResendIn(result.retryAfter || 0);
+        setError(result.error || t('Could not resend the code.', 'कोड पुन्हा पाठवता आला नाही.'));
+      }
+    } finally {
+      inFlightRef.current = false;
+      setIsLoading(false);
     }
   };
 
   const returnToCredentials = () => {
+    if (inFlightRef.current) return;
     setStage('credentials');
     setChallengeToken('');
     setOtpCode('');
@@ -176,6 +201,12 @@ export default function LoginPage() {
             <button type="submit" disabled={isLoading} className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#006948] to-[#00855d] text-sm font-bold text-white shadow-[0_8px_22px_rgba(0,105,72,.22)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(0,105,72,.3)] disabled:cursor-not-allowed disabled:opacity-55">
               {isLoading ? <><span className="h-5 w-5 animate-spin rounded-full border-2 border-white/35 border-t-white" />{t('Please wait…', 'कृपया थांबा…')}</> : <><LogIn className="h-4 w-4" />{t('Continue securely', 'सुरक्षितपणे पुढे जा')}</>}
             </button>
+
+            <div className="mt-3 text-center">
+              <button type="button" onClick={() => setIsRegistering(true)} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-[#006948] hover:bg-[#85f8c4]/25">
+                <UserPlus className="h-3.5 w-3.5" />{t('Register as Parent', 'पालक म्हणून नोंदणी करा')}
+              </button>
+            </div>
           </form>
         ) : (
           <form onSubmit={handleOtpSubmit} className="relative space-y-5">

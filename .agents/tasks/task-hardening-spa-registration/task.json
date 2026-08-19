@@ -1,0 +1,7 @@
+{
+  "task_id": "task-hardening-spa-registration",
+  "task_description": "Fix Vercel SPA 404, rename project, build real registration/login system with bcrypt and parent access, create WhatsApp bot design docs, and commit/push/deploy everything",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
+  "blocked_reason": null
+}

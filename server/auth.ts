@@ -1,15 +1,28 @@
-import { createHash, createHmac, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomUUID, randomBytes } from 'node:crypto';
 import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import bcrypt from 'bcrypt';
+import { clearSession, issueSession, readSession, requireSameOrigin, requireSession, type AuthenticatedRequest } from './security.js';
 
 const RATE_LIMIT_WINDOW_SECONDS = 60;
 const LOGIN_ATTEMPTS_PER_WINDOW = 5;
 const OTP_ATTEMPTS_PER_WINDOW = 10;
+const OTP_ACCOUNT_SEND_WINDOW_SECONDS = 10 * 60;
+const OTP_ACCOUNT_SEND_MAXIMUM = 5;
+const OTP_ACCOUNT_VERIFY_WINDOW_SECONDS = 10 * 60;
+const OTP_ACCOUNT_VERIFY_MAXIMUM = 10;
 const CHALLENGE_TTL_MS = 10 * 60_000;
 const OTP_TTL_MS = 10 * 60_000;
 const RESEND_COOLDOWN_MS = 60_000;
+const SEND_RESERVATION_SECONDS = 15;
+const RESEND_TIMEOUT_MS = 8_000;
 const MAX_SENDS = 3;
 const MAX_VERIFY_ATTEMPTS = 5;
+const BCRYPT_SALT_ROUNDS = 12;
+const REGISTER_RATE_PER_WINDOW = 3;
+const PASSWORD_CHANGE_RATE_PER_WINDOW = 5;
+const ADMIN_CREATE_RATE_PER_WINDOW = 10;
+const STAFF_ROLES = ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher'];
 
 interface OtpVerification {
   id: string;
@@ -32,41 +45,83 @@ interface AuthUserRow {
   name_en: string;
   name_mr: string;
   email: string | null;
+  must_change_password: boolean;
+  mobile_number: string | null;
+  parent_student_ids: string[];
+}
+
+interface ChallengeRpcRow {
+  challenge_id: string;
+  stored_challenge_hash: string;
+  challenge_expires_at: string;
+  created: boolean;
+}
+
+interface SendReservationRow {
+  reservation_status: 'reserved' | 'sent' | 'busy' | 'cooldown' | 'send_limit' | 'expired' | 'otp_expired' | 'conflict';
+  challenge_id: string | null;
+  user_id: string | null;
+  effective_otp_expires_at: string | null;
+  effective_send_count: number;
+  retry_after_seconds: number;
+}
+
+interface VerificationRow {
+  verification_status: 'success' | 'invalid' | 'expired' | 'used' | 'attempt_limit';
+  user_id: string | null;
+  attempt_count: number;
 }
 
 async function isRateLimited(
   supabase: SupabaseClient,
-  bucket: 'login' | 'otp_send' | 'otp_verify',
+  bucket: string,
   key: string,
   maximum: number,
+  windowSeconds = RATE_LIMIT_WINDOW_SECONDS,
 ): Promise<boolean> {
   const keyHash = createHash('sha256').update(key).digest('hex');
   const { data, error } = await supabase.rpc('consume_auth_rate_limit', {
     p_bucket: bucket,
     p_key_hash: keyHash,
-    p_window_seconds: RATE_LIMIT_WINDOW_SECONDS,
+    p_window_seconds: windowSeconds,
     p_max_attempts: maximum,
   });
   if (error) throw error;
   return data !== true;
 }
 
+function rejectRateLimit(res: Response, message: string, retryAfter: number): void {
+  res.setHeader('Retry-After', String(retryAfter));
+  res.status(429).json({ success: false, error: message, retryAfter });
+}
+
 function clientIp(req: Request): string {
   return req.ip || req.socket.remoteAddress || 'unknown';
+}
+
+function requestId(req: Request): string {
+  const supplied = req.get('X-Request-ID');
+  const id = supplied && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(supplied)
+    ? supplied
+    : randomUUID();
+  return id;
+}
+
+function challengeTokenForId(challengeId: string, secret: string): string {
+  return createHmac('sha256', secret).update(`challenge:v2:${challengeId}`).digest('hex');
 }
 
 function challengeHash(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
-function otpHash(challenge: string, code: string, secret: string): string {
-  return createHmac('sha256', secret).update(`${challenge}:${code}`).digest('hex');
+function deriveOtpCode(hash: string, secret: string): string {
+  const digestPrefix = createHmac('sha256', secret).update(`otp-code:v2:${hash}`).digest('hex').slice(0, 12);
+  return (Number.parseInt(digestPrefix, 16) % 1_000_000).toString().padStart(6, '0');
 }
 
-function constantTimeEqual(left: string, right: string): boolean {
-  const leftBuffer = Buffer.from(left, 'hex');
-  const rightBuffer = Buffer.from(right, 'hex');
-  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
+function otpHash(challenge: string, code: string, secret: string): string {
+  return createHmac('sha256', secret).update(`${challenge}:${code}`).digest('hex');
 }
 
 function maskEmail(email: string): string {
@@ -78,6 +133,10 @@ function maskEmail(email: string): string {
 
 function validChallengeToken(value: unknown): value is string {
   return typeof value === 'string' && /^[a-f0-9]{64}$/i.test(value);
+}
+
+function firstRpcRow<T>(data: unknown): T | null {
+  return Array.isArray(data) && data.length > 0 ? data[0] as T : null;
 }
 
 async function logSecurity(
@@ -94,14 +153,17 @@ async function logSecurity(
   if (error) console.error(`Security log failed for ${event.action}:`, error.message);
 }
 
-async function loadChallenge(supabase: SupabaseClient, hash: string): Promise<OtpVerification | null> {
-  const { data, error } = await supabase
+async function loadChallenge(
+  supabase: SupabaseClient,
+  hash: string,
+  includeConsumed = false,
+): Promise<OtpVerification | null> {
+  let query = supabase
     .from('otp_verifications')
     .select('id,user_id,challenge_hash,otp_hash,expires_at,otp_expires_at,send_count,attempt_count,last_sent_at,consumed_at')
-    .eq('challenge_hash', hash)
-    .is('consumed_at', null)
-    .maybeSingle();
-
+    .eq('challenge_hash', hash);
+  if (!includeConsumed) query = query.is('consumed_at', null);
+  const { data, error } = await query.maybeSingle();
   if (error) throw error;
   return data as OtpVerification | null;
 }
@@ -109,7 +171,7 @@ async function loadChallenge(supabase: SupabaseClient, hash: string): Promise<Ot
 async function loadActiveUser(supabase: SupabaseClient, userId: string): Promise<AuthUserRow | null> {
   const { data, error } = await supabase
     .from('auth_users')
-    .select('id,username,password_hash,role,name_en,name_mr,email')
+    .select('id,username,password_hash,role,name_en,name_mr,email,must_change_password,mobile_number,parent_student_ids')
     .eq('id', userId)
     .eq('is_active', true)
     .maybeSingle();
@@ -126,21 +188,64 @@ function otpConfiguration(): { resendApiKey: string; resendFromEmail: string; hm
   return { resendApiKey, resendFromEmail, hmacSecret };
 }
 
-export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void {
-  app.post('/api/auth/login', async (req: Request, res: Response) => {
-    const ip = clientIp(req);
-    res.setHeader('Cache-Control', 'no-store');
+async function cleanupExpiredAuthState(supabase: SupabaseClient): Promise<void> {
+  const { error } = await supabase.rpc('cleanup_auth_security_state');
+  if (error) console.warn('Auth state cleanup unavailable:', error.message);
+}
 
-    try {
-      if (await isRateLimited(supabase, 'login', ip, LOGIN_ATTEMPTS_PER_WINDOW)) {
-        res.status(429).json({ success: false, error: 'Too many login attempts. Please try again after 1 minute.' });
-        return;
-      }
-    } catch (error) {
-      console.error('Login rate limit unavailable:', error instanceof Error ? error.message : error);
-      res.status(503).json({ success: false, error: 'Authentication service is temporarily unavailable.' });
+export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void {
+  void cleanupExpiredAuthState(supabase);
+  const cleanupTimer = setInterval(() => void cleanupExpiredAuthState(supabase), 6 * 60 * 60_000);
+  cleanupTimer.unref();
+
+  app.get('/api/auth/session', async (req: Request, res: Response) => {
+    res.setHeader('Cache-Control', 'no-store');
+    const session = readSession(req);
+    if (!session) {
+      res.status(401).json({ success: false, error: 'Authentication required.' });
       return;
     }
+
+    // Look up mustChangePassword from the database
+    let mustChangePassword = false;
+    try {
+      const { data } = await supabase
+        .from('auth_users')
+        .select('must_change_password')
+        .eq('id', session.userId)
+        .eq('is_active', true)
+        .maybeSingle();
+      if (data && data.must_change_password) {
+        mustChangePassword = true;
+      }
+    } catch {
+      // If lookup fails, proceed without the flag
+    }
+
+    res.json({
+      success: true,
+      user: {
+        username: session.username,
+        role: session.role,
+        nameEn: session.nameEn,
+        nameMr: session.nameMr,
+        mustChangePassword,
+      },
+      expiresAt: session.expiresAt,
+    });
+  });
+
+  app.post('/api/auth/logout', requireSameOrigin, (_req: Request, res: Response) => {
+    res.setHeader('Cache-Control', 'no-store');
+    clearSession(res);
+    res.json({ success: true });
+  });
+
+  app.post('/api/auth/login', async (req: Request, res: Response) => {
+    const ip = clientIp(req);
+    const operationId = requestId(req);
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Request-ID', operationId);
 
     const { username, password } = req.body as { username?: unknown; password?: unknown };
     if (typeof username !== 'string' || typeof password !== 'string' || !username.trim() || !password) {
@@ -152,17 +257,57 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       return;
     }
 
+    const normalizedUsername = username.trim();
     try {
-      const normalizedUsername = username.trim();
+      const [ipLimited, accountLimited] = await Promise.all([
+        isRateLimited(supabase, 'login_ip', ip, LOGIN_ATTEMPTS_PER_WINDOW),
+        isRateLimited(supabase, 'login_account', normalizedUsername.toLowerCase(), LOGIN_ATTEMPTS_PER_WINDOW),
+      ]);
+      if (ipLimited || accountLimited) {
+        rejectRateLimit(res, 'Too many login attempts. Please try again after 1 minute.', RATE_LIMIT_WINDOW_SECONDS);
+        return;
+      }
+    } catch (error) {
+      console.error('Login rate limit unavailable:', error instanceof Error ? error.message : error);
+      res.status(503).json({ success: false, error: 'Authentication service is temporarily unavailable.' });
+      return;
+    }
+
+    try {
       const { data, error } = await supabase
         .from('auth_users')
-        .select('id,username,password_hash,role,name_en,name_mr,email')
+        .select('id,username,password_hash,role,name_en,name_mr,email,must_change_password,mobile_number,parent_student_ids')
         .eq('username', normalizedUsername)
         .eq('is_active', true)
         .maybeSingle();
       const user = data as AuthUserRow | null;
 
-      if (error || !user || user.password_hash !== password) {
+      if (error || !user) {
+        await logSecurity(supabase, {
+          action: 'login_failed',
+          username: normalizedUsername,
+          ip,
+          details: 'Invalid username or password',
+        });
+        res.status(401).json({ success: false, error: 'Invalid username or password.' });
+        return;
+      }
+
+      // Verify password: try bcrypt first, fall back to plaintext for migration
+      let passwordValid = false;
+      const isBcryptHash = user.password_hash.startsWith('$2');
+      if (isBcryptHash) {
+        passwordValid = await bcrypt.compare(password, user.password_hash);
+      } else {
+        // Plaintext legacy password - check and auto-hash
+        passwordValid = user.password_hash === password;
+        if (passwordValid) {
+          const hashed = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+          await supabase.from('auth_users').update({ password_hash: hashed }).eq('id', user.id);
+        }
+      }
+
+      if (!passwordValid) {
         await logSecurity(supabase, {
           action: 'login_failed',
           username: normalizedUsername,
@@ -185,31 +330,39 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         return;
       }
 
-      const challengeToken = randomBytes(32).toString('hex');
-      const hash = challengeHash(challengeToken);
-      const now = new Date();
-      const expiresAt = new Date(now.getTime() + CHALLENGE_TTL_MS).toISOString();
+      const configuration = otpConfiguration();
+      if (!configuration) {
+        res.status(503).json({ success: false, error: 'Email verification service is not configured.' });
+        return;
+      }
 
-      await supabase
-        .from('otp_verifications')
-        .update({ consumed_at: now.toISOString(), updated_at: now.toISOString() })
-        .eq('user_id', user.id)
-        .is('consumed_at', null);
-
-      const { error: insertError } = await supabase.from('otp_verifications').insert({
-        user_id: user.id,
-        challenge_hash: hash,
-        expires_at: expiresAt,
-        request_ip: ip,
+      const proposedChallengeId = randomUUID();
+      const proposedToken = challengeTokenForId(proposedChallengeId, configuration.hmacSecret);
+      const proposedHash = challengeHash(proposedToken);
+      const expiresAt = new Date(Date.now() + CHALLENGE_TTL_MS).toISOString();
+      const { data: rpcData, error: rpcError } = await supabase.rpc('begin_otp_challenge', {
+        p_user_id: user.id,
+        p_challenge_id: proposedChallengeId,
+        p_challenge_hash: proposedHash,
+        p_expires_at: expiresAt,
+        p_request_ip: ip,
+        p_request_id: operationId,
       });
-      if (insertError) throw insertError;
+      if (rpcError) throw rpcError;
+
+      const challenge = firstRpcRow<ChallengeRpcRow>(rpcData);
+      if (!challenge) throw new Error('Challenge RPC returned no row');
+      const challengeToken = challengeTokenForId(challenge.challenge_id, configuration.hmacSecret);
+      if (challengeHash(challengeToken) !== challenge.stored_challenge_hash) {
+        throw new Error('Challenge token integrity check failed');
+      }
 
       await logSecurity(supabase, {
         action: 'password_verified',
         userId: user.id,
         username: user.username,
         ip,
-        details: 'Password verified; OTP challenge created',
+        details: challenge.created ? 'Password verified; OTP challenge created' : 'Password verified; active OTP challenge reused',
       });
 
       res.json({
@@ -217,7 +370,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         otpRequired: true,
         challengeToken,
         maskedEmail: maskEmail(user.email),
-        expiresInSeconds: CHALLENGE_TTL_MS / 1000,
+        expiresInSeconds: Math.max(0, Math.floor((new Date(challenge.challenge_expires_at).getTime() - Date.now()) / 1000)),
       });
     } catch (error) {
       console.error('Password verification failed:', error instanceof Error ? error.message : error);
@@ -227,18 +380,9 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
 
   app.post('/api/otp/send', async (req: Request, res: Response) => {
     const ip = clientIp(req);
+    const operationId = requestId(req);
     res.setHeader('Cache-Control', 'no-store');
-
-    try {
-      if (await isRateLimited(supabase, 'otp_send', ip, OTP_ATTEMPTS_PER_WINDOW)) {
-        res.status(429).json({ success: false, error: 'Too many OTP requests. Please try again later.' });
-        return;
-      }
-    } catch (error) {
-      console.error('OTP send rate limit unavailable:', error instanceof Error ? error.message : error);
-      res.status(503).json({ success: false, error: 'Email verification service is temporarily unavailable.' });
-      return;
-    }
+    res.setHeader('X-Request-ID', operationId);
 
     const configuration = otpConfiguration();
     if (!configuration) {
@@ -255,23 +399,19 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     try {
       const hash = challengeHash(challengeToken);
       const challenge = await loadChallenge(supabase, hash);
-      const now = Date.now();
-      if (!challenge || new Date(challenge.expires_at).getTime() <= now) {
+      if (!challenge || new Date(challenge.expires_at).getTime() <= Date.now()) {
         res.status(400).json({ success: false, error: 'Verification session is invalid or expired.' });
         return;
       }
 
-      if (challenge.send_count >= MAX_SENDS) {
-        res.status(429).json({ success: false, error: 'OTP send limit reached. Start the login process again.' });
+      const [ipLimited, accountLimited] = await Promise.all([
+        isRateLimited(supabase, 'otp_send_ip', ip, OTP_ATTEMPTS_PER_WINDOW),
+        isRateLimited(supabase, 'otp_send_account', challenge.user_id, OTP_ACCOUNT_SEND_MAXIMUM, OTP_ACCOUNT_SEND_WINDOW_SECONDS),
+      ]);
+      if (ipLimited || accountLimited) {
+        const retryAfter = ipLimited ? RATE_LIMIT_WINDOW_SECONDS : OTP_ACCOUNT_SEND_WINDOW_SECONDS;
+        rejectRateLimit(res, 'Too many OTP requests. Please try again later.', retryAfter);
         return;
-      }
-
-      if (challenge.last_sent_at) {
-        const retryAfter = Math.ceil((new Date(challenge.last_sent_at).getTime() + RESEND_COOLDOWN_MS - now) / 1000);
-        if (retryAfter > 0) {
-          res.status(429).json({ success: false, error: `Please wait ${retryAfter} seconds before requesting another code.`, retryAfter });
-          return;
-        }
       }
 
       const user = await loadActiveUser(supabase, challenge.user_id);
@@ -280,82 +420,118 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         return;
       }
 
-      const challengeExpiresAt = new Date(challenge.expires_at).getTime();
-      const remainingChallengeMs = challengeExpiresAt - now;
+      const now = Date.now();
+      const remainingChallengeMs = new Date(challenge.expires_at).getTime() - now;
       if (remainingChallengeMs < RESEND_COOLDOWN_MS) {
         res.status(400).json({ success: false, error: 'Verification session is about to expire. Start the login process again.' });
         return;
       }
 
-      const code = randomInt(0, 1_000_000).toString().padStart(6, '0');
+      const code = deriveOtpCode(hash, configuration.hmacSecret);
       const codeHash = otpHash(hash, code, configuration.hmacSecret);
-      const sentAt = new Date().toISOString();
-      const effectiveOtpTtlMs = Math.min(OTP_TTL_MS, remainingChallengeMs);
-      const otpExpiresAt = new Date(now + effectiveOtpTtlMs).toISOString();
-      const otpExpiryDate = new Date(otpExpiresAt);
-      const otpExpiryLabel = `${otpExpiryDate.getUTCHours().toString().padStart(2, '0')}:${otpExpiryDate.getUTCMinutes().toString().padStart(2, '0')} UTC`;
-      const nextSendCount = challenge.send_count + 1;
+      const proposedOtpExpiresAt = new Date(now + Math.min(OTP_TTL_MS, remainingChallengeMs)).toISOString();
+      const { data: reservationData, error: reservationError } = await supabase.rpc('reserve_otp_send', {
+        p_challenge_hash: hash,
+        p_otp_hash: codeHash,
+        p_otp_expires_at: proposedOtpExpiresAt,
+        p_request_id: operationId,
+        p_max_sends: MAX_SENDS,
+        p_cooldown_seconds: RESEND_COOLDOWN_MS / 1000,
+        p_reservation_seconds: SEND_RESERVATION_SECONDS,
+      });
+      if (reservationError) throw reservationError;
 
-      const { data: reserved, error: reserveError } = await supabase
-        .from('otp_verifications')
-        .update({
-          otp_hash: codeHash,
-          otp_expires_at: otpExpiresAt,
-          send_count: nextSendCount,
-          last_sent_at: sentAt,
-          updated_at: sentAt,
-        })
-        .eq('id', challenge.id)
-        .eq('send_count', challenge.send_count)
-        .is('consumed_at', null)
-        .select('id')
-        .maybeSingle();
-      if (reserveError) throw reserveError;
-      if (!reserved) {
-        res.status(409).json({ success: false, error: 'A code was already requested. Please wait before trying again.' });
+      const reservation = firstRpcRow<SendReservationRow>(reservationData);
+      if (!reservation) throw new Error('OTP reservation RPC returned no row');
+
+      if (reservation.reservation_status === 'sent') {
+        res.json({
+          success: true,
+          maskedEmail: maskEmail(user.email),
+          expiresInSeconds: reservation.effective_otp_expires_at
+            ? Math.max(0, Math.floor((new Date(reservation.effective_otp_expires_at).getTime() - Date.now()) / 1000))
+            : 0,
+          resendAfterSeconds: RESEND_COOLDOWN_MS / 1000,
+        });
+        return;
+      }
+      if (reservation.reservation_status === 'busy' || reservation.reservation_status === 'cooldown') {
+        rejectRateLimit(
+          res,
+          `Please wait ${reservation.retry_after_seconds} seconds before requesting another code.`,
+          reservation.retry_after_seconds,
+        );
+        return;
+      }
+      if (reservation.reservation_status === 'send_limit') {
+        rejectRateLimit(res, 'OTP send limit reached. Start the login process again.', Math.ceil(remainingChallengeMs / 1000));
+        return;
+      }
+      if (reservation.reservation_status !== 'reserved' || !reservation.challenge_id || !reservation.effective_otp_expires_at) {
+        res.status(400).json({ success: false, error: 'Verification session is invalid or expired.' });
         return;
       }
 
-      const emailResponse = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${configuration.resendApiKey}`,
-          'Content-Type': 'application/json',
-          'Idempotency-Key': `login-otp/${challenge.id}/${nextSendCount}`,
-        },
-        body: JSON.stringify({
-          from: configuration.resendFromEmail,
-          to: [user.email],
-          subject: 'Your Ashram Shala login verification code',
-          text: `Your Ashram Shala Pathraj login verification code is ${code}. It expires at ${otpExpiryLabel}. Never share this code or your password.`,
-          html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:24px">Login verification code</h1><p>Use this one-time code to finish signing in:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#006948">${code}</p><p>This code expires at ${otpExpiryLabel}. Never share this code or your password.</p></div>`,
-        }),
-      });
+      const otpExpiryDate = new Date(reservation.effective_otp_expires_at);
+      const otpExpiryLabel = `${otpExpiryDate.getUTCHours().toString().padStart(2, '0')}:${otpExpiryDate.getUTCMinutes().toString().padStart(2, '0')} UTC`;
+      let emailResponse: globalThis.Response;
+      try {
+        emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${configuration.resendApiKey}`,
+            'Content-Type': 'application/json',
+            'Idempotency-Key': `login-otp/${reservation.challenge_id}/${operationId}`,
+          },
+          body: JSON.stringify({
+            from: configuration.resendFromEmail,
+            to: [user.email],
+            subject: 'Your Ashram Shala login verification code',
+            text: `Your Ashram Shala Pathraj login verification code is ${code}. It expires at ${otpExpiryLabel}. Resends for this login use the same code. Never share this code or your password.`,
+            html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:24px">Login verification code</h1><p>Use this one-time code to finish signing in:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#006948">${code}</p><p>This code expires at ${otpExpiryLabel}. Resends for this login use the same code. Never share this code or your password.</p></div>`,
+          }),
+          signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
+        });
+      } catch (error) {
+        const timedOut = error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError');
+        console.error('Resend OTP delivery was not confirmed:', error instanceof Error ? error.message : error);
+        res.status(timedOut ? 504 : 502).json({
+          success: false,
+          error: 'Email delivery could not be confirmed. Please retry; the same code will be used.',
+          retryAfter: SEND_RESERVATION_SECONDS,
+        });
+        return;
+      }
 
       if (!emailResponse.ok) {
         const providerError = await emailResponse.text();
         console.error('Resend OTP delivery failed:', emailResponse.status, providerError.slice(0, 200));
-        await supabase
-          .from('otp_verifications')
-          .update({ otp_hash: null, otp_expires_at: null, send_count: challenge.send_count, last_sent_at: challenge.last_sent_at, updated_at: new Date().toISOString() })
-          .eq('id', challenge.id)
-          .eq('otp_hash', codeHash);
+        await supabase.rpc('cancel_otp_send', {
+          p_challenge_id: reservation.challenge_id,
+          p_request_id: operationId,
+        });
         res.status(502).json({ success: false, error: 'Could not send the verification email. Please try again.' });
         return;
       }
+
+      const { error: confirmError } = await supabase.rpc('confirm_otp_send', {
+        p_challenge_id: reservation.challenge_id,
+        p_request_id: operationId,
+      });
+      if (confirmError) console.error('OTP delivery confirmation update failed:', confirmError.message);
 
       await logSecurity(supabase, {
         action: 'otp_sent',
         userId: user.id,
         username: user.username,
         ip,
-        details: `Login OTP sent (attempt ${nextSendCount} of ${MAX_SENDS})`,
+        details: `Stable login OTP delivered (send ${reservation.effective_send_count} of ${MAX_SENDS})`,
       });
 
       res.json({
         success: true,
         maskedEmail: maskEmail(user.email),
-        expiresInSeconds: Math.max(0, Math.floor((new Date(otpExpiresAt).getTime() - Date.now()) / 1000)),
+        expiresInSeconds: Math.max(0, Math.floor((otpExpiryDate.getTime() - Date.now()) / 1000)),
         resendAfterSeconds: RESEND_COOLDOWN_MS / 1000,
       });
     } catch (error) {
@@ -366,18 +542,9 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
 
   app.post('/api/otp/verify', async (req: Request, res: Response) => {
     const ip = clientIp(req);
+    const operationId = requestId(req);
     res.setHeader('Cache-Control', 'no-store');
-
-    try {
-      if (await isRateLimited(supabase, 'otp_verify', ip, OTP_ATTEMPTS_PER_WINDOW)) {
-        res.status(429).json({ success: false, error: 'Too many verification attempts. Please try again later.' });
-        return;
-      }
-    } catch (error) {
-      console.error('OTP verify rate limit unavailable:', error instanceof Error ? error.message : error);
-      res.status(503).json({ success: false, error: 'Email verification service is temporarily unavailable.' });
-      return;
-    }
+    res.setHeader('X-Request-ID', operationId);
 
     const configuration = otpConfiguration();
     if (!configuration) {
@@ -393,74 +560,71 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
 
     try {
       const hash = challengeHash(challengeToken);
-      const challenge = await loadChallenge(supabase, hash);
-      const now = Date.now();
-      if (
-        !challenge ||
-        !challenge.otp_hash ||
-        !challenge.otp_expires_at ||
-        new Date(challenge.expires_at).getTime() <= now ||
-        new Date(challenge.otp_expires_at).getTime() <= now
-      ) {
+      const challenge = await loadChallenge(supabase, hash, true);
+      if (!challenge) {
         res.status(400).json({ success: false, error: 'Verification code is invalid or expired.' });
         return;
       }
 
-      if (challenge.attempt_count >= MAX_VERIFY_ATTEMPTS) {
-        res.status(429).json({ success: false, error: 'Verification attempt limit reached. Start the login process again.' });
-        return;
-      }
-
-      const nextAttemptCount = challenge.attempt_count + 1;
-      const { data: attemptReservation, error: attemptError } = await supabase
-        .from('otp_verifications')
-        .update({ attempt_count: nextAttemptCount, updated_at: new Date().toISOString() })
-        .eq('id', challenge.id)
-        .eq('attempt_count', challenge.attempt_count)
-        .is('consumed_at', null)
-        .select('id')
-        .maybeSingle();
-      if (attemptError) throw attemptError;
-      if (!attemptReservation) {
-        res.status(409).json({ success: false, error: 'Another verification attempt is in progress. Please try again.' });
+      const [ipLimited, accountLimited] = await Promise.all([
+        isRateLimited(supabase, 'otp_verify_ip', ip, OTP_ATTEMPTS_PER_WINDOW),
+        isRateLimited(supabase, 'otp_verify_account', challenge.user_id, OTP_ACCOUNT_VERIFY_MAXIMUM, OTP_ACCOUNT_VERIFY_WINDOW_SECONDS),
+      ]);
+      if (ipLimited || accountLimited) {
+        const retryAfter = ipLimited ? RATE_LIMIT_WINDOW_SECONDS : OTP_ACCOUNT_VERIFY_WINDOW_SECONDS;
+        rejectRateLimit(res, 'Too many verification attempts. Please try again later.', retryAfter);
         return;
       }
 
       const submittedHash = otpHash(hash, code, configuration.hmacSecret);
-      if (!constantTimeEqual(challenge.otp_hash, submittedHash)) {
-        const user = await loadActiveUser(supabase, challenge.user_id);
-        await logSecurity(supabase, {
-          action: 'otp_failed',
-          userId: challenge.user_id,
-          username: user?.username,
-          ip,
-          details: `Invalid OTP attempt ${nextAttemptCount} of ${MAX_VERIFY_ATTEMPTS}`,
-        });
+      const { data: verificationData, error: verificationError } = await supabase.rpc('verify_otp_challenge', {
+        p_challenge_hash: hash,
+        p_submitted_otp_hash: submittedHash,
+        p_request_id: operationId,
+        p_max_attempts: MAX_VERIFY_ATTEMPTS,
+      });
+      if (verificationError) throw verificationError;
 
-        res.status(401).json({ success: false, error: 'Verification code is invalid or expired.' });
+      const verification = firstRpcRow<VerificationRow>(verificationData);
+      if (!verification) throw new Error('OTP verification RPC returned no row');
+
+      if (verification.verification_status === 'attempt_limit') {
+        rejectRateLimit(res, 'Verification attempt limit reached. Start the login process again.', Math.ceil(CHALLENGE_TTL_MS / 1000));
         return;
       }
-
-      const consumedAt = new Date().toISOString();
-      const { data: consumed, error: consumeError } = await supabase
-        .from('otp_verifications')
-        .update({ consumed_at: consumedAt, updated_at: consumedAt })
-        .eq('id', challenge.id)
-        .eq('attempt_count', nextAttemptCount)
-        .is('consumed_at', null)
-        .select('id')
-        .maybeSingle();
-      if (consumeError) throw consumeError;
-      if (!consumed) {
+      if (verification.verification_status === 'used') {
         res.status(409).json({ success: false, error: 'Verification code was already used.' });
         return;
       }
+      if (verification.verification_status !== 'success' || !verification.user_id) {
+        const user = verification.user_id ? await loadActiveUser(supabase, verification.user_id) : null;
+        await logSecurity(supabase, {
+          action: 'otp_failed',
+          userId: verification.user_id || undefined,
+          username: user?.username,
+          ip,
+          details: `Invalid OTP attempt ${verification.attempt_count} of ${MAX_VERIFY_ATTEMPTS}`,
+        });
+        res.status(verification.verification_status === 'invalid' ? 401 : 400).json({
+          success: false,
+          error: 'Verification code is invalid or expired.',
+        });
+        return;
+      }
 
-      const user = await loadActiveUser(supabase, challenge.user_id);
+      const user = await loadActiveUser(supabase, verification.user_id);
       if (!user) {
         res.status(400).json({ success: false, error: 'Verification session is invalid or expired.' });
         return;
       }
+
+      issueSession(res, {
+        userId: user.id,
+        username: user.username,
+        role: user.role,
+        nameEn: user.name_en,
+        nameMr: user.name_mr,
+      });
 
       await logSecurity(supabase, {
         action: 'login_success',
@@ -477,11 +641,402 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
           role: user.role,
           nameEn: user.name_en,
           nameMr: user.name_mr,
+          mustChangePassword: user.must_change_password,
         },
       });
     } catch (error) {
       console.error('OTP verification failed:', error instanceof Error ? error.message : error);
       res.status(500).json({ success: false, error: 'Could not verify the code.' });
+    }
+  });
+
+  // POST /api/auth/register - Parent self-registration
+  app.post('/api/auth/register', async (req: Request, res: Response) => {
+    const ip = clientIp(req);
+    res.setHeader('Cache-Control', 'no-store');
+
+    try {
+      const limited = await isRateLimited(supabase, 'register_ip', ip, REGISTER_RATE_PER_WINDOW);
+      if (limited) {
+        rejectRateLimit(res, 'Too many registration attempts. Please try again later.', RATE_LIMIT_WINDOW_SECONDS);
+        return;
+      }
+    } catch {
+      res.status(503).json({ success: false, error: 'Registration service is temporarily unavailable.' });
+      return;
+    }
+
+    const { fullName, mobileNumber, email, relationship } = req.body as {
+      fullName?: unknown; mobileNumber?: unknown; email?: unknown; relationship?: unknown;
+    };
+
+    if (typeof fullName !== 'string' || !fullName.trim() || fullName.length > 160) {
+      res.status(400).json({ success: false, error: 'Full name is required (max 160 characters).' });
+      return;
+    }
+    if (typeof mobileNumber !== 'string' || !/^[6-9]\d{9}$/.test(mobileNumber)) {
+      res.status(400).json({ success: false, error: 'A valid 10-digit Indian mobile number is required.' });
+      return;
+    }
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 320) {
+      res.status(400).json({ success: false, error: 'A valid email address is required.' });
+      return;
+    }
+    const validRelationships = ['Father', 'Mother', 'Guardian', 'Other'];
+    if (typeof relationship !== 'string' || !validRelationships.includes(relationship)) {
+      res.status(400).json({ success: false, error: 'Relationship must be Father, Mother, Guardian, or Other.' });
+      return;
+    }
+
+    try {
+      // Check unique mobile_number and email
+      const { data: existingMobile } = await supabase
+        .from('auth_users')
+        .select('id')
+        .eq('mobile_number', mobileNumber)
+        .maybeSingle();
+      if (existingMobile) {
+        res.status(409).json({ success: false, error: 'An account with this mobile number already exists.' });
+        return;
+      }
+
+      const { data: existingEmail } = await supabase
+        .from('auth_users')
+        .select('id')
+        .eq('email', email.toLowerCase())
+        .maybeSingle();
+      if (existingEmail) {
+        res.status(409).json({ success: false, error: 'An account with this email already exists.' });
+        return;
+      }
+
+      // Check username uniqueness (using mobile as username)
+      const { data: existingUsername } = await supabase
+        .from('auth_users')
+        .select('id')
+        .eq('username', mobileNumber)
+        .maybeSingle();
+      if (existingUsername) {
+        res.status(409).json({ success: false, error: 'An account with this mobile number already exists.' });
+        return;
+      }
+
+      // Generate a random temporary password (user will set their own after OTP)
+      const tempPassword = randomBytes(16).toString('hex');
+      const hashedPassword = await bcrypt.hash(tempPassword, BCRYPT_SALT_ROUNDS);
+
+      const { data: newUser, error: insertError } = await supabase
+        .from('auth_users')
+        .insert({
+          username: mobileNumber,
+          password_hash: hashedPassword,
+          role: 'student_parent',
+          name_en: fullName.trim(),
+          name_mr: fullName.trim(),
+          email: email.toLowerCase(),
+          mobile_number: mobileNumber,
+          must_change_password: false,
+          is_active: true,
+        })
+        .select('id,username,email')
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Initiate OTP challenge for email verification
+      const configuration = otpConfiguration();
+      if (!configuration) {
+        res.status(503).json({ success: false, error: 'Email verification service is not configured.' });
+        return;
+      }
+
+      const proposedChallengeId = randomUUID();
+      const proposedToken = challengeTokenForId(proposedChallengeId, configuration.hmacSecret);
+      const proposedHash = challengeHash(proposedToken);
+      const expiresAt = new Date(Date.now() + CHALLENGE_TTL_MS).toISOString();
+
+      const { data: rpcData, error: rpcError } = await supabase.rpc('begin_otp_challenge', {
+        p_user_id: newUser.id,
+        p_challenge_id: proposedChallengeId,
+        p_challenge_hash: proposedHash,
+        p_expires_at: expiresAt,
+        p_request_ip: ip,
+        p_request_id: randomUUID(),
+      });
+      if (rpcError) throw rpcError;
+
+      const challenge = firstRpcRow<ChallengeRpcRow>(rpcData);
+      if (!challenge) throw new Error('Challenge RPC returned no row');
+      const challengeToken = challengeTokenForId(challenge.challenge_id, configuration.hmacSecret);
+
+      await logSecurity(supabase, {
+        action: 'parent_registered',
+        userId: newUser.id,
+        username: newUser.username,
+        ip,
+        details: `Parent self-registration: ${relationship}`,
+      });
+
+      res.status(201).json({
+        success: true,
+        userId: newUser.id,
+        challengeToken,
+        maskedEmail: maskEmail(email.toLowerCase()),
+      });
+    } catch (error) {
+      console.error('Registration failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to complete registration.' });
+    }
+  });
+
+  // POST /api/auth/set-password - Set password after registration (requires session)
+  app.post('/api/auth/set-password', requireSession(), async (req: Request, res: Response) => {
+    const authReq = req as AuthenticatedRequest;
+    const ip = clientIp(req);
+    res.setHeader('Cache-Control', 'no-store');
+
+    try {
+      const limited = await isRateLimited(supabase, 'set_password', authReq.authSession!.userId, PASSWORD_CHANGE_RATE_PER_WINDOW);
+      if (limited) {
+        rejectRateLimit(res, 'Too many password attempts. Please try again later.', RATE_LIMIT_WINDOW_SECONDS);
+        return;
+      }
+    } catch {
+      res.status(503).json({ success: false, error: 'Service temporarily unavailable.' });
+      return;
+    }
+
+    const { password, confirmPassword } = req.body as { password?: unknown; confirmPassword?: unknown };
+    if (typeof password !== 'string' || password.length < 8 || password.length > 100) {
+      res.status(400).json({ success: false, error: 'Password must be between 8 and 100 characters.' });
+      return;
+    }
+    if (password !== confirmPassword) {
+      res.status(400).json({ success: false, error: 'Passwords do not match.' });
+      return;
+    }
+
+    try {
+      const hashed = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+      const { error } = await supabase
+        .from('auth_users')
+        .update({
+          password_hash: hashed,
+          must_change_password: false,
+          password_changed_at: new Date().toISOString(),
+        })
+        .eq('id', authReq.authSession!.userId);
+
+      if (error) throw error;
+
+      await logSecurity(supabase, {
+        action: 'password_set',
+        userId: authReq.authSession!.userId,
+        username: authReq.authSession!.username,
+        ip,
+        details: 'Password set successfully',
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Set password failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to set password.' });
+    }
+  });
+
+  // POST /api/auth/change-password - Change password (requires session)
+  app.post('/api/auth/change-password', requireSession(), async (req: Request, res: Response) => {
+    const authReq = req as AuthenticatedRequest;
+    const ip = clientIp(req);
+    res.setHeader('Cache-Control', 'no-store');
+
+    try {
+      const limited = await isRateLimited(supabase, 'change_password', authReq.authSession!.userId, PASSWORD_CHANGE_RATE_PER_WINDOW);
+      if (limited) {
+        rejectRateLimit(res, 'Too many password change attempts. Please try again later.', RATE_LIMIT_WINDOW_SECONDS);
+        return;
+      }
+    } catch {
+      res.status(503).json({ success: false, error: 'Service temporarily unavailable.' });
+      return;
+    }
+
+    const { currentPassword, newPassword } = req.body as { currentPassword?: unknown; newPassword?: unknown };
+    if (typeof newPassword !== 'string' || newPassword.length < 8 || newPassword.length > 100) {
+      res.status(400).json({ success: false, error: 'New password must be between 8 and 100 characters.' });
+      return;
+    }
+
+    try {
+      const user = await loadActiveUser(supabase, authReq.authSession!.userId);
+      if (!user) {
+        res.status(401).json({ success: false, error: 'Authentication required.' });
+        return;
+      }
+
+      // If must_change_password is true, skip current password check
+      if (!user.must_change_password) {
+        if (typeof currentPassword !== 'string' || !currentPassword) {
+          res.status(400).json({ success: false, error: 'Current password is required.' });
+          return;
+        }
+        const isBcryptHash = user.password_hash.startsWith('$2');
+        let currentValid = false;
+        if (isBcryptHash) {
+          currentValid = await bcrypt.compare(currentPassword, user.password_hash);
+        } else {
+          currentValid = user.password_hash === currentPassword;
+        }
+        if (!currentValid) {
+          res.status(401).json({ success: false, error: 'Current password is incorrect.' });
+          return;
+        }
+      }
+
+      const hashed = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+      const { error } = await supabase
+        .from('auth_users')
+        .update({
+          password_hash: hashed,
+          must_change_password: false,
+          password_changed_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      await logSecurity(supabase, {
+        action: 'password_changed',
+        userId: user.id,
+        username: user.username,
+        ip,
+        details: user.must_change_password ? 'First-login password change' : 'Voluntary password change',
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Change password failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to change password.' });
+    }
+  });
+
+  // POST /api/admin/create-account - Admin creates staff account
+  app.post('/api/admin/create-account', requireSameOrigin, requireSession(['web_creator', 'principal']), async (req: Request, res: Response) => {
+    const authReq = req as AuthenticatedRequest;
+    const ip = clientIp(req);
+    res.setHeader('Cache-Control', 'no-store');
+
+    try {
+      const limited = await isRateLimited(supabase, 'admin_create', authReq.authSession!.userId, ADMIN_CREATE_RATE_PER_WINDOW, 5 * 60);
+      if (limited) {
+        rejectRateLimit(res, 'Too many account creation attempts. Please try again later.', 5 * 60);
+        return;
+      }
+    } catch {
+      res.status(503).json({ success: false, error: 'Service temporarily unavailable.' });
+      return;
+    }
+
+    const { fullName, email, mobileNumber, role, nameEn, nameMr } = req.body as {
+      fullName?: unknown; email?: unknown; mobileNumber?: unknown; role?: unknown; nameEn?: unknown; nameMr?: unknown;
+    };
+
+    if (typeof fullName !== 'string' || !fullName.trim() || fullName.length > 160) {
+      res.status(400).json({ success: false, error: 'Full name is required.' });
+      return;
+    }
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 320) {
+      res.status(400).json({ success: false, error: 'A valid email is required.' });
+      return;
+    }
+    if (typeof role !== 'string' || !STAFF_ROLES.includes(role)) {
+      res.status(400).json({ success: false, error: 'Invalid staff role.' });
+      return;
+    }
+
+    const mobile = typeof mobileNumber === 'string' && /^[6-9]\d{9}$/.test(mobileNumber) ? mobileNumber : null;
+    const effectiveNameEn = typeof nameEn === 'string' && nameEn.trim() ? nameEn.trim() : fullName.trim();
+    const effectiveNameMr = typeof nameMr === 'string' && nameMr.trim() ? nameMr.trim() : fullName.trim();
+
+    try {
+      // Check email uniqueness
+      const { data: existing } = await supabase
+        .from('auth_users')
+        .select('id')
+        .eq('email', email.toLowerCase())
+        .maybeSingle();
+      if (existing) {
+        res.status(409).json({ success: false, error: 'An account with this email already exists.' });
+        return;
+      }
+
+      // Generate temporary password
+      const tempPassword = randomBytes(6).toString('base64url').slice(0, 10);
+      const hashedPassword = await bcrypt.hash(tempPassword, BCRYPT_SALT_ROUNDS);
+
+      // Create username from email prefix or mobile
+      const username = mobile || email.split('@')[0].slice(0, 30);
+
+      const { data: newUser, error: insertError } = await supabase
+        .from('auth_users')
+        .insert({
+          username,
+          password_hash: hashedPassword,
+          role,
+          name_en: effectiveNameEn,
+          name_mr: effectiveNameMr,
+          email: email.toLowerCase(),
+          mobile_number: mobile,
+          must_change_password: true,
+          is_active: true,
+          created_by: authReq.authSession!.userId,
+        })
+        .select('id,username')
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Send email with temp password via Resend
+      const resendApiKey = process.env.RESEND_API_KEY?.trim();
+      const resendFromEmail = process.env.RESEND_FROM_EMAIL?.trim();
+      if (resendApiKey && resendFromEmail) {
+        try {
+          await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${resendApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              from: resendFromEmail,
+              to: [email.toLowerCase()],
+              subject: 'Your Ashram Shala Portal Account',
+              text: `Your staff account has been created.\n\nUsername: ${username}\nTemporary Password: ${tempPassword}\n\nPlease log in and change your password immediately.`,
+              html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:20px">Your Staff Account</h1><p>Your account has been created with the following credentials:</p><p><strong>Username:</strong> ${username}<br/><strong>Temporary Password:</strong> <code>${tempPassword}</code></p><p style="color:#93000a;font-weight:600">Please log in and change your password immediately.</p></div>`,
+            }),
+            signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
+          });
+        } catch (emailError) {
+          console.error('Failed to send account creation email:', emailError instanceof Error ? emailError.message : emailError);
+        }
+      }
+
+      await logSecurity(supabase, {
+        action: 'account_created',
+        userId: newUser.id,
+        username: newUser.username,
+        ip,
+        details: `Staff account created by ${authReq.authSession!.username} with role ${role}`,
+      });
+
+      res.status(201).json({
+        success: true,
+        user: { id: newUser.id, username: newUser.username, role },
+        tempPassword,
+      });
+    } catch (error) {
+      console.error('Admin account creation failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to create account.' });
     }
   });
 }

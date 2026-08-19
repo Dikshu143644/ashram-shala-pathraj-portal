@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap } from 'lucide-react';
+import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap, UserPlus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
 import AdminCrudPanel from './AdminCrudPanel';
 
-type AdminTab = 'events' | 'audit' | 'students';
+type AdminTab = 'events' | 'audit' | 'students' | 'accounts';
 
 interface PendingEvent {
   id: string;
@@ -77,6 +77,89 @@ const moduleColors: Record<string, string> = {
   Events: 'bg-pink-50 text-pink-700 border-pink-200',
   Health: 'bg-rose-50 text-rose-700 border-rose-200',
 };
+
+const staffRoleOptions = [
+  { value: 'principal', labelEn: 'Principal', labelMr: 'मुख्याध्यापक' },
+  { value: 'class_teacher', labelEn: 'Class Teacher', labelMr: 'वर्गशिक्षक' },
+  { value: 'clerk', labelEn: 'Clerk', labelMr: 'लिपिक' },
+  { value: 'subject_teacher', labelEn: 'Subject Teacher', labelMr: 'विषय शिक्षक' },
+  { value: 'web_creator', labelEn: 'Super Admin', labelMr: 'सुपर अॅडमिन' },
+];
+
+function CreateStaffAccountPanel({ language, t }: { language: string; t: (en: string, mr: string) => string }) {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [role, setRole] = useState('class_teacher');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!fullName.trim()) { setError(t('Full name is required.', 'पूर्ण नाव आवश्यक आहे.')); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError(t('A valid email is required.', 'वैध ईमेल आवश्यक आहे.')); return; }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/admin/create-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName: fullName.trim(), email, mobileNumber: mobileNumber || undefined, role, nameEn: fullName.trim(), nameMr: fullName.trim() }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setSuccess(t(`Account created! Username: ${data.user?.username}. Temporary password sent to email.`, `खाते तयार! वापरकर्तानाव: ${data.user?.username}. तात्पुरता पासवर्ड ईमेलवर पाठवला.`));
+        setFullName('');
+        setEmail('');
+        setMobileNumber('');
+      } else {
+        setError(data.error || t('Could not create account.', 'खाते तयार करता आले नाही.'));
+      }
+    } catch {
+      setError(t('Request failed. Please try again.', 'विनंती अयशस्वी. कृपया पुन्हा प्रयत्न करा.'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="glass-card-static p-6 max-w-lg">
+      <h3 className="text-lg font-semibold text-[#006948] mb-4">{t('Create Staff Account', 'कर्मचारी खाते तयार करा')}</h3>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">{t('Full Name', 'पूर्ण नाव')}</label>
+          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('Enter full name', 'पूर्ण नाव प्रविष्ट करा')} className="w-full h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">{t('Email', 'ईमेल')}</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="staff@example.com" className="w-full h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">{t('Mobile Number (optional)', 'मोबाईल नंबर (पर्यायी)')}</label>
+          <input type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="9876543210" className="w-full h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">{t('Role', 'भूमिका')}</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none">
+            {staffRoleOptions.map((opt) => <option key={opt.value} value={opt.value}>{language === 'en' ? opt.labelEn : opt.labelMr}</option>)}
+          </select>
+        </div>
+
+        {error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>}
+        {success && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{success}</div>}
+
+        <button type="submit" disabled={isLoading} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#006948] text-sm font-semibold text-white hover:bg-[#00855d] disabled:opacity-55">
+          {isLoading ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" /> : <UserPlus className="h-4 w-4" />}
+          {t('Create Account', 'खाते तयार करा')}
+        </button>
+      </form>
+    </div>
+  );
+}
 
 export default function SuperAdminCenter() {
   const { language } = useAppContext();
@@ -172,6 +255,14 @@ export default function SuperAdminCenter() {
         >
           <GraduationCap className="w-4 h-4" />
           {t('Student Management', 'विद्यार्थी व्यवस्थापन')}
+        </button>
+        <button
+          onClick={() => setActiveTab('accounts')}
+          aria-pressed={activeTab === 'accounts'}
+          className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${activeTab === 'accounts' ? 'segmented-active' : 'text-[#545f73]'}`}
+        >
+          <UserPlus className="w-4 h-4" />
+          {t('Create Account', 'खाते तयार करा')}
         </button>
       </div>
 
@@ -298,6 +389,10 @@ export default function SuperAdminCenter() {
 
       {activeTab === 'students' && (
         <AdminCrudPanel />
+      )}
+
+      {activeTab === 'accounts' && (
+        <CreateStaffAccountPanel language={language} t={t} />
       )}
     </motion.div>
   );

@@ -16,6 +16,8 @@ import {
 import { AppProvider, type AppRole, useAppContext } from './contexts/AppContext';
 import Header from './components/Header';
 import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
+import ChangePasswordPage from './components/ChangePasswordPage';
 import AdmissionPortal from './components/AdmissionPortal';
 import ClassTeacherPortal from './components/ClassTeacherPortal';
 import HostelPortal from './components/HostelPortal';
@@ -73,7 +75,7 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
 }
 
 function AppContent() {
-  const { language, role, isAuthenticated } = useAppContext();
+  const { language, role, isAuthenticated, isAuthChecking, mustChangePassword, isRegistering } = useAppContext();
   const [activeTab, setActiveTab] = useState<TabKey>('admission');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
@@ -99,7 +101,16 @@ function AppContent() {
     }
   };
 
+  if (isAuthChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f5fbf5]" role="status" aria-label="Checking secure session">
+        <span className="h-10 w-10 animate-spin rounded-full border-4 border-[#85f8c4] border-t-[#006948]" />
+      </div>
+    );
+  }
+  if (!isAuthenticated && isRegistering) return <RegisterPage />;
   if (!isAuthenticated) return <LoginPage />;
+  if (mustChangePassword) return <ChangePasswordPage />;
   if (showSplash) return <SplashScreen onComplete={() => setShowSplash(false)} />;
 
   const navigation = (closeAfterSelection = false) => (
