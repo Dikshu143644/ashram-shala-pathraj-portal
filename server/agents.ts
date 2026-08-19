@@ -12,7 +12,7 @@ const MAX_TTS_TEXT_LENGTH = 2000;
 const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 12_000);
 const TTS_TIMEOUT_MS = Number(process.env.TTS_TIMEOUT_MS || 15_000);
 
-const BASE_CONTEXT = `You are the AI assistant for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज (Government Secondary and Higher Secondary Ashram School, Pathraj), Taluka Karjat, District Raigad, Maharashtra. The school operates under the Tribal Development Department, Government of Maharashtra. Never claim access to live student, attendance, academic, hostel, or government systems. Never reveal personal records. Respond in Marathi when the user writes in Marathi, and in English when they write in English. Be helpful, accurate, and concise.`;
+const BASE_CONTEXT = `You are the AI assistant for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज (Government Secondary and Higher Secondary Ashram School, Pathraj), Taluka Karjat, District Raigad, Maharashtra. The school operates under the Tribal Development Department, Government of Maharashtra. Always respond in BOTH English and Marathi. First give the English response, then provide the Marathi translation below it separated by a line break. When you have access to student data, analyze records and suggest actionable next steps for the child based on their academic performance, attendance, and status. Never reveal personal records to unauthorized users. Be helpful, accurate, and concise.`;
 
 const AGENT_PROMPTS: Record<string, string> = {
   admission: `${BASE_CONTEXT}\n\nYou are the Admission Information Agent. Explain general eligibility, application steps, and commonly required documents. Clearly direct users to the school office or official Tribal Development Department portal for current dates, seat availability, final eligibility, and application status. Do not invent application records or approval decisions.`,
@@ -150,10 +150,11 @@ function logAgentEvent(event: Record<string, unknown>): void {
   console.log(JSON.stringify({ event: 'agent_activity', timestamp: new Date().toISOString(), ...event }));
 }
 
-async function runAgent(message: string, language: string, requestId: string): Promise<AgentResult> {
+async function runAgent(message: string, language: string, requestId: string, studentContext?: string): Promise<AgentResult> {
   const startedAt = Date.now();
   const detectedAgent = detectIntent(message);
-  const prompt = `${AGENT_PROMPTS[detectedAgent]}\n\n${language === 'mr' ? 'Respond in Marathi.' : 'Respond in English.'}`;
+  const contextSuffix = studentContext ? `\n\n${studentContext}` : '';
+  const prompt = `${AGENT_PROMPTS[detectedAgent]}${contextSuffix}\n\n${language === 'mr' ? 'Respond in Marathi first, then English.' : 'Respond in English first, then Marathi.'}`;
   const failures: string[] = [];
 
   if (process.env.ADK_SERVICE_URL?.trim()) {
@@ -209,8 +210,30 @@ export function registerAgentRoutes(app: Express, supabase: SupabaseClient): voi
       return;
     }
     const normalizedLanguage = language === 'mr' ? 'mr' : 'en';
+
+    // Fetch real student data for authenticated parents
+    let studentContext = '';
     try {
-      const result = await runAgent(message.trim(), normalizedLanguage, req.requestId || 'unknown');
+      const { data: userData } = await supabase
+        .from('auth_users')
+        .select('parent_student_ids,role')
+        .eq('id', req.authSession!.userId)
+        .maybeSingle();
+      if (userData && userData.parent_student_ids && userData.parent_student_ids.length > 0) {
+        const { data: students } = await supabase
+          .from('students')
+          .select('*')
+          .in('id', userData.parent_student_ids as string[]);
+        if (students?.length) {
+          studentContext = `\n\nThe user is a parent. Their linked student data:\n${JSON.stringify(students, null, 2)}`;
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch student context for AI:', err instanceof Error ? err.message : err);
+    }
+
+    try {
+      const result = await runAgent(message.trim(), normalizedLanguage, req.requestId || 'unknown', studentContext);
       res.json({ ...result, requestId: req.requestId });
     } catch (error) {
       console.error('AI providers unavailable:', error instanceof Error ? error.message : error);

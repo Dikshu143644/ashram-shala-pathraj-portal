@@ -327,6 +327,83 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
     }
   });
 
+  // GET /api/gallery - Public endpoint, returns all gallery images
+  app.get('/api/gallery', async (_req: Request, res: Response) => {
+    try {
+      const { data, error } = await supabase
+        .from('gallery_images')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      res.json({ data: data || [] });
+    } catch (error) {
+      console.error('Gallery fetch failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Unable to load gallery images.' });
+    }
+  });
+
+  // POST /api/gallery - Requires web_creator or principal role
+  app.post('/api/gallery', requireSameOrigin, requireSession(['web_creator', 'principal']), writeLimit, dataGate, async (req: Request, res: Response) => {
+    const session = (req as AuthenticatedRequest).authSession!;
+    const { url, caption } = req.body as { url?: unknown; caption?: unknown };
+    if (typeof url !== 'string' || !url.trim() || url.length > 2048) {
+      res.status(400).json({ error: 'A valid image URL is required (max 2048 characters).' });
+      return;
+    }
+    const safeCaption = typeof caption === 'string' && caption.trim().length > 0 ? caption.trim().slice(0, 500) : null;
+    try {
+      const { data, error } = await supabase
+        .from('gallery_images')
+        .insert({ url: url.trim(), caption: safeCaption, uploaded_by: session.userId })
+        .select()
+        .single();
+      if (error) throw error;
+      await supabase.from('security_logs').insert({ action: 'gallery_image_added', details: `Gallery image added (${data.id})`, ...auditActor(req) });
+      res.status(201).json({ data });
+    } catch (error) {
+      console.error('Gallery insert failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Unable to add gallery image.' });
+    }
+  });
+
+  // DELETE /api/gallery/:id - Requires web_creator or principal role
+  app.delete('/api/gallery/:id', requireSameOrigin, requireSession(['web_creator', 'principal']), writeLimit, dataGate, async (req: Request, res: Response) => {
+    const id = String(req.params.id || '');
+    if (!/^[0-9a-f-]{36}$/i.test(id)) {
+      res.status(400).json({ error: 'Invalid gallery image ID.' });
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('gallery_images').delete().eq('id', id).select('id').maybeSingle();
+      if (error) throw error;
+      if (!data) {
+        res.status(404).json({ error: 'Gallery image not found.' });
+        return;
+      }
+      await supabase.from('security_logs').insert({ action: 'gallery_image_deleted', details: `Gallery image deleted (${id})`, ...auditActor(req) });
+      res.status(204).send();
+    } catch (error) {
+      console.error('Gallery delete failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Unable to delete gallery image.' });
+    }
+  });
+
+  // GET /api/admin/security-logs - Requires web_creator role
+  app.get('/api/admin/security-logs', requireSession(['web_creator']), readLimit, dataGate, async (_req: Request, res: Response) => {
+    try {
+      const { data, error } = await supabase
+        .from('security_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      res.json({ data: data || [] });
+    } catch (error) {
+      console.error('Security logs fetch failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Unable to load security logs.' });
+    }
+  });
+
   // GET /api/parent/my-children - Returns only the parent's linked students
   app.get('/api/parent/my-children', requireSession(['student_parent']), readLimit, dataGate, async (req: Request, res: Response) => {
     const session = (req as AuthenticatedRequest).authSession!;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap, UserPlus, Link } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
@@ -16,13 +16,14 @@ interface PendingEvent {
   comment: string;
 }
 
-interface AuditEntry {
+interface SecurityLogEntry {
   id: string;
-  timestamp: string;
-  user: string;
   action: string;
-  ipAddress: string;
-  module: string;
+  user_id: string | null;
+  username: string | null;
+  ip_address: string | null;
+  details: string | null;
+  created_at: string;
 }
 
 const initialEvents: PendingEvent[] = [
@@ -35,47 +36,22 @@ const initialEvents: PendingEvent[] = [
   { id: '7', title: 'Independence Day', titleMr: 'स्वातंत्र्य दिन', date: '2025-08-15', description: 'Patriotic programme and flag hoisting ceremony', status: 'pending', comment: '' },
 ];
 
-const auditEntries: AuditEntry[] = [
-  { id: '1', timestamp: '2025-01-15 09:23:15', user: 'Admin (Web Creator)', action: 'Login successful', ipAddress: '192.168.1.100', module: 'Auth' },
-  { id: '2', timestamp: '2025-01-15 09:25:30', user: 'Admin (Web Creator)', action: 'Viewed student records', ipAddress: '192.168.1.100', module: 'Students' },
-  { id: '3', timestamp: '2025-01-15 09:30:00', user: 'Principal', action: 'Approved admission #ASP-2024-0342', ipAddress: '192.168.1.101', module: 'Admission' },
-  { id: '4', timestamp: '2025-01-15 10:15:22', user: 'Class Teacher (5th)', action: 'Marked attendance', ipAddress: '192.168.1.55', module: 'Attendance' },
-  { id: '5', timestamp: '2025-01-15 10:45:00', user: 'Clerk 1', action: 'Generated scholarship report', ipAddress: '192.168.1.102', module: 'Reports' },
-  { id: '6', timestamp: '2025-01-15 11:00:12', user: 'Hostel Rector', action: 'Updated bed allotment', ipAddress: '192.168.1.60', module: 'Hostel' },
-  { id: '7', timestamp: '2025-01-15 11:30:45', user: 'Admin (Web Creator)', action: 'Modified role permissions', ipAddress: '192.168.1.100', module: 'Auth' },
-  { id: '8', timestamp: '2025-01-15 12:00:00', user: 'Mess Staff', action: 'Verified lunch attendance', ipAddress: '192.168.1.70', module: 'Mess' },
-  { id: '9', timestamp: '2025-01-14 08:45:30', user: 'Principal', action: 'Login successful', ipAddress: '192.168.1.101', module: 'Auth' },
-  { id: '10', timestamp: '2025-01-14 09:10:00', user: 'Class Teacher (8th)', action: 'Submitted exam results', ipAddress: '192.168.1.56', module: 'Exams' },
-  { id: '11', timestamp: '2025-01-14 09:45:15', user: 'Admin (Web Creator)', action: 'Exported WhatsApp logs', ipAddress: '192.168.1.100', module: 'WhatsApp' },
-  { id: '12', timestamp: '2025-01-14 10:20:00', user: 'Clerk 2', action: 'Updated student document', ipAddress: '192.168.1.103', module: 'Documents' },
-  { id: '13', timestamp: '2025-01-14 11:00:30', user: 'Principal', action: 'Approved leave request', ipAddress: '192.168.1.101', module: 'Leave' },
-  { id: '14', timestamp: '2025-01-14 14:30:00', user: 'Class Teacher (10th)', action: 'Sent parent notifications', ipAddress: '192.168.1.57', module: 'WhatsApp' },
-  { id: '15', timestamp: '2025-01-14 15:00:45', user: 'Admin (Web Creator)', action: 'Backup database initiated', ipAddress: '192.168.1.100', module: 'System' },
-  { id: '16', timestamp: '2025-01-13 08:00:00', user: 'Security', action: 'System startup', ipAddress: '192.168.1.1', module: 'System' },
-  { id: '17', timestamp: '2025-01-13 09:00:15', user: 'Admin (Web Creator)', action: 'Login from new device', ipAddress: '192.168.2.50', module: 'Auth' },
-  { id: '18', timestamp: '2025-01-13 10:30:00', user: 'Class Teacher (3rd)', action: 'Marked attendance', ipAddress: '192.168.1.54', module: 'Attendance' },
-  { id: '19', timestamp: '2025-01-13 13:00:22', user: 'Hostel Rector', action: 'Sick bay entry added', ipAddress: '192.168.1.60', module: 'Health' },
-  { id: '20', timestamp: '2025-01-13 14:45:00', user: 'Clerk 1', action: 'PO letter dispatched', ipAddress: '192.168.1.102', module: 'Dispatch' },
-  { id: '21', timestamp: '2025-01-13 16:00:00', user: 'Principal', action: 'Event approval - Sports Day', ipAddress: '192.168.1.101', module: 'Events' },
-  { id: '22', timestamp: '2025-01-12 09:30:00', user: 'Admin (Web Creator)', action: 'Updated system config', ipAddress: '192.168.1.100', module: 'System' },
-];
-
-const moduleColors: Record<string, string> = {
-  Auth: 'bg-red-50 text-red-700 border-red-200',
-  Students: 'bg-blue-50 text-blue-700 border-blue-200',
-  Admission: 'bg-amber-50 text-amber-700 border-amber-200',
-  Attendance: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  Reports: 'bg-purple-50 text-purple-700 border-purple-200',
-  Hostel: 'bg-teal-50 text-teal-700 border-teal-200',
-  Mess: 'bg-orange-50 text-orange-700 border-orange-200',
-  Exams: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-  WhatsApp: 'bg-green-50 text-green-700 border-green-200',
-  Documents: 'bg-slate-100 text-slate-700 border-slate-200',
-  Leave: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-  System: 'bg-gray-100 text-gray-700 border-gray-200',
-  Dispatch: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-  Events: 'bg-pink-50 text-pink-700 border-pink-200',
-  Health: 'bg-rose-50 text-rose-700 border-rose-200',
+const actionColors: Record<string, string> = {
+  login_success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  login_failed: 'bg-red-50 text-red-700 border-red-200',
+  password_verified: 'bg-blue-50 text-blue-700 border-blue-200',
+  otp_sent: 'bg-amber-50 text-amber-700 border-amber-200',
+  otp_verified: 'bg-green-50 text-green-700 border-green-200',
+  student_created: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  student_updated: 'bg-blue-50 text-blue-700 border-blue-200',
+  student_deleted: 'bg-red-50 text-red-700 border-red-200',
+  staff_created: 'bg-purple-50 text-purple-700 border-purple-200',
+  staff_updated: 'bg-purple-50 text-purple-700 border-purple-200',
+  staff_deleted: 'bg-red-50 text-red-700 border-red-200',
+  gallery_image_added: 'bg-teal-50 text-teal-700 border-teal-200',
+  gallery_image_deleted: 'bg-orange-50 text-orange-700 border-orange-200',
+  account_created: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+  parent_student_linked: 'bg-pink-50 text-pink-700 border-pink-200',
 };
 
 const staffRoleOptions = [
@@ -296,6 +272,24 @@ export default function SuperAdminCenter() {
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
   const [activeTab, setActiveTab] = useState<AdminTab>('events');
   const [events, setEvents] = useState<PendingEvent[]>(initialEvents);
+  const [securityLogs, setSecurityLogs] = useState<SecurityLogEntry[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [logsError, setLogsError] = useState('');
+
+  useEffect(() => {
+    if (activeTab === 'audit') {
+      setLogsLoading(true);
+      setLogsError('');
+      fetch('/api/admin/security-logs')
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch');
+          return res.json();
+        })
+        .then(result => setSecurityLogs(result.data || []))
+        .catch(() => setLogsError(t('Failed to load security logs.', 'सुरक्षा नोंदी लोड करता आल्या नाहीत.')))
+        .finally(() => setLogsLoading(false));
+    }
+  }, [activeTab]);
 
   const handleApprove = (id: string) => {
     setEvents(prev => prev.map(e => e.id === id ? { ...e, status: 'approved' as const } : e));
@@ -488,40 +482,57 @@ export default function SuperAdminCenter() {
 
       {activeTab === 'audit' && (
         <div className="glass-card-static overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="portal-table w-full text-sm">
-              <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    <Clock className="w-3 h-3 inline mr-1 relative -top-px" />{t('Timestamp', 'वेळ')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    <User className="w-3 h-3 inline mr-1 relative -top-px" />{t('User', 'वापरकर्ता')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    <Activity className="w-3 h-3 inline mr-1 relative -top-px" />{t('Action', 'कृती')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('IP Address', 'IP पत्ता')}</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Module', 'मॉड्यूल')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {auditEntries.map((entry, idx) => (
-                  <tr key={entry.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
-                    <td className="px-4 py-2.5 text-xs font-mono text-slate-500">{entry.timestamp}</td>
-                    <td className="px-4 py-2.5 text-sm font-medium text-slate-700">{entry.user}</td>
-                    <td className="px-4 py-2.5 text-sm text-slate-600">{entry.action}</td>
-                    <td className="px-4 py-2.5 text-xs font-mono text-slate-500">{entry.ipAddress}</td>
-                    <td className="px-4 py-2.5">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${moduleColors[entry.module] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
-                        {entry.module}
-                      </span>
-                    </td>
+          {logsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <span className="h-6 w-6 animate-spin rounded-full border-2 border-black/20 border-t-black" />
+              <span className="ml-3 text-sm text-[#6B6B6B]">{t('Loading security logs...', 'सुरक्षा नोंदी लोड होत आहेत...')}</span>
+            </div>
+          ) : logsError ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-sm text-red-600">{logsError}</p>
+            </div>
+          ) : securityLogs.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-sm text-[#6B6B6B]">{t('No security events recorded.', 'कोणतेही सुरक्षा कार्यक्रम नोंदवलेले नाहीत.')}</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="portal-table w-full text-sm">
+                <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      <Clock className="w-3 h-3 inline mr-1 relative -top-px" />{t('Timestamp', 'वेळ')}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      <User className="w-3 h-3 inline mr-1 relative -top-px" />{t('User', 'वापरकर्ता')}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      <Activity className="w-3 h-3 inline mr-1 relative -top-px" />{t('Action', 'कृती')}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('IP Address', 'IP पत्ता')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Details', 'तपशील')}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {securityLogs.map((entry, idx) => (
+                    <tr key={entry.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
+                      <td className="px-4 py-2.5 text-xs font-mono text-slate-500">
+                        {new Date(entry.created_at).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2.5 text-sm font-medium text-slate-700">{entry.username || '-'}</td>
+                      <td className="px-4 py-2.5">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${actionColors[entry.action] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+                          {entry.action}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 text-xs font-mono text-slate-500">{entry.ip_address || '-'}</td>
+                      <td className="px-4 py-2.5 text-xs text-slate-600 max-w-[200px] truncate">{entry.details || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
