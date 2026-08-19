@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Footer real contact info + Google Maps + Gallery section on landing page + Gallery backend API + AI assistant enhancement with real data + Remove mock audit logs",
+  "status": "pending",
+  "steps": [
+    "FOOTER FIX in src/components/LandingPage.tsx: Replace the 'Connect' section placeholder email 'ashramshala.pathraj@tribal.gov.in' with 'hmpathraj22@gmail.com'. Replace phone '+91 2148 222 456' with two entries: Principal: 9423864391, Clerk/Web Creator: 7666971183. Add a WhatsApp contact button linking to https://wa.me/917666971183. Add a Google Maps link for 'शासकीय आश्रमशाळा पाथरज, Pathraj, Karjat, Raigad, Maharashtra 410201' - clicking opens Google Maps directions.",
+    "GOOGLE MAPS SECTION in src/components/LandingPage.tsx: Add a Contact/Location section above or within the footer that includes an embedded Google Maps iframe for the school location (use maps.google.com embed URL for 'Ashram Shala Pathraj Karjat Raigad Maharashtra 410201'). Include address text in both English and Marathi.",
+    "GALLERY BACKEND: Add new API routes in server/data.ts (or a new server/gallery.ts): (1) GET /api/gallery - public, returns all gallery_images ordered by created_at desc. (2) POST /api/gallery - requires session with role web_creator or principal, accepts JSON { url, caption }, inserts into gallery_images table. (3) DELETE /api/gallery/:id - requires session with role web_creator or principal, deletes gallery image by id. Register these routes in server/app.ts.",
+    "GALLERY UI in src/components/LandingPage.tsx: Add a 'School Gallery' section between the feature cards and the about section. Show images from /api/gallery in a responsive grid (3 columns on desktop, 2 on tablet, 1 on mobile). Each image shows caption overlay. For logged-in admins (web_creator/principal), show an upload button that lets them add images via URL input + caption.",
+    "AI ASSISTANT ENHANCEMENT in server/agents.ts: Modify the runAgent function and BASE_CONTEXT to include real data context. Before calling the AI, fetch the authenticated user's linked student data from Supabase (students table via parent_student_ids), recent attendance events, and school events. Include this data in the system prompt so the AI can answer questions about the user's children, attendance, and suggest next steps. Add instruction to always respond in BOTH Marathi and English (bilingual response). Update AGENT_PROMPTS to include: 'Always provide your response in both English and Marathi. Analyze student records and suggest actionable next steps for the child based on their academic performance and attendance.'",
+    "AI ASSISTANT UI ENHANCEMENT in src/components/AiAssistant.tsx: Improve the UI to better match the Auralis monochrome theme. Ensure quick action chips (Document Readiness, Eligibility Check, Application Status, Hostel Info) are prominently displayed. Add a subtle header with the school logo. Style the chat bubbles with the monochrome palette (user messages: dark bg, bot messages: light bg with border).",
+    "REMOVE MOCK AUDIT LOGS in src/components/SuperAdminCenter.tsx: Remove the hardcoded 'auditEntries' array (lines ~50-90). Replace the audit tab with a real data fetch from GET /api/admin/security-logs (new endpoint). Create this endpoint in server/data.ts or server/auth.ts: GET /api/admin/security-logs requires session with role web_creator, fetches from security_logs table ordered by created_at desc, limit 50. Show real logged events only.",
+    "Ensure the AI chat endpoint (/api/ai-chat) passes the authenticated user's ID to the agent so it can look up their children's data. Modify the request handler to fetch user's parent_student_ids and pass student data context to the AI prompt."
+  ],
+  "acceptance_criteria": [
+    "Footer displays real contact info: hmpathraj22@gmail.com, Principal: 9423864391, Clerk: 7666971183",
+    "Footer has WhatsApp button and Google Maps link",
+    "Landing page has a Google Maps embed/link for school location",
+    "Gallery section shows on landing page with images from /api/gallery",
+    "Admin users can add gallery images via the UI",
+    "AI assistant receives real student data context and responds bilingually",
+    "SuperAdminCenter audit tab fetches real security_logs instead of mock data",
+    "npm run lint passes",
+    "npm run build passes"
+  ],
+  "verification": [
+    "Run 'source /root/.nvm/nvm.sh && npm run lint' and confirm zero errors",
+    "Run 'source /root/.nvm/nvm.sh && npm run build' and confirm successful build"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

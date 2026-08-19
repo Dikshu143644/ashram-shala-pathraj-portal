@@ -1,0 +1,22 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Supabase migration: Add gallery_images and ai_passwords tables, ensure mobile_number column exists on auth_users",
+  "status": "in_progress",
+  "steps": [
+    "Create supabase/migrations/202506190001_fix_all_issues.sql with: (1) gallery_images table (id uuid PK default gen_random_uuid(), url text NOT NULL, caption text, uploaded_by uuid references auth_users(id), created_at timestamptz default now()), (2) ai_passwords table (id uuid PK default gen_random_uuid(), user_id uuid NOT NULL references auth_users(id) UNIQUE, ai_password_hash text NOT NULL, created_at timestamptz default now()), (3) ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS mobile_number VARCHAR(15)",
+    "Apply the migration to the live Supabase instance using the REST SQL endpoint: POST https://dkypdrocnebusgdlndhn.supabase.co/rest/v1/rpc with the service role key header. Alternatively use the Supabase Management API SQL endpoint to execute the SQL.",
+    "No mock data - real schema only"
+  ],
+  "acceptance_criteria": [
+    "Migration file exists at supabase/migrations/202506190001_fix_all_issues.sql with correct DDL",
+    "The migration SQL is syntactically valid PostgreSQL",
+    "Migration has been applied to the remote Supabase database successfully"
+  ],
+  "verification": [
+    "Run 'source /root/.nvm/nvm.sh && npm run lint' to confirm no TS issues",
+    "Verify the migration file exists and contains correct SQL"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

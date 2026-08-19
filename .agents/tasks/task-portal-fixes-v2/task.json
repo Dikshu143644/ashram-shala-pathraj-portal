@@ -1,0 +1,7 @@
+{
+  "task_id": "task-portal-fixes-v2",
+  "task_description": "Fix all portal issues: footer with real contacts, Google Maps, gallery feature, enhanced AI assistant with real data, remove mock audit logs, Supabase migration for new tables",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}
