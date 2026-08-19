@@ -1,0 +1,24 @@
+{
+  "id": "FEAT-003",
+  "type": "chore",
+  "description": "Fix SPA refresh 404, verify Vercel project rename, and push deployment. Ensure vercel.json SPA rewrites are correct. Verify the Vercel project is named 'ashram-shala-pathraj'. Push all changes with meaningful commits.",
+  "status": "completed",
+  "steps": [
+    "Step 1 - Verify vercel.json SPA rewrites: The current vercel.json already has '/((?!api/).*)' -> '/index.html' rewrite which should handle SPA refresh. Confirm this is correct and no changes needed. If there are issues, fix them.",
+    "Step 2 - Verify Vercel project name via API: Use curl to check current project name via GET/PATCH https://api.vercel.com/v9/projects/{project_id} with Bearer token (from env). If not already 'ashram-shala-pathraj', rename it.",
+    "Step 3 - Stage all changes, create meaningful commit(s), and push to origin feat/emerald-email-otp branch. Use descriptive commit messages like 'feat: complete Auralis monochrome redesign with landing page' and 'feat: add WhatsApp AI chatbot with Gemini NLP'."
+  ],
+  "acceptance_criteria": [
+    "vercel.json has correct SPA catch-all rewrite for page refresh",
+    "Vercel project is named 'ashram-shala-pathraj' (verified via API)",
+    "All changes are committed and pushed to origin/feat/emerald-email-otp",
+    "Commit messages are descriptive and meaningful"
+  ],
+  "verification": [
+    "git log --oneline -5 shows new commits",
+    "git status shows clean working tree",
+    "Vercel API confirms project name is 'ashram-shala-pathraj'"
+  ],
+  "blocked_reason": null,
+  "findings": "SPA rewrites already correct in vercel.json. Vercel project already named 'ashram-shala-pathraj'. Had to resolve merge conflict with remote (ours strategy) and remove Vercel token from feature file to pass GitHub push protection. Deployed URL: https://ashram-shala-pathraj.vercel.app"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Build WhatsApp AI Chatbot with Gemini NLP integration. Replace the current mock chatbot in WhatsAppHub with a real AI-powered chatbot that uses Gemini for natural language processing, connects to Supabase for real student data, and follows the specified bot personality and response rules.",
+  "status": "completed",
+  "steps": [
+    "Step 1 - Create server/whatsapp-bot.ts: Build a new server module that implements the WhatsApp AI chatbot logic. Bot name: 'आश्रमशाळा पाथरज सहाय्यक'. System prompt should include: (a) Authentication requirement - verify parent phone number against student database (auth_users table, mobile_number field). (b) Capabilities: Attendance, Exam Schedule, PTM, Hostel/Mess menu, Holidays, Health updates, General School Info. (c) Language: Default Marathi, switch to English if parent writes in English. (d) Response rules: Under 200 words, use emojis, bullet points, end every response with 'आणखी काही मदत हवी असल्यास विचारा 🙏'. (e) School data context: 459 students, Standards 1-12, Principal: श्री. अजित लालासाहेब बनसोडे, Tribal Development Department Maharashtra. The module should use the Gemini API (same pattern as server/agents.ts callGemini function) with enriched context from Supabase queries.",
+    "Step 2 - Register WhatsApp bot routes in server/app.ts: Add POST /api/whatsapp/chat endpoint that accepts { message, phoneNumber } and returns AI response. Add POST /api/whatsapp/verify endpoint for phone verification against auth_users. Both endpoints should be rate-limited.",
+    "Step 3 - Rewrite src/components/WhatsAppHub.tsx: Replace the mock chatbot with a real one that calls /api/whatsapp/chat. The chatbot tab should: (a) Show a phone verification step first (user enters their registered mobile number). (b) After verification, show the chat interface. (c) Send messages to the backend API and display real Gemini-powered responses. (d) Show bot name 'आश्रमशाळा पाथरज सहाय्यक' in the chat header. (e) Display typing indicator while waiting for response. (f) Style the chat interface with the new Auralis monochrome design (black/white cards, subtle borders). Keep the dispatch logs tab as-is but style it to match the new theme.",
+    "Step 4 - Update the WhatsApp bot system prompt with actual school data context: mess menu schedule (breakfast/lunch/dinner), exam schedule references, PTM dates pattern, hostel capacity (520 beds), holiday calendar structure. The bot should query Supabase for student-specific data (attendance records, etc.) when a verified parent asks about their child."
+  ],
+  "acceptance_criteria": [
+    "server/whatsapp-bot.ts exists with Gemini-powered chatbot logic",
+    "POST /api/whatsapp/chat endpoint exists and returns AI responses",
+    "POST /api/whatsapp/verify endpoint validates phone numbers against auth_users table",
+    "WhatsAppHub component has phone verification flow before chat access",
+    "Bot responses are in Marathi by default, switch to English when user writes in English",
+    "Bot responses end with 'आणखी काही मदत हवी असल्यास विचारा 🙏'",
+    "Bot identifies itself as 'आश्रमशाळा पाथरज सहाय्यक'",
+    "npm run build completes successfully",
+    "npm run lint passes with no new errors"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run build",
+    "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run lint 2>&1 | grep -c 'error' || true"
+  ],
+  "blocked_reason": null,
+  "findings": "All 4 steps completed. Created server/whatsapp-bot.ts with full Gemini integration using same callGemini pattern as agents.ts. Registered routes in app.ts. Rewrote WhatsAppHub.tsx with phone verification flow, real API calls, typing indicator, and Auralis monochrome design. System prompt includes all school data (mess schedule, exam pattern, PTM dates, hostel capacity 520, holidays, health). Supabase queries fetch parent-linked student context. Both npm run lint and npm run build pass cleanly."
+}

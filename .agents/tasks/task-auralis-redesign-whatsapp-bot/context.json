@@ -1,0 +1,31 @@
+{
+  "project_type": "Full-stack TypeScript: Vite React SPA (frontend) + Express API (backend) on Supabase",
+  "language": "TypeScript / TSX",
+  "build_system": "Vite 6 + esbuild for server bundle. Must run 'source /root/.nvm/nvm.sh' before any npm/node commands.",
+  "test_framework": "No formal test suite. Verification is via TypeScript type-checking (tsc --noEmit) and successful Vite build.",
+  "build_command": "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run build",
+  "test_command": "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run lint",
+  "verification_instructions": "1. Run npm run lint (tsc --noEmit) - should pass with no new errors. 2. Run npm run build (vite build + esbuild server.ts) - should produce dist/ successfully.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm install",
+  "environment_constraints": "OPEN_INTERNET network mode. Must prefix all npm/node commands with 'source /root/.nvm/nvm.sh'. Node.js available via nvm. Git push credential helper is configured. GitHub PAT available for API calls.",
+  "contribution_requirements": "Push to feat/emerald-email-otp branch. PR #1 already exists and will be updated automatically on push.",
+  "key_patterns": "Components in src/components/*.tsx. Auth context in src/contexts/AppContext.tsx. Server modules in server/*.ts. Entry server.ts creates Express app. API routes under /api/*. Vercel deployment via vercel.json with SPA rewrites. Uses TailwindCSS 4 with @import 'tailwindcss'. Motion (framer-motion) for animations. Lucide-react for icons. Design system in src/index.css with CSS custom properties.",
+  "relevant_files": [
+    "src/index.css",
+    "src/App.tsx",
+    "src/components/LoginPage.tsx",
+    "src/components/RegisterPage.tsx",
+    "src/components/Header.tsx",
+    "src/components/WhatsAppHub.tsx",
+    "src/components/AiAssistant.tsx",
+    "src/contexts/AppContext.tsx",
+    "server/agents.ts",
+    "server/app.ts",
+    "server/auth.ts",
+    "index.html",
+    "vercel.json",
+    "package.json"
+  ],
+  "directory_structure": "Root: server.ts (dev server), index.html (SPA entry), vercel.json (Vercel config), package.json. src/: App.tsx (main app with tabs/sidebar), components/ (14 portal components), contexts/ (AppContext auth), data/mockData.ts, lib/. server/: app.ts (Express factory), auth.ts (OTP/login/register), data.ts (CRUD), agents.ts (AI chat), security.ts (rate limiting/sessions). api/: Vercel serverless entry."
+}

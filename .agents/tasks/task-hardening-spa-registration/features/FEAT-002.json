@@ -1,0 +1,36 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Build real registration/login system: add bcrypt password hashing, parent self-registration with OTP, staff account creation from admin panel, password change on first login, and parent-limited data access. Remove plaintext password comparison. Create a registration UI page and update the admin panel.",
+  "status": "completed",
+  "steps": [
+    "Install bcrypt (npm install bcrypt && npm install -D @types/bcrypt) for password hashing",
+    "Create supabase/migrations/202608180003_registration_system.sql that: (1) adds columns to auth_users: mobile_number VARCHAR(15), must_change_password BOOLEAN DEFAULT FALSE, password_changed_at TIMESTAMPTZ, parent_student_ids UUID[] (for parent-child linking), created_by UUID (who created the account); (2) creates an index on mobile_number; (3) hashes the existing plaintext passwords in auth_users using a one-time update (use pgcrypto crypt/gen_salt for in-DB hashing OR just mark them for must_change_password=true)",
+    "Update server/auth.ts: (1) Replace the plaintext password comparison (user.password_hash !== password) with bcrypt.compare(password, user.password_hash). (2) Add POST /api/auth/register endpoint for parent self-registration: accepts fullName, mobileNumber (10-digit Indian), email, relationship; validates inputs; checks unique mobile/email; creates user with role=student_parent, must_change_password=false (they set password after OTP verify); initiates OTP challenge to their email; after OTP verified, prompts password creation. (3) Add POST /api/auth/change-password endpoint: requires session; validates old password (or skip if must_change_password); hashes new password with bcrypt; updates auth_users; sets must_change_password=false. (4) Add POST /api/admin/create-account endpoint: requires web_creator/principal session; accepts fullName, email, mobileNumber, role (staff roles only); generates temporary password; hashes with bcrypt; creates user with must_change_password=true; sends email with temp password via Resend. (5) Add rate limiting to all new endpoints.",
+    "Create src/components/RegisterPage.tsx: registration form with fields for Full Name, Mobile Number (10-digit validation), Email, Relationship to Student dropdown. On submit calls /api/auth/register, shows OTP entry, then password-set form. Follow the visual style of LoginPage.tsx (emerald/green theme, glass-card, motion animations).",
+    "Create src/components/ChangePasswordPage.tsx: form for current password + new password + confirm new password. Shown when must_change_password is true after login.",
+    "Update src/contexts/AppContext.tsx: add mustChangePassword to AuthUser interface and state; add register() and changePassword() methods; update session check to detect must_change_password flag from server response.",
+    "Update src/App.tsx: if mustChangePassword is true, show ChangePasswordPage instead of dashboard. Add routing to show RegisterPage (via a 'Register' link on LoginPage).",
+    "Update src/components/LoginPage.tsx: add a 'Register as Parent' link/button that switches to registration view.",
+    "Update server/data.ts: for role=student_parent, filter /api/students to only return students linked via parent_student_ids on their auth_users record. Add GET /api/parent/my-children endpoint that returns only the parent's linked students.",
+    "Update the SuperAdminCenter.tsx or add account management UI in the admin panel to call POST /api/admin/create-account for staff account creation"
+  ],
+  "acceptance_criteria": [
+    "npm run lint passes with all new code",
+    "npm run build succeeds",
+    "server/auth.ts uses bcrypt.compare for password verification instead of plaintext comparison",
+    "POST /api/auth/register endpoint exists with proper validation and rate limiting",
+    "POST /api/auth/change-password endpoint exists requiring session",
+    "POST /api/admin/create-account endpoint exists requiring web_creator/principal role",
+    "RegisterPage component renders with proper form fields",
+    "ChangePasswordPage component renders and is shown when mustChangePassword=true",
+    "Parent role data access is restricted to linked students only",
+    "No hardcoded admin/Admin@2024 plaintext comparison remains in auth code"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": "All acceptance criteria met. bcrypt installed and used for password hashing with auto-migration from plaintext. Registration, set-password, change-password, and admin create-account endpoints added with rate limiting. RegisterPage and ChangePasswordPage components created matching existing UI theme. Parent data access restricted via parent_student_ids. SuperAdminCenter updated with Create Staff Account tab. Build and lint pass cleanly."
+}

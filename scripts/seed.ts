@@ -4,6 +4,7 @@ import { students, staff } from '../src/data/mockData.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL!;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const OTP_DEFAULT_EMAIL = process.env.OTP_DEFAULT_EMAIL?.trim() || null;
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
   console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment');
@@ -92,7 +93,7 @@ async function seedAuthUsers(): Promise<number> {
     { username: 'clerk', password_hash: 'Clerk@2024', role: 'clerk', name_en: 'Clerk', name_mr: 'लिपिक' },
     { username: 'sports', password_hash: 'Sports@2024', role: 'subject_teacher', name_en: 'Subject Teacher', name_mr: 'विषय शिक्षक' },
     { username: 'parent', password_hash: 'Parent@2024', role: 'student_parent', name_en: 'Student/Parent', name_mr: 'विद्यार्थी/पालक' },
-  ];
+  ].map((user) => ({ ...user, email: OTP_DEFAULT_EMAIL }));
 
   const { error } = await supabase.from('auth_users').insert(authUsers);
   if (error) {

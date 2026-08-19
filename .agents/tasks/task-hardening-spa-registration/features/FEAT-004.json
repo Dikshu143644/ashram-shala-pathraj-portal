@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-004",
+  "type": "chore",
+  "description": "Commit all changes in meaningful groups, push to feat/emerald-email-otp branch, and trigger Vercel deployment",
+  "status": "completed",
+  "steps": [
+    "Stage and commit the SPA fix + Vercel rename: vercel.json (message: 'fix: add SPA catch-all rewrite and rename Vercel project')",
+    "Stage and commit the registration/auth system: server/auth.ts, server/security.ts, server/data.ts, src/components/RegisterPage.tsx, src/components/ChangePasswordPage.tsx, src/contexts/AppContext.tsx, src/App.tsx, src/components/LoginPage.tsx, supabase/migrations/202608180003_registration_system.sql, package.json, package-lock.json (message: 'feat: add real registration system with bcrypt, parent self-registration, and role-based access')",
+    "Stage and commit new server modules: server/agents.ts, server/app.ts (message: 'feat: add multi-provider AI agents with structured logging and DDoS protection')",
+    "Stage and commit documentation: docs/ (message: 'docs: add system architecture, WhatsApp bot Opal prompt, and deployment guide')",
+    "Stage and commit remaining infrastructure: Dockerfile, docker-compose.yml, k8s/ changes if any, server.ts, api/index.ts (message: 'chore: update Docker and serverless entry points')",
+    "Push all commits to origin/feat/emerald-email-otp using the GitHub PAT for authentication",
+    "Trigger Vercel deployment by pushing (Vercel auto-deploys on push) or use Vercel API to create deployment"
+  ],
+  "acceptance_criteria": [
+    "All files are committed with no uncommitted changes",
+    "All commits are pushed to origin/feat/emerald-email-otp",
+    "git log shows meaningful commit messages",
+    "Vercel deployment is triggered (either auto-deploy on push or manual trigger)"
+  ],
+  "verification": [
+    "git status shows clean working tree",
+    "git log --oneline -10 shows the new commits",
+    "git push output confirms successful push"
+  ],
+  "blocked_reason": null,
+  "findings": "Push was initially blocked by GitHub secret scanning (Vercel token in FEAT-001.json). Fixed by rewriting history with git rebase to remove the token from commit 23cabf7. Push succeeded after rebase. Vercel deployment triggered via API with deployment ID dpl_56h4misnqhfqUf6k9VteqSiNLWzA, deploying from sha 93fba72. Branch is now up to date with origin/feat/emerald-email-otp (7 commits total including the secret-removal commit)."
+}

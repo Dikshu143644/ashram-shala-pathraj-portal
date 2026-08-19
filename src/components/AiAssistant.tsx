@@ -224,17 +224,22 @@ export default function AiAssistant() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="p-4 sm:p-6 max-w-4xl mx-auto"
+      initial={false}
+      className="portal-page max-w-5xl!"
     >
-      <h2 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] mb-5">
-        {t('AI Inquiry Assistant', 'AI चौकशी सहाय्यक')}
-      </h2>
+      {/* Header Bar */}
+      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#E7E7E4]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white">
+          <Bot className="h-5 w-5" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-black">{t('AI Assistant', 'AI सहाय्यक')}</h2>
+          <p className="text-xs text-[#6B6B6B]">{t('Online - Ready to assist', 'ऑनलाइन - मदतीसाठी सज्ज')}</p>
+        </div>
+      </div>
 
-      {/* Quick Actions as gradient pill buttons */}
-      <div className="flex flex-wrap gap-2 mb-5">
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-3 mb-6">
         {quickActions.map((action) => (
           <motion.button
             whileHover={{ scale: 1.03 }}
@@ -242,18 +247,18 @@ export default function AiAssistant() {
             key={action.key}
             onClick={() => handleQuickAction(action.key)}
             disabled={isTyping}
-            className="gradient-pill flex items-center gap-2 px-4 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2.5 rounded-full border border-[#E7E7E4] bg-white px-5 py-3 text-sm font-medium shadow-sm transition-all hover:border-black/20 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <action.icon className="w-4 h-4 text-amber-600" />
-            <span className="text-slate-700">{language === 'en' ? action.labelEn : action.labelMr}</span>
+            <action.icon className="w-4 h-4 text-black" />
+            <span className="text-black">{language === 'en' ? action.labelEn : action.labelMr}</span>
           </motion.button>
         ))}
       </div>
 
-      {/* Chat Window - Glassmorphism */}
-      <div className="glass-card-static overflow-hidden flex flex-col" style={{ height: '480px' }}>
+      {/* Chat Window */}
+      <div className="overflow-hidden rounded-2xl border border-[#E7E7E4] bg-white flex flex-col" style={{ height: '480px' }}>
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4" style={{ background: 'linear-gradient(180deg, rgba(248, 250, 252, 0.5), rgba(255, 255, 255, 0.3))' }}>
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-[#F7F7F5]">
           {messages.map((msg, idx) => (
             <motion.div
               key={idx}
@@ -263,17 +268,17 @@ export default function AiAssistant() {
               className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'bot' && (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-md" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
-                  <Bot className="w-4 h-4 text-slate-900" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black text-white">
+                  <Bot className="h-4 w-4" />
                 </div>
               )}
               <div className="flex flex-col gap-1 max-w-[75%]">
-                <div className={`px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${
+                <div className={`px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
                   msg.role === 'user'
-                    ? 'chat-bubble-user font-medium'
+                    ? 'bg-black text-white rounded-2xl rounded-br-sm'
                     : msg.isError
                       ? 'bg-red-50 border border-red-200 text-red-700 rounded-2xl rounded-bl-sm'
-                      : 'chat-bubble-bot text-slate-800'
+                      : 'bg-white border border-[#E7E7E4] text-black rounded-2xl rounded-bl-sm'
                 }`}>
                   {msg.text}
                 </div>
@@ -293,8 +298,8 @@ export default function AiAssistant() {
                     onClick={() => handleSpeak(msg.text, idx)}
                     className={`self-start flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
                       playingIndex === idx
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'text-slate-400 hover:text-slate-600 hover:bg-white/60'
+                        ? 'bg-black/10 text-black'
+                        : 'text-[#6B6B6B] hover:text-black hover:bg-[#F3F2EF]'
                     }`}
                     title={t('Read aloud', 'मोठ्याने वाचा')}
                   >
@@ -304,22 +309,22 @@ export default function AiAssistant() {
                 )}
               </div>
               {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-md" style={{ background: 'linear-gradient(135deg, #1e293b, #334155)' }}>
-                  <User className="w-4 h-4 text-white" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E7E7E4] text-black">
+                  <User className="w-4 h-4" />
                 </div>
               )}
             </motion.div>
           ))}
           {isTyping && (
             <div className="flex gap-2.5 items-start">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-md" style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)' }}>
-                <Bot className="w-4 h-4 text-slate-900" />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black text-white">
+                <Bot className="w-4 h-4" />
               </div>
-              <div className="chat-bubble-bot px-4 py-3">
+              <div className="bg-white border border-[#E7E7E4] rounded-2xl rounded-bl-sm px-4 py-3">
                 <div className="flex gap-1.5">
-                  <span className="w-2 h-2 bg-slate-400 rounded-full typing-dot" />
-                  <span className="w-2 h-2 bg-slate-400 rounded-full typing-dot" />
-                  <span className="w-2 h-2 bg-slate-400 rounded-full typing-dot" />
+                  <span className="w-2 h-2 bg-[#6B6B6B] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 bg-[#6B6B6B] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-[#6B6B6B] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             </div>
@@ -328,21 +333,17 @@ export default function AiAssistant() {
         </div>
 
         {/* Input */}
-        <div className="border-t border-white/30 p-4 flex items-center gap-3" style={{ background: 'rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(8px)' }}>
+        <div className="border-t border-[#E7E7E4] p-4 flex items-center gap-3 bg-white">
           {hasSpeechRecognition && (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={isRecording ? stopRecording : startRecording}
-              className={`p-3 rounded-full transition-all shadow-sm ${
+              className={`p-3 rounded-full transition-all ${
                 isRecording
-                  ? 'text-white animate-voice-pulse'
-                  : 'text-slate-600 hover:shadow-md'
+                  ? 'bg-red-500 text-white'
+                  : 'bg-[#F3F2EF] text-[#6B6B6B] hover:bg-[#E7E7E4]'
               }`}
-              style={isRecording
-                ? { background: 'linear-gradient(135deg, #dc2626, #ef4444)' }
-                : { background: 'rgba(241, 245, 249, 0.8)' }
-              }
               title={isRecording ? t('Stop recording', 'रेकॉर्डिंग थांबवा') : t('Voice input', 'आवाज इनपुट')}
             >
               {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -354,15 +355,14 @@ export default function AiAssistant() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder={isRecording ? t('Listening...', 'ऐकत आहे...') : t('Ask anything about admissions, school, hostel...', 'प्रवेश, शाळा, वसतिगृहाबद्दल काहीही विचारा...')}
-            className="flex-1 px-4 py-3 border-[1.5px] border-slate-200 rounded-xl text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
+            className="flex-1 px-4 py-3 border border-[#E7E7E4] rounded-xl text-sm outline-none focus:border-black focus:ring-2 focus:ring-black/10 transition-all bg-white"
           />
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
-            className="p-3 rounded-full text-white transition-all disabled:opacity-50 shadow-md"
-            style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-black text-white transition-all disabled:opacity-50"
           >
             <Send className="w-4 h-4" />
           </motion.button>

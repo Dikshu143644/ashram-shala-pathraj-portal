@@ -1,0 +1,31 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Complete Auralis monochrome redesign: Replace the current emerald Material 3 design with the Auralis-style minimal, monochrome, premium SaaS design. Create a new landing page that unauthenticated users see (instead of going straight to login). Update all design tokens, fonts, and visual language across the entire app.",
+  "status": "completed",
+  "steps": [
+    "Step 1 - Update index.html: Replace Google Fonts link with Geist font (from CDN or self-hosted) with Inter as fallback. Add Material Symbols Outlined icon font link. Update page title to reflect school name.",
+    "Step 2 - Completely rewrite src/index.css: Replace all CSS custom properties with the Auralis palette: background #F7F7F5, cards #FCFCFB with border #E7E7E4, panels #F3F2EF, primary #000000, secondary text #6B6B6B. Replace font-family with Geist/Inter. Set large hero text styles (84px, -0.04em letter-spacing, weight 600). Define generous section spacing (140-180px). Define backdrop-blur navigation (fixed, 72px height). Set rounded cards (24px border-radius). Define gradient orbs as decorative backgrounds (blur-3xl). Define glassmorphic overlays (bg-white/25 backdrop-blur-3xl). Keep only accent emerald green for status indicators. Remove all emerald/gold/navy Material 3 theming.",
+    "Step 3 - Create src/components/LandingPage.tsx: Build a full Auralis-style landing page with these sections: (a) Fixed backdrop-blur navigation bar (72px height) with school name, Login + Register buttons. (b) Hero section with school name in Devanagari at 84px, tagline 'Nurturing Tribal Youth Since 1985', Apply Now + Login buttons. (c) Stats strip showing '459 Students | 38 Staff | 12 Standards | 520 Hostel Beds'. (d) Feature cards section with 4 cards: Admission Portal, AI Assistant, WhatsApp Bot, Parent Portal - each with icon and description. (e) Trust/marquee strip with Government logos (Tribal Development Dept, Maharashtra Govt - use text badges since no actual logo images). (f) About School section. (g) Clean multi-column footer with links to About, Admission, Hostel, Academics, Gallery, Contact.",
+    "Step 4 - Update src/App.tsx: Show LandingPage as the default view for unauthenticated users (instead of LoginPage directly). Keep LoginPage and RegisterPage accessible via navigation buttons on the landing page. Maintain existing authenticated portal structure (sidebar, tabs, etc.) but update colors/styles to match the new monochrome Auralis theme.",
+    "Step 5 - Update src/components/Header.tsx: Redesign to match Auralis navbar style - monochrome, minimal, with backdrop-blur glass effect. Use black text, subtle borders (#E7E7E4), and clean typography.",
+    "Step 6 - Update src/components/LoginPage.tsx and src/components/RegisterPage.tsx: Restyle to match Auralis monochrome theme - replace all emerald green colors with black/monochrome, update card backgrounds to #FCFCFB with #E7E7E4 borders, use Geist font styling, keep accent emerald only for success indicators.",
+    "Step 7 - Update remaining portal components (AdmissionPortal, ClassTeacherPortal, HostelPortal, ClerkPortal, SuperAdminCenter, AiAssistant) to use the new Auralis color scheme: monochrome cards with subtle borders, black text, #6B6B6B secondary text, emerald only for status badges."
+  ],
+  "acceptance_criteria": [
+    "index.html loads Geist font and Material Symbols Outlined",
+    "src/index.css defines Auralis palette (#F7F7F5 background, #FCFCFB cards, #E7E7E4 borders, #000 primary, #6B6B6B secondary, emerald accent only for status)",
+    "LandingPage component exists with hero (84px Devanagari school name), stats strip, feature cards, trust section, and footer",
+    "Unauthenticated users see LandingPage by default with Login/Register buttons in nav",
+    "LoginPage and RegisterPage use monochrome Auralis styling",
+    "Header uses backdrop-blur, monochrome styling",
+    "npm run build completes successfully",
+    "npm run lint passes (or has no new errors beyond pre-existing ones)"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run build",
+    "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run lint 2>&1 | grep -c 'error' || true"
+  ],
+  "blocked_reason": null,
+  "findings": "All 7 steps completed. Build and lint pass cleanly. Old emerald/Material 3 colors fully replaced across all components. LandingPage uses material-symbols-outlined web font for icons. LoginPage and RegisterPage accept optional onBack prop for navigation back to landing page. UnauthView state manages landing/login/register navigation without changing AppContext."
+}

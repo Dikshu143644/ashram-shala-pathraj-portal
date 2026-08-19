@@ -1,0 +1,27 @@
+{
+  "project_type": "Full-stack TypeScript portal (Vite React SPA + Express API + Supabase)",
+  "language": "TypeScript",
+  "build_system": "Vite (frontend) + esbuild (server.ts bundling) via npm scripts",
+  "test_framework": "No test framework configured - validation via lint + build",
+  "build_command": "source /root/.nvm/nvm.sh && npm run build",
+  "test_command": "source /root/.nvm/nvm.sh && npm run lint",
+  "verification_instructions": "1. Run 'source /root/.nvm/nvm.sh && npm run lint' (tsc --noEmit). 2. Run 'source /root/.nvm/nvm.sh && npm run build' (vite build + esbuild server.ts)",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "source /root/.nvm/nvm.sh && npm install",
+  "environment_constraints": "OPEN_INTERNET network mode. No test framework exists. Supabase CLI not installed - use REST API for migrations. Must source /root/.nvm/nvm.sh before any npm/node commands.",
+  "contribution_requirements": "Push to feat/emerald-email-otp branch. PR #1 already exists.",
+  "key_patterns": "Express routes in server/ (auth.ts, data.ts, agents.ts, whatsapp-bot.ts). React components in src/components/. Single AppContext for state. Tailwind 4 + Auralis monochrome design. lucide-react for icons. motion/react for animations. Bilingual support with t(en, mr) helper pattern.",
+  "relevant_files": [
+    "src/components/LandingPage.tsx",
+    "src/components/AiAssistant.tsx",
+    "src/components/SuperAdminCenter.tsx",
+    "src/App.tsx",
+    "server/agents.ts",
+    "server/auth.ts",
+    "server/data.ts",
+    "server/app.ts",
+    "src/contexts/AppContext.tsx",
+    "supabase/migrations/202608180003_registration_system.sql"
+  ],
+  "directory_structure": "src/components/ - React UI components. src/contexts/ - AppContext. server/ - Express API routes. supabase/migrations/ - SQL migration files. api/ - Vercel serverless entry."
+}

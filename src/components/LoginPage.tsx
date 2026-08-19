@@ -1,7 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { School, Eye, EyeOff, Globe, LogIn, User, Lock, ChevronDown } from 'lucide-react';
-import { useAppContext, type AppRole, roleLabels } from '../contexts/AppContext';
+import {
+  ArrowLeft,
+  ChevronDown,
+  Eye,
+  EyeOff,
+  Globe,
+  KeyRound,
+  Lock,
+  LogIn,
+  MailCheck,
+  RefreshCw,
+  School,
+  ShieldCheck,
+  User,
+  UserPlus,
+} from 'lucide-react';
+import { type AppRole, useAppContext } from '../contexts/AppContext';
 
 const roleOptions: { value: AppRole; labelEn: string; labelMr: string }[] = [
   { value: 'web_creator', labelEn: 'Super Admin', labelMr: 'सुपर अॅडमिन' },
@@ -12,216 +27,241 @@ const roleOptions: { value: AppRole; labelEn: string; labelMr: string }[] = [
   { value: 'student_parent', labelEn: 'Student/Parent', labelMr: 'विद्यार्थी/पालक' },
 ];
 
-export default function LoginPage() {
-  const { language, setLanguage, login } = useAppContext();
+type LoginStage = 'credentials' | 'otp';
+
+interface LoginPageProps {
+  onBack?: () => void;
+}
+
+export default function LoginPage({ onBack }: LoginPageProps) {
+  const { language, setLanguage, beginLogin, sendOtp, verifyOtp, setIsRegistering } = useAppContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState<AppRole>('web_creator');
   const [showPassword, setShowPassword] = useState(false);
+  const [stage, setStage] = useState<LoginStage>('credentials');
+  const [challengeToken, setChallengeToken] = useState('');
+  const [maskedEmail, setMaskedEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const inFlightRef = useRef(false);
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = window.setInterval(() => setResendIn((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [resendIn]);
+
+  const handleCredentialSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
     setError('');
 
-    if (!username.trim() || !password.trim()) {
-      setError(t('Please enter username and password', 'कृपया वापरकर्तानाव आणि पासवर्ड प्रविष्ट करा'));
-      return;
-    }
+    try {
+      if (!username.trim() || !password.trim()) {
+        setError(t('Please enter username and password', 'कृपया वापरकर्तानाव आणि पासवर्ड प्रविष्ट करा'));
+        return;
+      }
 
-    setIsLoading(true);
-    const result = await login(username.trim(), password);
-    setIsLoading(false);
+      setIsLoading(true);
+      const loginResult = await beginLogin(username.trim(), password);
+      if (!loginResult.success || !loginResult.challengeToken) {
+        setError(loginResult.error || t('Invalid username or password', 'अवैध वापरकर्तानाव किंवा पासवर्ड'));
+        return;
+      }
 
-    if (!result.success) {
-      setError(result.error || t('Invalid username or password', 'अवैध वापरकर्तानाव किंवा पासवर्ड'));
+      setChallengeToken(loginResult.challengeToken);
+      setMaskedEmail(loginResult.maskedEmail || '');
+      setOtpCode('');
+      setStage('otp');
+
+      const sendResult = await sendOtp(loginResult.challengeToken);
+      if (sendResult.success) {
+        setMaskedEmail(sendResult.maskedEmail || loginResult.maskedEmail || '');
+        setResendIn(sendResult.resendAfterSeconds || 60);
+      } else {
+        setResendIn(sendResult.retryAfter || 0);
+        setError(sendResult.error || t('Could not send the verification email.', 'पडताळणी ईमेल पाठवता आला नाही.'));
+      }
+    } finally {
+      inFlightRef.current = false;
+      setIsLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)' }}>
-      {/* Decorative gradient orbs */}
-      <div className="absolute top-[-150px] right-[-150px] w-[500px] h-[500px] rounded-full opacity-30" style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%)' }} />
-      <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.3) 0%, transparent 70%)' }} />
-      <div className="absolute top-[40%] left-[60%] w-[300px] h-[300px] rounded-full opacity-15" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)' }} />
+  const handleOtpSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    setError('');
 
-      {/* Language Toggle - Top Right */}
-      <motion.button
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')}
-        className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium text-white z-10 transition-all duration-200 hover:scale-105"
-        style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}
-      >
-        <Globe className="w-3.5 h-3.5" />
-        <span>{language === 'en' ? 'मराठी' : 'EN'}</span>
+    try {
+      if (!/^\d{6}$/.test(otpCode)) {
+        setError(t('Enter the 6-digit code from your email.', 'तुमच्या ईमेलमधील ६ अंकी कोड प्रविष्ट करा.'));
+        return;
+      }
+
+      setIsLoading(true);
+      const result = await verifyOtp(challengeToken, otpCode);
+      if (!result.success) {
+        if (result.retryAfter) setResendIn(result.retryAfter);
+        setError(result.error || t('Verification code is invalid or expired.', 'पडताळणी कोड अवैध आहे किंवा कालबाह्य झाला आहे.'));
+      }
+    } finally {
+      inFlightRef.current = false;
+      setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!challengeToken || resendIn > 0 || inFlightRef.current) return;
+    inFlightRef.current = true;
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const result = await sendOtp(challengeToken);
+      if (result.success) {
+        setMaskedEmail(result.maskedEmail || maskedEmail);
+        setResendIn(result.resendAfterSeconds || 60);
+      } else {
+        setResendIn(result.retryAfter || 0);
+        setError(result.error || t('Could not resend the code.', 'कोड पुन्हा पाठवता आला नाही.'));
+      }
+    } finally {
+      inFlightRef.current = false;
+      setIsLoading(false);
+    }
+  };
+
+  const returnToCredentials = () => {
+    if (inFlightRef.current) return;
+    setStage('credentials');
+    setChallengeToken('');
+    setOtpCode('');
+    setResendIn(0);
+    setPassword('');
+    setError('');
+  };
+
+  return (
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F7F7F5] p-4 sm:p-8">
+      {/* Decorative orbs */}
+      <div className="pointer-events-none absolute left-[-10%] top-[15%] h-[400px] w-[400px] rounded-full bg-[#059669]/[0.03] blur-[100px]" />
+      <div className="pointer-events-none absolute bottom-[10%] right-[-5%] h-[300px] w-[300px] rounded-full bg-black/[0.02] blur-[80px]" />
+
+      {/* Top bar with language toggle and back button */}
+      <div className="absolute left-4 top-4 z-20 flex items-center gap-2 sm:left-7 sm:top-6">
+        {onBack && (
+          <button type="button" onClick={onBack} className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#E7E7E4] bg-white px-4 text-xs font-medium text-black hover:bg-[#F3F2EF]">
+            <ArrowLeft className="h-3.5 w-3.5" />{t('Back', 'मागे')}
+          </button>
+        )}
+      </div>
+      <motion.button initial={false} onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')} type="button" className="absolute right-4 top-4 z-20 flex min-h-10 items-center gap-2 rounded-full border border-[#E7E7E4] bg-white px-4 text-xs font-medium text-black hover:bg-[#F3F2EF] sm:right-7 sm:top-6">
+        <Globe className="h-4 w-4" />{language === 'en' ? 'मराठी' : 'English'}
       </motion.button>
 
-      {/* Login Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 40, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="w-full max-w-md mx-4 rounded-2xl p-8 shadow-2xl relative z-10"
-        style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-        }}
-      >
-        {/* School Logo */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="flex flex-col items-center mb-6"
-        >
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg mb-4"
-            style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', boxShadow: '0 0 30px rgba(212, 175, 55, 0.3)' }}
-          >
-            <School className="w-8 h-8 text-slate-900" />
-          </div>
-          <h1 className="text-center text-lg font-bold font-devanagari leading-tight" style={{ color: '#d4af37' }}>
-            शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज
+      <motion.section initial={false} className="glass-card-static relative z-10 w-full max-w-md overflow-hidden p-7 sm:p-10" aria-labelledby="login-title">
+        <div className="relative mb-8 flex flex-col items-center">
+          <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} transition={{ delay: 0.15 }} className="govt-seal mb-5 h-16 w-16">
+            {stage === 'otp' ? <MailCheck className="h-7 w-7 text-white!" /> : <School className="h-7 w-7 text-white!" />}
+          </motion.div>
+          <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6B6B6B]">GOVERNMENT OF MAHARASHTRA</p>
+          <h1 id="login-title" className="font-devanagari text-center text-lg font-semibold leading-[1.45] text-black sm:text-xl">
+            {stage === 'otp' ? t('Verify your email', 'तुमचा ईमेल सत्यापित करा') : 'शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज'}
           </h1>
-          <p className="text-center text-xs text-slate-400 mt-2">
-            ता. कर्जत, जि. रायगड | Tribal Development Department
+          <p className="mt-2 text-center text-sm text-[#6B6B6B]">
+            {stage === 'otp'
+              ? t(`We sent a 6-digit code to ${maskedEmail || 'your registered email'}.`, `${maskedEmail || 'तुमच्या नोंदणीकृत ईमेलवर'} ६ अंकी कोड पाठवला आहे.`)
+              : t('Secure Education Portal Login', 'सुरक्षित शिक्षण पोर्टल लॉगिन')}
           </p>
-        </motion.div>
+        </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Role Selector */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              {t('Select Role', 'भूमिका निवडा')}
-            </label>
-            <div className="relative">
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as AppRole)}
-                className="w-full px-4 py-3 rounded-xl text-sm text-white appearance-none cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
-              >
-                {roleOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-slate-800 text-white">
-                    {language === 'en' ? opt.labelEn : opt.labelMr}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+        {stage === 'credentials' ? (
+          <form onSubmit={handleCredentialSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="login-role" className="mb-2 block text-xs font-medium text-[#6B6B6B]">{t('Portal role', 'पोर्टल भूमिका')}</label>
+              <div className="relative">
+                <select id="login-role" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value as AppRole)} className="h-12 w-full appearance-none rounded-xl border border-[#E7E7E4] bg-white px-4 pr-11 text-sm text-black">
+                  {roleOptions.map((option) => <option key={option.value} value={option.value}>{language === 'en' ? option.labelEn : option.labelMr}</option>)}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A3A3A3]" />
+              </div>
             </div>
-          </motion.div>
 
-          {/* Username Field */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              {t('Username', 'वापरकर्तानाव')}
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder={t('Enter username', 'वापरकर्तानाव प्रविष्ट करा')}
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
-                autoComplete="username"
-              />
+            <div>
+              <label htmlFor="username" className="mb-2 block text-xs font-medium text-[#6B6B6B]">{t('Username or ID', 'वापरकर्तानाव किंवा आयडी')}</label>
+              <div className="relative"><User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A3A3A3]" /><input id="username" type="text" value={username} onChange={(event) => setUsername(event.target.value)} placeholder={t('Enter username', 'वापरकर्तानाव प्रविष्ट करा')} className="h-12 w-full rounded-xl border border-[#E7E7E4] bg-white pl-11 pr-4 text-sm text-black placeholder:text-[#A3A3A3]" autoComplete="username" /></div>
             </div>
-          </motion.div>
 
-          {/* Password Field */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              {t('Password', 'पासवर्ड')}
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t('Enter password', 'पासवर्ड प्रविष्ट करा')}
-                className="w-full pl-10 pr-12 py-3 rounded-xl text-sm text-white placeholder-slate-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
-                autoComplete="current-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-200 transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            <div>
+              <label htmlFor="password" className="mb-2 block text-xs font-medium text-[#6B6B6B]">{t('Password', 'पासवर्ड')}</label>
+              <div className="relative"><Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A3A3A3]" /><input id="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t('Enter password', 'पासवर्ड प्रविष्ट करा')} className="h-12 w-full rounded-xl border border-[#E7E7E4] bg-white pl-11 pr-12 text-sm text-black placeholder:text-[#A3A3A3]" autoComplete="current-password" /><button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? t('Hide password', 'पासवर्ड लपवा') : t('Show password', 'पासवर्ड दाखवा')} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-[#A3A3A3] hover:bg-[#F3F2EF] hover:text-black">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div>
+            </div>
+
+            {error && <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-xs text-red-700">{error}</motion.div>}
+
+            <button type="submit" disabled={isLoading} className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-black text-sm font-medium text-white transition-all hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-50">
+              {isLoading ? <><span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />{t('Please wait...', 'कृपया थांबा...')}</> : <><LogIn className="h-4 w-4" />{t('Continue securely', 'सुरक्षितपणे पुढे जा')}</>}
+            </button>
+
+            <div className="mt-3 text-center">
+              <button type="button" onClick={() => setIsRegistering(true)} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
+                <UserPlus className="h-3.5 w-3.5" />{t('Register as Parent', 'पालक म्हणून नोंदणी करा')}
+              </button>
+              {onBack && (
+                <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
+                  <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Home', 'मुख्यपृष्ठावर परत जा')}
+                </button>
+              )}
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleOtpSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="otp-code" className="mb-2 block text-center text-xs font-medium text-[#6B6B6B]">{t('One-time verification code', 'एकवेळ पडताळणी कोड')}</label>
+              <div className="relative">
+                <KeyRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#A3A3A3]" />
+                <input
+                  id="otp-code"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="000000"
+                  className="h-14 w-full rounded-xl border border-[#E7E7E4] bg-white pl-12 pr-4 text-center font-mono text-2xl font-bold tracking-[0.35em] text-black placeholder:text-[#E7E7E4]"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {error && <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-xs text-red-700">{error}</motion.div>}
+
+            <button type="submit" disabled={isLoading || otpCode.length !== 6} className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-black text-sm font-medium text-white transition-all hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-50">
+              {isLoading ? <><span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />{t('Please wait...', 'कृपया थांबा...')}</> : <><ShieldCheck className="h-4 w-4" />{t('Verify and sign in', 'पडताळा आणि साइन इन करा')}</>}
+            </button>
+
+            <div className="flex items-center justify-between gap-3 text-xs">
+              <button type="button" onClick={returnToCredentials} className="flex items-center gap-1.5 rounded-full px-3 py-2 font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
+                <ArrowLeft className="h-3.5 w-3.5" />{t('Change account', 'खाते बदला')}
+              </button>
+              <button type="button" onClick={handleResend} disabled={resendIn > 0 || isLoading} className="flex items-center gap-1.5 rounded-full px-3 py-2 font-medium text-black hover:bg-[#F3F2EF] disabled:cursor-not-allowed disabled:text-[#A3A3A3]">
+                <RefreshCw className="h-3.5 w-3.5" />{resendIn > 0 ? t(`Resend in ${resendIn}s`, `${resendIn} सेकंदांनी पुन्हा पाठवा`) : t('Resend code', 'कोड पुन्हा पाठवा')}
               </button>
             </div>
-          </motion.div>
+          </form>
+        )}
 
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-red-400 text-xs text-center py-2 px-3 rounded-lg"
-              style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
-            >
-              {error}
-            </motion.div>
-          )}
-
-          {/* Login Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 rounded-xl text-sm font-bold text-slate-900 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', boxShadow: '0 4px 15px rgba(212, 175, 55, 0.3)' }}
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
-              ) : (
-                <>
-                  <LogIn className="w-4 h-4" />
-                  <span>Login / लॉगिन</span>
-                </>
-              )}
-            </button>
-          </motion.div>
-        </form>
-
-        {/* Footer */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-center text-[10px] text-slate-500 mt-6 font-devanagari"
-        >
-          &copy; 2024 आदिवासी विकास विभाग, महाराष्ट्र शासन
-        </motion.p>
-      </motion.div>
-    </div>
+        <div className="mt-6 flex items-center justify-center gap-2 text-center text-[11px] text-[#6B6B6B]"><ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" /><span>{t('Password and email verification protect your session', 'पासवर्ड आणि ईमेल पडताळणी तुमचे सत्र सुरक्षित ठेवतात')}</span></div>
+        <p className="font-devanagari mt-5 text-center text-[10px] text-[#A3A3A3]">&copy; 2026 आदिवासी विकास विभाग, महाराष्ट्र शासन</p>
+      </motion.section>
+    </main>
   );
 }
