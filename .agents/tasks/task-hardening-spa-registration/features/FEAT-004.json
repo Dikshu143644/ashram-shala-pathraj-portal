@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "chore",
   "description": "Commit all changes in meaningful groups, push to feat/emerald-email-otp branch, and trigger Vercel deployment",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Stage and commit the SPA fix + Vercel rename: vercel.json (message: 'fix: add SPA catch-all rewrite and rename Vercel project')",
     "Stage and commit the registration/auth system: server/auth.ts, server/security.ts, server/data.ts, src/components/RegisterPage.tsx, src/components/ChangePasswordPage.tsx, src/contexts/AppContext.tsx, src/App.tsx, src/components/LoginPage.tsx, supabase/migrations/202608180003_registration_system.sql, package.json, package-lock.json (message: 'feat: add real registration system with bcrypt, parent self-registration, and role-based access')",
@@ -24,5 +24,5 @@
     "git push output confirms successful push"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Push was initially blocked by GitHub secret scanning (Vercel token in FEAT-001.json). Fixed by rewriting history with git rebase to remove the token from commit 23cabf7. Push succeeded after rebase. Vercel deployment triggered via API with deployment ID dpl_56h4misnqhfqUf6k9VteqSiNLWzA, deploying from sha 93fba72. Branch is now up to date with origin/feat/emerald-email-otp (7 commits total including the secret-removal commit)."
 }
