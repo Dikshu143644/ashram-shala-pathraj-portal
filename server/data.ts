@@ -350,6 +350,10 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
       res.status(400).json({ error: 'A valid image URL is required (max 2048 characters).' });
       return;
     }
+    if (!/^https?:\/\//i.test(url.trim())) {
+      res.status(400).json({ error: 'Image URL must start with https:// or http://.' });
+      return;
+    }
     const safeCaption = typeof caption === 'string' && caption.trim().length > 0 ? caption.trim().slice(0, 500) : null;
     try {
       const { data, error } = await supabase
@@ -388,8 +392,8 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
     }
   });
 
-  // GET /api/admin/security-logs - Requires web_creator role
-  app.get('/api/admin/security-logs', requireSession(['web_creator']), readLimit, dataGate, async (_req: Request, res: Response) => {
+  // GET /api/admin/security-logs - Requires web_creator or principal role
+  app.get('/api/admin/security-logs', requireSession(['web_creator', 'principal']), readLimit, dataGate, async (_req: Request, res: Response) => {
     try {
       const { data, error } = await supabase
         .from('security_logs')

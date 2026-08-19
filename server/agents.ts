@@ -222,7 +222,7 @@ export function registerAgentRoutes(app: Express, supabase: SupabaseClient): voi
       if (userData && userData.parent_student_ids && userData.parent_student_ids.length > 0) {
         const { data: students } = await supabase
           .from('students')
-          .select('*')
+          .select('full_name,standard,status,date_of_birth,blood_group')
           .in('id', userData.parent_student_ids as string[]);
         if (students?.length) {
           studentContext = `\n\nThe user is a parent. Their linked student data:\n${JSON.stringify(students, null, 2)}`;
