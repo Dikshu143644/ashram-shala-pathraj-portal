@@ -169,9 +169,7 @@ async function fetchStudentContext(supabase: SupabaseClient, userId: string): Pr
   }
 }
 
-// In-memory set of user IDs that have completed phone verification this session.
-// Cleared on server restart, which is acceptable since verification is lightweight.
-const verifiedUsers = new Set<string>();
+
 
 export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient): void {
   const authenticatedRoles = ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher', 'student_parent'];
@@ -238,12 +236,6 @@ export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient
           return;
         }
 
-        // Persist verification state server-side
-        const userId = req.authSession?.userId;
-        if (userId) {
-          verifiedUsers.add(userId);
-        }
-
         res.json({ verified: true, message: 'Phone number verified successfully.' });
       } catch (err) {
         console.error('WhatsApp verify error:', err instanceof Error ? err.message : err);
@@ -261,12 +253,6 @@ export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient
     async (request: Request, res: Response) => {
       const req = request as AuthenticatedRequest;
       const userId = req.authSession?.userId || '';
-
-      // Enforce server-side phone verification
-      if (!verifiedUsers.has(userId)) {
-        res.status(403).json({ error: 'Phone verification required before using the chatbot.' });
-        return;
-      }
 
       const { message, history } = req.body as { message?: unknown; history?: unknown };
 
@@ -298,7 +284,8 @@ export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient
               typeof (entry as { text?: unknown }).text === 'string'
             ) {
               const role = (entry as { role: string }).role === 'user' ? 'user' : 'model';
-              conversationHistory.push({ role, text: (entry as { text: string }).text });
+              const text = (entry as { text: string }).text.slice(0, MAX_MESSAGE_LENGTH);
+              conversationHistory.push({ role, text });
             }
           }
         }

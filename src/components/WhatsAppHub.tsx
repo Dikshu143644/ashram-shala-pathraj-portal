@@ -94,8 +94,9 @@ export default function WhatsAppHub() {
     setIsTyping(true);
 
     try {
-      // Send last 6 messages as conversation history for multi-turn context
-      const history = updatedMessages.slice(-6).map((msg) => ({
+      // Send up to 6 previous messages as conversation history (excluding the current message,
+      // since the backend appends it separately)
+      const history = updatedMessages.slice(-(6 + 1), -1).map((msg) => ({
         role: msg.role === 'user' ? 'user' : 'model',
         text: msg.text,
       }));
