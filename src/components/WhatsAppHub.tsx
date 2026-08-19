@@ -88,16 +88,23 @@ export default function WhatsAppHub() {
     if (!input.trim() || isTyping) return;
 
     const userMessage = input.trim();
-    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    const updatedMessages = [...messages, { role: 'user' as const, text: userMessage }];
+    setMessages(updatedMessages);
     setInput('');
     setIsTyping(true);
 
     try {
+      // Send last 6 messages as conversation history for multi-turn context
+      const history = updatedMessages.slice(-6).map((msg) => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        text: msg.text,
+      }));
+
       const response = await fetch('/api/whatsapp/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: userMessage, history }),
       });
 
       const data = await response.json();

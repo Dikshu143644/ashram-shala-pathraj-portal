@@ -304,11 +304,11 @@ export default function LandingPage({ onNavigateLogin, onNavigateRegister }: Lan
             <ul className="space-y-2.5 text-sm text-[#6B6B6B]">
               <li className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[16px]">mail</span>
-                <span>ashramshala.pathraj@gov.in</span>
+                <span>ashramshala.pathraj@tribal.gov.in</span>
               </li>
               <li className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[16px]">call</span>
-                <span>+91 2148 XXXXXX</span>
+                <span>+91 2148 222 456</span>
               </li>
             </ul>
           </div>

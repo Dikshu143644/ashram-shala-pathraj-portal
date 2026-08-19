@@ -72,7 +72,7 @@ const WHATSAPP_BOT_SYSTEM_PROMPT = `You are "${BOT_NAME}" - the official AI assi
 - Be warm, helpful, and concise
 - If asked about specific student data (attendance, marks), mention that you are checking records
 - Never reveal personal records of other students
-- For questions outside your scope, politely redirect to the school office (Contact: 02148-XXXXXX)`;
+- For questions outside your scope, politely redirect to the school office (Contact: 02148-222456)`;
 
 interface WhatsAppChatResult {
   response: string;
@@ -88,26 +88,48 @@ function textFromGemini(data: unknown): string | null {
   return text || null;
 }
 
-async function callGeminiForBot(message: string, systemPrompt: string): Promise<{ text: string; model: string }> {
+interface ConversationMessage {
+  role: 'user' | 'model';
+  text: string;
+}
+
+async function callGeminiForBot(
+  message: string,
+  systemPrompt: string,
+  history: ConversationMessage[] = [],
+): Promise<{ text: string; model: string }> {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   const model = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
 
+  // Build contents array from conversation history + current message
+  const contents = [
+    ...history.map((msg) => ({ role: msg.role, parts: [{ text: msg.text }] })),
+    { role: 'user', parts: [{ text: message }] },
+  ];
+
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: 'user', parts: [{ text: message }] }],
+        contents,
         generationConfig: { temperature: 0.4, maxOutputTokens: 500 },
       }),
       signal: AbortSignal.timeout(AI_TIMEOUT_MS),
     },
   );
 
-  if (!response.ok) throw new Error(`Gemini API HTTP ${response.status}`);
+  if (!response.ok) {
+    const errorBody = await response.text().catch(() => 'Unable to read response body');
+    console.error(`Gemini API error (HTTP ${response.status}):`, errorBody);
+    throw new Error(`Gemini API HTTP ${response.status}`);
+  }
   const text = textFromGemini(await response.json());
   if (!text) throw new Error('Gemini returned an empty response');
   return { text, model };
@@ -146,6 +168,10 @@ async function fetchStudentContext(supabase: SupabaseClient, userId: string): Pr
     return '';
   }
 }
+
+// In-memory set of user IDs that have completed phone verification this session.
+// Cleared on server restart, which is acceptable since verification is lightweight.
+const verifiedUsers = new Set<string>();
 
 export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient): void {
   const authenticatedRoles = ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher', 'student_parent'];
@@ -188,6 +214,12 @@ export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient
         return;
       }
 
+      // Validate that normalized number contains only digits (optionally prefixed with +)
+      if (!/^\+?\d{10,15}$/.test(normalized)) {
+        res.status(400).json({ error: 'Invalid phone number format.' });
+        return;
+      }
+
       try {
         const { data, error } = await supabase
           .from('auth_users')
@@ -206,6 +238,12 @@ export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient
           return;
         }
 
+        // Persist verification state server-side
+        const userId = req.authSession?.userId;
+        if (userId) {
+          verifiedUsers.add(userId);
+        }
+
         res.json({ verified: true, message: 'Phone number verified successfully.' });
       } catch (err) {
         console.error('WhatsApp verify error:', err instanceof Error ? err.message : err);
@@ -222,7 +260,15 @@ export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient
     chatGate,
     async (request: Request, res: Response) => {
       const req = request as AuthenticatedRequest;
-      const { message } = req.body as { message?: unknown };
+      const userId = req.authSession?.userId || '';
+
+      // Enforce server-side phone verification
+      if (!verifiedUsers.has(userId)) {
+        res.status(403).json({ error: 'Phone verification required before using the chatbot.' });
+        return;
+      }
+
+      const { message, history } = req.body as { message?: unknown; history?: unknown };
 
       if (typeof message !== 'string' || !message.trim()) {
         res.status(400).json({ error: 'Message is required.' });
@@ -236,13 +282,28 @@ export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient
 
       try {
         // Fetch student context for the authenticated user
-        const userId = req.authSession?.userId || '';
         const studentContext = await fetchStudentContext(supabase, userId);
 
         // Build enriched system prompt
         const enrichedPrompt = WHATSAPP_BOT_SYSTEM_PROMPT + studentContext;
 
-        const result = await callGeminiForBot(message.trim(), enrichedPrompt);
+        // Parse conversation history (last 6 messages from the frontend)
+        const conversationHistory: ConversationMessage[] = [];
+        if (Array.isArray(history)) {
+          for (const entry of history.slice(-6)) {
+            if (
+              entry &&
+              typeof entry === 'object' &&
+              typeof (entry as { role?: unknown }).role === 'string' &&
+              typeof (entry as { text?: unknown }).text === 'string'
+            ) {
+              const role = (entry as { role: string }).role === 'user' ? 'user' : 'model';
+              conversationHistory.push({ role, text: (entry as { text: string }).text });
+            }
+          }
+        }
+
+        const result = await callGeminiForBot(message.trim(), enrichedPrompt, conversationHistory);
 
         const chatResult: WhatsAppChatResult = {
           response: result.text,
