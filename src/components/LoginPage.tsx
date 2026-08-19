@@ -5,9 +5,11 @@ import {
   ChevronDown,
   Eye,
   EyeOff,
+  Globe,
   KeyRound,
   Lock,
   LogIn,
+  MailCheck,
   RefreshCw,
   School,
   ShieldCheck,
@@ -212,8 +214,8 @@ export default function LoginPage({ onBack }: LoginPageProps) {
               <button type="button" onClick={() => setIsRegistering(true)} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
                 <UserPlus className="h-3.5 w-3.5" />{t('Register as Parent', 'पालक म्हणून नोंदणी करा')}
               </button>
-              {onBackToHome && (
-                <button type="button" onClick={onBackToHome} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
+              {onBack && (
+                <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
                   <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Home', 'मुख्यपृष्ठावर परत जा')}
                 </button>
               )}

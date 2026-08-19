@@ -5,6 +5,7 @@ import {
   ChevronDown,
   Eye,
   EyeOff,
+  Globe,
   KeyRound,
   Lock,
   Mail,
@@ -162,7 +163,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
 
   const handleBackToLogin = () => {
     setIsRegistering(false);
-    if (onBackToHome) onBackToHome();
+    if (onBack) onBack();
   };
 
   return (
@@ -237,7 +238,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
               <button type="button" onClick={() => { setIsRegistering(false); if (onBack) onBack(); }} className="flex items-center justify-center gap-1.5 mx-auto rounded-full px-3 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
                 <ArrowLeft className="h-3.5 w-3.5" />{t('Back to login', 'लॉगिनवर परत जा')}
               </button>
-              {onBackToHome && (
+              {onBack && (
                 <button type="button" onClick={handleBackToLogin} className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
                   <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Home', 'मुख्यपृष्ठावर परत जा')}
                 </button>

@@ -142,21 +142,6 @@ function AppContent() {
   if (mustChangePassword) return <ChangePasswordPage />;
   if (showSplash) return <SplashScreen onComplete={() => setShowSplash(false)} />;
 
-  // Unauthenticated flows
-  if (!isAuthenticated) {
-    if (showAuthPage === 'login') {
-      return <LoginPage onBackToHome={handleBackToHome} />;
-    }
-    if (showAuthPage === 'register' || isRegistering) {
-      return <RegisterPage onBackToHome={handleBackToHome} />;
-    }
-    return <LandingPage onLogin={handleShowLogin} onRegister={handleShowRegister} />;
-  }
-
-  // Force password change
-  if (mustChangePassword) return <ChangePasswordPage />;
-
-  // Dashboard
   const navigation = (closeAfterSelection = false) => (
     <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Portal navigation">
       {visibleTabs.map((tab) => {
