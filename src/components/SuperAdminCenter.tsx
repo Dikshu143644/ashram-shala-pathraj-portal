@@ -128,23 +128,23 @@ function CreateStaffAccountPanel({ language, t }: { language: string; t: (en: st
 
   return (
     <div className="glass-card-static p-6 max-w-lg">
-      <h3 className="text-lg font-semibold text-[#006948] mb-4">{t('Create Staff Account', 'कर्मचारी खाते तयार करा')}</h3>
+      <h3 className="text-lg font-semibold text-black mb-4">{t('Create Staff Account', 'कर्मचारी खाते तयार करा')}</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">{t('Full Name', 'पूर्ण नाव')}</label>
-          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('Enter full name', 'पूर्ण नाव प्रविष्ट करा')} className="w-full h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none" />
+          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('Enter full name', 'पूर्ण नाव प्रविष्ट करा')} className="w-full h-11 rounded-xl border border-[#E7E7E4] px-3 text-sm focus:border-black focus:ring-2 focus:ring-black/10 outline-none" />
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">{t('Email', 'ईमेल')}</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="staff@example.com" className="w-full h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none" />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="staff@example.com" className="w-full h-11 rounded-xl border border-[#E7E7E4] px-3 text-sm focus:border-black focus:ring-2 focus:ring-black/10 outline-none" />
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">{t('Mobile Number (optional)', 'मोबाईल नंबर (पर्यायी)')}</label>
-          <input type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="9876543210" className="w-full h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none" />
+          <input type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="9876543210" className="w-full h-11 rounded-xl border border-[#E7E7E4] px-3 text-sm focus:border-black focus:ring-2 focus:ring-black/10 outline-none" />
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">{t('Role', 'भूमिका')}</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none">
+          <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full h-11 rounded-xl border border-[#E7E7E4] px-3 text-sm focus:border-black focus:ring-2 focus:ring-black/10 outline-none">
             {staffRoleOptions.map((opt) => <option key={opt.value} value={opt.value}>{language === 'en' ? opt.labelEn : opt.labelMr}</option>)}
           </select>
         </div>
@@ -152,7 +152,7 @@ function CreateStaffAccountPanel({ language, t }: { language: string; t: (en: st
         {error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>}
         {success && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{success}</div>}
 
-        <button type="submit" disabled={isLoading} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#006948] text-sm font-semibold text-white hover:bg-[#00855d] disabled:opacity-55">
+        <button type="submit" disabled={isLoading} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-black text-sm font-semibold text-white hover:bg-[#1a1a1a] disabled:opacity-55">
           {isLoading ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" /> : <UserPlus className="h-4 w-4" />}
           {t('Create Account', 'खाते तयार करा')}
         </button>
@@ -242,7 +242,7 @@ function LinkParentStudentPanel({ language, t }: { language: string; t: (en: str
 
   return (
     <div className="glass-card-static p-6 max-w-lg">
-      <h3 className="text-lg font-semibold text-[#006948] mb-4">{t('Link Parent to Students', 'पालकाला विद्यार्थ्यांशी जोडा')}</h3>
+      <h3 className="text-lg font-semibold text-black mb-4">{t('Link Parent to Students', 'पालकाला विद्यार्थ्यांशी जोडा')}</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">{t('Parent Mobile Number or User ID', 'पालक मोबाईल नंबर किंवा वापरकर्ता आयडी')}</label>
@@ -252,7 +252,7 @@ function LinkParentStudentPanel({ language, t }: { language: string; t: (en: str
               value={parentMobileOrId}
               onChange={(e) => { setParentMobileOrId(e.target.value); setResolvedParent(null); }}
               placeholder={t('e.g. 9876543210 or UUID', 'उदा. 9876543210 किंवा UUID')}
-              className="flex-1 h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none"
+              className="flex-1 h-11 rounded-xl border border-[#E7E7E4] px-3 text-sm focus:border-black focus:ring-2 focus:ring-black/10 outline-none"
             />
             <button
               type="button"
@@ -275,14 +275,14 @@ function LinkParentStudentPanel({ language, t }: { language: string; t: (en: str
             onChange={(e) => setStudentIdsText(e.target.value)}
             placeholder={t('Enter student UUIDs, one per line or comma-separated', 'विद्यार्थी UUID प्रविष्ट करा, प्रति ओळ एक किंवा स्वल्पविरामाने वेगळे')}
             rows={3}
-            className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none resize-none"
+            className="w-full rounded-xl border border-[#E7E7E4] px-3 py-2.5 text-sm focus:border-black focus:ring-2 focus:ring-black/10 outline-none resize-none"
           />
         </div>
 
         {error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>}
         {success && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{success}</div>}
 
-        <button type="submit" disabled={isLoading} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#006948] text-sm font-semibold text-white hover:bg-[#00855d] disabled:opacity-55">
+        <button type="submit" disabled={isLoading} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-black text-sm font-semibold text-white hover:bg-[#1a1a1a] disabled:opacity-55">
           {isLoading ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" /> : <Link className="h-4 w-4" />}
           {t('Link Parent to Students', 'पालकाला विद्यार्थ्यांशी जोडा')}
         </button>

@@ -1,0 +1,7 @@
+{
+  "task_id": "task-auralis-redesign-whatsapp-bot",
+  "task_description": "Complete Auralis-style monochrome redesign of the entire portal, add WhatsApp AI chatbot with Gemini NLP, fix SPA refresh 404, verify Vercel rename, and push deployment.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}

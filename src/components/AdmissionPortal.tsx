@@ -196,7 +196,7 @@ export default function AdmissionPortal() {
             ) : (
               <form onSubmit={handleSubmit} className="glass-card-static p-6">
                 <h3 className="text-lg font-semibold text-slate-700 mb-1 flex items-center gap-2">
-                  <span className="h-6 w-1 rounded-full bg-[#006948]" />
+                  <span className="h-6 w-1 rounded-full bg-black" />
                   {t('New Admission Application', 'नवीन प्रवेश अर्ज')}
                 </h3>
                 <p className="text-xs text-slate-400 mb-5 ml-3">{t('Fill in all required fields', 'सर्व आवश्यक फील्ड भरा')}</p>

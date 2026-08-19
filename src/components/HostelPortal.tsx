@@ -189,7 +189,7 @@ function MessCounter({ t }: { language: string; t: (en: string, mr: string) => s
 
   const meals = [
     { key: 'breakfast' as const, label: t('Breakfast', 'नाश्ता'), time: '7:00 AM', count: breakfastCount, emoji: '🍳', gradient: 'linear-gradient(135deg, #cba72f, #e9c349)' },
-    { key: 'lunch' as const, label: t('Lunch', 'दुपारचे जेवण'), time: '12:30 PM', count: lunchCount, emoji: '🍛', gradient: 'linear-gradient(135deg, #006948, #68dba9)' },
+    { key: 'lunch' as const, label: t('Lunch', 'दुपारचे जेवण'), time: '12:30 PM', count: lunchCount, emoji: '🍛', gradient: 'linear-gradient(135deg, #000000, #333333)' },
     { key: 'dinner' as const, label: t('Dinner', 'रात्रीचे जेवण'), time: '7:30 PM', count: dinnerCount, emoji: '🍲', gradient: 'linear-gradient(135deg, #545f73, #bcc7de)' },
   ];
 
