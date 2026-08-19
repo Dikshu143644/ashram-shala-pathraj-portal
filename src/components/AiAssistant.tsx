@@ -263,7 +263,7 @@ export default function AiAssistant() {
               className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'bot' && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00855d] to-[#006948] text-white shadow-[0_7px_16px_rgba(0,105,72,.2)]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black text-white shadow-[0_4px_12px_rgba(0,0,0,.12)]">
                   <Bot className="h-4 w-4 text-white!" />
                 </div>
               )}
@@ -361,7 +361,7 @@ export default function AiAssistant() {
             whileTap={{ scale: 0.95 }}
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#00855d] to-[#006948] text-white shadow-[0_8px_18px_rgba(0,105,72,.22)] transition-all disabled:opacity-50"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white shadow-[0_4px_12px_rgba(0,0,0,.12)] transition-all disabled:opacity-50"
           >
             <Send className="w-4 h-4" />
           </motion.button>

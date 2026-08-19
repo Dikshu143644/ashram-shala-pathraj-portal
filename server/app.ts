@@ -4,6 +4,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { registerAuthRoutes } from './auth.js';
 import { registerDataRoutes } from './data.js';
 import { registerAgentRoutes } from './agents.js';
+import { registerWhatsAppBotRoutes } from './whatsapp-bot.js';
 import { configureSecurity, durableRateLimit } from './security.js';
 
 export function createApiApp() {
@@ -49,6 +50,7 @@ export function createApiApp() {
   registerAuthRoutes(app, supabase);
   registerDataRoutes(app, supabase);
   registerAgentRoutes(app, supabase);
+  registerWhatsAppBotRoutes(app, supabase);
 
   app.use('/api', (_req: Request, res: Response) => {
     res.status(404).json({ error: 'API endpoint not found.' });
