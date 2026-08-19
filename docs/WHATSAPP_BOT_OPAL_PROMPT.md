@@ -1,6 +1,8 @@
 # WhatsApp AI Bot - Google Opal Prompt
 
-> **Google Opal App:** <https://opal.google/app/1oX4YWFOzxYmdH9iMTOCjoHOTilP8qo_m>
+> **Google Opal App (Prompt-only):** <https://opal.google/app/1oX4YWFOzxYmdH9iMTOCjoHOTilP8qo_m>
+>
+> **Google Opal App (Full Agent with UI):** <https://opal.google/app/1GH1q-ualxTdif7kKbMMLgB6UDzBA5IRX>
 
 This document provides the full prompt text for a WhatsApp AI bot designed to let parents of students at the Ashram School Pathraj query information about their children via WhatsApp.
 
@@ -211,3 +213,91 @@ The Google Opal app for this project is available at:
 <https://opal.google/app/1oX4YWFOzxYmdH9iMTOCjoHOTilP8qo_m>
 
 This can be used as the AI backend for generating responses, or you can call the Gemini API directly with the prompt above as the system instruction.
+
+---
+
+## Google Opal Agent App (Full Implementation)
+
+A fully implemented Google Opal agent app is available at:
+<https://opal.google/app/1GH1q-ualxTdif7kKbMMLgB6UDzBA5IRX>
+
+This app ("Ashram Assistant") includes a multi-node agent flow with:
+
+### App Configuration
+
+- **Title:** Ashram Assistant
+- **Description:** WhatsApp assistant providing school updates and attendance for Ashram Shala parents
+- **Tags:** WhatsApp, TribalWelfare, Chatbot, Government, Education
+- **Visual Theme:** Warm amber/orange tones with a splash screen image
+
+### Agent Flow (Nodes)
+
+```
+┌─────────────────────────┐     ┌─────────────────────────┐
+│  Input: Registered      │────►│                         │
+│  Phone Number           │     │  Ashram Shala Chatbot   │
+└─────────────────────────┘     │  Logic (Agent Node)     │────►┌───────────────────────┐
+┌─────────────────────────┐     │                         │     │  Generate WhatsApp     │
+│  Input: User Query      │────►│                         │     │  Friendly Webpage      │
+└─────────────────────────┘     └─────────────────────────┘     │  (Render Node)         │
+                                                                 └───────────────────────┘
+```
+
+1. **Input: Registered Phone Number** - Asks the user for their 10-digit registered mobile number
+2. **Input: User Query** - Asks for the parent's question about their child's school
+3. **Ashram Shala Chatbot Logic** (Agent mode) - Uses memory tools for session management and database verification. Processes the query with context about:
+   - Authentication flow (verify phone -> greet parent -> answer queries)
+   - Attendance, exam schedules, PTMs, hostel/mess, holidays, health info
+   - Privacy constraints (only the authenticated parent's child data)
+4. **Generate WhatsApp Friendly Webpage** (Render mode) - Formats the agent response into a premium WhatsApp-style HTML chat interface with:
+   - Mobile-first responsive design (450px phone frame on desktop)
+   - WhatsApp green color scheme (#075E54 primary, #25D366 secondary)
+   - Chat bubbles (user: green right-aligned, bot: white left-aligned)
+   - Structured content (attendance checkmarks, mess menus, schedules)
+   - Quick-reply buttons for common queries
+
+### School Data Context (Built Into the Agent)
+
+| Field | Value |
+|-------|-------|
+| School Name | शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज |
+| Total Students | 459 (Standards 1st to 12th) |
+| Principal | श्री. अजित लालासाहेब बनसोडे |
+| Superintendent | श्री. राजेंद्र परशराम माने |
+| Lady Superintendent | सौ. सविता पुंडलिक पखाले |
+| School Type | Government Residential (Ashram Shala) |
+| Department | Tribal Development Department, Maharashtra |
+| Medium | Marathi |
+| Standards | 1st-10th (Secondary) + 11th-12th (Higher Secondary - Arts) |
+| Hostel | 520 beds (Boys Wing A, Boys Wing B, Girls Wing A, Girls Wing B) |
+| Location | Pathraj, Taluka Karjat, District Raigad, Maharashtra, PIN 410201 |
+| Mess Timings | Breakfast 7:00 AM, Lunch 12:30 PM, Dinner 7:30 PM |
+
+### Bot Capabilities
+
+The agent can answer questions in these categories:
+
+1. **Attendance (उपस्थिती)** - Daily status, weekly summary, percentage
+2. **Exam Schedule (परीक्षा वेळापत्रक)** - Subject, date, time, total marks
+3. **PTM / Parent Meetings (पालक सभा)** - Date, time, venue, agenda
+4. **Hostel & Mess (वसतिगृह आणि भोजन)** - Daily menu, bed/room allotment
+5. **Holidays & Events (सुट्ट्या आणि कार्यक्रम)** - Holiday calendar, upcoming events
+6. **Health/Sick Bay (आरोग्य)** - Health status if in sick bay, medical alerts
+7. **General School Info** - Address, phone, admission process, scholarships
+
+### Bot Restrictions
+
+- Never share marks/results (only via official SMS/portal)
+- Never share other students' information
+- Never change any records
+- Never accept payments or fees
+- Never share staff personal numbers
+
+### Response Rules
+
+- Keep responses under 200 words (WhatsApp-friendly)
+- Use emojis sparingly (checkmark, cross, calendar, school, plate, stethoscope)
+- Use bullet points for lists
+- Always end with: "आणखी काही मदत हवी असल्यास विचारा"
+- For unknown info: direct to school office with phone number
+- For emergencies: provide immediate school office contact
