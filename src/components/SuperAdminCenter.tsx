@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap, UserPlus } from 'lucide-react';
+import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap, UserPlus, Link } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
 import AdminCrudPanel from './AdminCrudPanel';
 
-type AdminTab = 'events' | 'audit' | 'students' | 'accounts';
+type AdminTab = 'events' | 'audit' | 'students' | 'accounts' | 'linking';
 
 interface PendingEvent {
   id: string;
@@ -161,6 +161,136 @@ function CreateStaffAccountPanel({ language, t }: { language: string; t: (en: st
   );
 }
 
+function LinkParentStudentPanel({ language, t }: { language: string; t: (en: string, mr: string) => string }) {
+  const [parentMobileOrId, setParentMobileOrId] = useState('');
+  const [studentIdsText, setStudentIdsText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [resolvedParent, setResolvedParent] = useState<{ id: string; name: string } | null>(null);
+
+  const resolveParent = async () => {
+    setError('');
+    setSuccess('');
+    setResolvedParent(null);
+    if (!parentMobileOrId.trim()) {
+      setError(t('Enter parent mobile number or user ID.', 'पालक मोबाईल नंबर किंवा वापरकर्ता आयडी प्रविष्ट करा.'));
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/lookup-parent?q=${encodeURIComponent(parentMobileOrId.trim())}`, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      if (response.ok && data.success && data.parent) {
+        setResolvedParent({ id: data.parent.id, name: data.parent.name_en || data.parent.username });
+      } else {
+        setError(data.error || t('Parent not found.', 'पालक सापडला नाही.'));
+      }
+    } catch {
+      setError(t('Failed to look up parent.', 'पालक शोधता आला नाही.'));
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError('');
+    setSuccess('');
+
+    const parentId = resolvedParent?.id || parentMobileOrId.trim();
+    if (!parentId) {
+      setError(t('Parent user ID is required.', 'पालक वापरकर्ता आयडी आवश्यक आहे.'));
+      return;
+    }
+
+    const studentIds = studentIdsText
+      .split(/[,\n]/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    if (studentIds.length === 0) {
+      setError(t('At least one student ID is required.', 'किमान एक विद्यार्थी आयडी आवश्यक आहे.'));
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/admin/link-parent-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parentUserId: parentId, studentIds }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setSuccess(t(
+          `Linked ${data.linkedStudentIds?.length || studentIds.length} student(s) to parent successfully.`,
+          `${data.linkedStudentIds?.length || studentIds.length} विद्यार्थी पालकाशी यशस्वीरित्या जोडले.`
+        ));
+        setStudentIdsText('');
+        setResolvedParent(null);
+        setParentMobileOrId('');
+      } else {
+        setError(data.error || t('Could not link parent to students.', 'पालकाला विद्यार्थ्यांशी जोडता आले नाही.'));
+      }
+    } catch {
+      setError(t('Request failed. Please try again.', 'विनंती अयशस्वी. कृपया पुन्हा प्रयत्न करा.'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="glass-card-static p-6 max-w-lg">
+      <h3 className="text-lg font-semibold text-[#006948] mb-4">{t('Link Parent to Students', 'पालकाला विद्यार्थ्यांशी जोडा')}</h3>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">{t('Parent Mobile Number or User ID', 'पालक मोबाईल नंबर किंवा वापरकर्ता आयडी')}</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={parentMobileOrId}
+              onChange={(e) => { setParentMobileOrId(e.target.value); setResolvedParent(null); }}
+              placeholder={t('e.g. 9876543210 or UUID', 'उदा. 9876543210 किंवा UUID')}
+              className="flex-1 h-11 rounded-xl border border-slate-200 px-3 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none"
+            />
+            <button
+              type="button"
+              onClick={resolveParent}
+              className="px-3 h-11 rounded-xl bg-slate-100 text-sm font-medium text-slate-700 hover:bg-slate-200 border border-slate-200"
+            >
+              {t('Lookup', 'शोधा')}
+            </button>
+          </div>
+          {resolvedParent && (
+            <p className="mt-1 text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">
+              {t('Found:', 'सापडले:')} {resolvedParent.name} ({resolvedParent.id.slice(0, 8)}...)
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">{t('Student IDs (comma-separated)', 'विद्यार्थी आयडी (स्वल्पविरामाने वेगळे)')}</label>
+          <textarea
+            value={studentIdsText}
+            onChange={(e) => setStudentIdsText(e.target.value)}
+            placeholder={t('Enter student UUIDs, one per line or comma-separated', 'विद्यार्थी UUID प्रविष्ट करा, प्रति ओळ एक किंवा स्वल्पविरामाने वेगळे')}
+            rows={3}
+            className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-[#006948] focus:ring-2 focus:ring-[#006948]/10 outline-none resize-none"
+          />
+        </div>
+
+        {error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>}
+        {success && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{success}</div>}
+
+        <button type="submit" disabled={isLoading} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#006948] text-sm font-semibold text-white hover:bg-[#00855d] disabled:opacity-55">
+          {isLoading ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" /> : <Link className="h-4 w-4" />}
+          {t('Link Parent to Students', 'पालकाला विद्यार्थ्यांशी जोडा')}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function SuperAdminCenter() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
@@ -263,6 +393,14 @@ export default function SuperAdminCenter() {
         >
           <UserPlus className="w-4 h-4" />
           {t('Create Account', 'खाते तयार करा')}
+        </button>
+        <button
+          onClick={() => setActiveTab('linking')}
+          aria-pressed={activeTab === 'linking'}
+          className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${activeTab === 'linking' ? 'segmented-active' : 'text-[#545f73]'}`}
+        >
+          <Link className="w-4 h-4" />
+          {t('Link Parent', 'पालक जोडा')}
         </button>
       </div>
 
@@ -393,6 +531,10 @@ export default function SuperAdminCenter() {
 
       {activeTab === 'accounts' && (
         <CreateStaffAccountPanel language={language} t={t} />
+      )}
+
+      {activeTab === 'linking' && (
+        <LinkParentStudentPanel language={language} t={t} />
       )}
     </motion.div>
   );

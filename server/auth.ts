@@ -746,6 +746,8 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       // Initiate OTP challenge for email verification
       const configuration = otpConfiguration();
       if (!configuration) {
+        // Clean up orphaned user since OTP cannot proceed
+        await supabase.from('auth_users').delete().eq('id', newUser.id);
         res.status(503).json({ success: false, error: 'Email verification service is not configured.' });
         return;
       }
@@ -755,19 +757,28 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       const proposedHash = challengeHash(proposedToken);
       const expiresAt = new Date(Date.now() + CHALLENGE_TTL_MS).toISOString();
 
-      const { data: rpcData, error: rpcError } = await supabase.rpc('begin_otp_challenge', {
-        p_user_id: newUser.id,
-        p_challenge_id: proposedChallengeId,
-        p_challenge_hash: proposedHash,
-        p_expires_at: expiresAt,
-        p_request_ip: ip,
-        p_request_id: randomUUID(),
-      });
-      if (rpcError) throw rpcError;
+      let challengeTokenResult: string;
+      try {
+        const { data: rpcData, error: rpcError } = await supabase.rpc('begin_otp_challenge', {
+          p_user_id: newUser.id,
+          p_challenge_id: proposedChallengeId,
+          p_challenge_hash: proposedHash,
+          p_expires_at: expiresAt,
+          p_request_ip: ip,
+          p_request_id: randomUUID(),
+        });
+        if (rpcError) throw rpcError;
 
-      const challenge = firstRpcRow<ChallengeRpcRow>(rpcData);
-      if (!challenge) throw new Error('Challenge RPC returned no row');
-      const challengeToken = challengeTokenForId(challenge.challenge_id, configuration.hmacSecret);
+        const challenge = firstRpcRow<ChallengeRpcRow>(rpcData);
+        if (!challenge) throw new Error('Challenge RPC returned no row');
+        challengeTokenResult = challengeTokenForId(challenge.challenge_id, configuration.hmacSecret);
+      } catch (otpError) {
+        // OTP challenge failed after user was inserted - delete orphaned user
+        await supabase.from('auth_users').delete().eq('id', newUser.id);
+        console.error('Registration OTP challenge failed, orphan cleaned up:', otpError instanceof Error ? otpError.message : otpError);
+        res.status(500).json({ success: false, error: 'Unable to complete registration. Please try again.' });
+        return;
+      }
 
       await logSecurity(supabase, {
         action: 'parent_registered',
@@ -780,7 +791,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       res.status(201).json({
         success: true,
         userId: newUser.id,
-        challengeToken,
+        challengeToken: challengeTokenResult,
         maskedEmail: maskEmail(email.toLowerCase()),
       });
     } catch (error) {
@@ -790,7 +801,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
   });
 
   // POST /api/auth/set-password - Set password after registration (requires session)
-  app.post('/api/auth/set-password', requireSession(), async (req: Request, res: Response) => {
+  app.post('/api/auth/set-password', requireSameOrigin, requireSession(), async (req: Request, res: Response) => {
     const authReq = req as AuthenticatedRequest;
     const ip = clientIp(req);
     res.setHeader('Cache-Control', 'no-store');
@@ -828,6 +839,15 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         .eq('id', authReq.authSession!.userId);
 
       if (error) throw error;
+
+      // Re-issue session with fresh expiry to invalidate old cookie
+      issueSession(res, {
+        userId: authReq.authSession!.userId,
+        username: authReq.authSession!.username,
+        role: authReq.authSession!.role,
+        nameEn: authReq.authSession!.nameEn,
+        nameMr: authReq.authSession!.nameMr,
+      });
 
       await logSecurity(supabase, {
         action: 'password_set',
@@ -904,6 +924,15 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         .eq('id', user.id);
 
       if (error) throw error;
+
+      // Re-issue session with fresh expiry to invalidate old cookie
+      issueSession(res, {
+        userId: user.id,
+        username: user.username,
+        role: user.role,
+        nameEn: user.name_en,
+        nameMr: user.name_mr,
+      });
 
       await logSecurity(supabase, {
         action: 'password_changed',
@@ -1037,6 +1066,154 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     } catch (error) {
       console.error('Admin account creation failed:', error instanceof Error ? error.message : error);
       res.status(500).json({ success: false, error: 'Unable to create account.' });
+    }
+  });
+
+  // GET /api/admin/lookup-parent - Lookup a parent by mobile number or user ID
+  app.get('/api/admin/lookup-parent', requireSession(['web_creator', 'principal']), async (req: Request, res: Response) => {
+    res.setHeader('Cache-Control', 'no-store');
+
+    const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    if (!q) {
+      res.status(400).json({ success: false, error: 'Query parameter q is required.' });
+      return;
+    }
+
+    try {
+      // Try looking up by mobile_number first, then by id
+      let parentData = null;
+      if (/^[6-9]\d{9}$/.test(q)) {
+        const { data } = await supabase
+          .from('auth_users')
+          .select('id,username,name_en,role,mobile_number')
+          .eq('mobile_number', q)
+          .eq('role', 'student_parent')
+          .eq('is_active', true)
+          .maybeSingle();
+        parentData = data;
+      }
+
+      if (!parentData) {
+        const { data } = await supabase
+          .from('auth_users')
+          .select('id,username,name_en,role,mobile_number')
+          .eq('id', q)
+          .eq('role', 'student_parent')
+          .eq('is_active', true)
+          .maybeSingle();
+        parentData = data;
+      }
+
+      if (!parentData) {
+        // Also try by username
+        const { data } = await supabase
+          .from('auth_users')
+          .select('id,username,name_en,role,mobile_number')
+          .eq('username', q)
+          .eq('role', 'student_parent')
+          .eq('is_active', true)
+          .maybeSingle();
+        parentData = data;
+      }
+
+      if (!parentData) {
+        res.status(404).json({ success: false, error: 'Parent not found with the given mobile number or ID.' });
+        return;
+      }
+
+      res.json({ success: true, parent: parentData });
+    } catch (error) {
+      console.error('Parent lookup failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to look up parent.' });
+    }
+  });
+
+  // POST /api/admin/link-parent-student - Link a parent account to student IDs
+  app.post('/api/admin/link-parent-student', requireSameOrigin, requireSession(['web_creator', 'principal']), async (req: Request, res: Response) => {
+    const authReq = req as AuthenticatedRequest;
+    const ip = clientIp(req);
+    res.setHeader('Cache-Control', 'no-store');
+
+    try {
+      const limited = await isRateLimited(supabase, 'admin_link', authReq.authSession!.userId, ADMIN_CREATE_RATE_PER_WINDOW, 5 * 60);
+      if (limited) {
+        rejectRateLimit(res, 'Too many link attempts. Please try again later.', 5 * 60);
+        return;
+      }
+    } catch {
+      res.status(503).json({ success: false, error: 'Service temporarily unavailable.' });
+      return;
+    }
+
+    const { parentUserId, studentIds } = req.body as { parentUserId?: unknown; studentIds?: unknown };
+
+    if (typeof parentUserId !== 'string' || !parentUserId.trim()) {
+      res.status(400).json({ success: false, error: 'Parent user ID is required.' });
+      return;
+    }
+    if (!Array.isArray(studentIds) || studentIds.length === 0 || !studentIds.every((id: unknown) => typeof id === 'string' && id.trim())) {
+      res.status(400).json({ success: false, error: 'At least one valid student ID is required.' });
+      return;
+    }
+
+    try {
+      // Validate parentUserId exists and has role student_parent
+      const { data: parentUser, error: parentError } = await supabase
+        .from('auth_users')
+        .select('id,role,username,name_en')
+        .eq('id', parentUserId.trim())
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (parentError) throw parentError;
+      if (!parentUser) {
+        res.status(404).json({ success: false, error: 'Parent user not found.' });
+        return;
+      }
+      if (parentUser.role !== 'student_parent') {
+        res.status(400).json({ success: false, error: 'The specified user does not have the student_parent role.' });
+        return;
+      }
+
+      // Validate all studentIds exist in the students table
+      const trimmedIds = studentIds.map((id: string) => id.trim());
+      const { data: existingStudents, error: studentsError } = await supabase
+        .from('students')
+        .select('id')
+        .in('id', trimmedIds);
+
+      if (studentsError) throw studentsError;
+      const foundIds = new Set((existingStudents || []).map((s: { id: string }) => s.id));
+      const missingIds = trimmedIds.filter((id: string) => !foundIds.has(id));
+      if (missingIds.length > 0) {
+        res.status(400).json({ success: false, error: `Student IDs not found: ${missingIds.join(', ')}` });
+        return;
+      }
+
+      // Update parent_student_ids
+      const { error: updateError } = await supabase
+        .from('auth_users')
+        .update({ parent_student_ids: trimmedIds })
+        .eq('id', parentUserId.trim());
+
+      if (updateError) throw updateError;
+
+      await logSecurity(supabase, {
+        action: 'parent_linked',
+        userId: parentUserId.trim(),
+        username: parentUser.username,
+        ip,
+        details: `Parent linked to ${trimmedIds.length} student(s) by ${authReq.authSession!.username}`,
+      });
+
+      res.json({
+        success: true,
+        parentUserId: parentUserId.trim(),
+        linkedStudentIds: trimmedIds,
+      });
+    } catch (error) {
+      console.error('Parent-student linking failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to link parent to students.' });
     }
   });
 }
