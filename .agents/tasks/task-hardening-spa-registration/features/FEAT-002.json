@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Build real registration/login system: add bcrypt password hashing, parent self-registration with OTP, staff account creation from admin panel, password change on first login, and parent-limited data access. Remove plaintext password comparison. Create a registration UI page and update the admin panel.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Install bcrypt (npm install bcrypt && npm install -D @types/bcrypt) for password hashing",
     "Create supabase/migrations/202608180003_registration_system.sql that: (1) adds columns to auth_users: mobile_number VARCHAR(15), must_change_password BOOLEAN DEFAULT FALSE, password_changed_at TIMESTAMPTZ, parent_student_ids UUID[] (for parent-child linking), created_by UUID (who created the account); (2) creates an index on mobile_number; (3) hashes the existing plaintext passwords in auth_users using a one-time update (use pgcrypto crypt/gen_salt for in-DB hashing OR just mark them for must_change_password=true)",
@@ -32,5 +32,5 @@
     "source /root/.nvm/nvm.sh && npm run build"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All acceptance criteria met. bcrypt installed and used for password hashing with auto-migration from plaintext. Registration, set-password, change-password, and admin create-account endpoints added with rate limiting. RegisterPage and ChangePasswordPage components created matching existing UI theme. Parent data access restricted via parent_student_ids. SuperAdminCenter updated with Create Staff Account tab. Build and lint pass cleanly."
 }
