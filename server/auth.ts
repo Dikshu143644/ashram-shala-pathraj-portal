@@ -865,7 +865,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
   });
 
   // POST /api/auth/change-password - Change password (requires session)
-  app.post('/api/auth/change-password', requireSession(), async (req: Request, res: Response) => {
+  app.post('/api/auth/change-password', requireSameOrigin, requireSession(), async (req: Request, res: Response) => {
     const authReq = req as AuthenticatedRequest;
     const ip = clientIp(req);
     res.setHeader('Cache-Control', 'no-store');
@@ -1155,6 +1155,10 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       res.status(400).json({ success: false, error: 'At least one valid student ID is required.' });
       return;
     }
+    if (studentIds.length > 20) {
+      res.status(400).json({ success: false, error: 'Maximum 20 students can be linked to a parent.' });
+      return;
+    }
 
     try {
       // Validate parentUserId exists and has role student_parent
@@ -1190,10 +1194,26 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         return;
       }
 
-      // Update parent_student_ids
+      // Merge new student IDs with the parent's existing linked students (deduplicated)
+      const { data: parentRecord, error: fetchError } = await supabase
+        .from('auth_users')
+        .select('parent_student_ids')
+        .eq('id', parentUserId.trim())
+        .single();
+
+      if (fetchError) throw fetchError;
+      const existingIds: string[] = Array.isArray(parentRecord?.parent_student_ids) ? parentRecord.parent_student_ids : [];
+      const mergedIds = [...new Set([...existingIds, ...trimmedIds])];
+
+      if (mergedIds.length > 20) {
+        res.status(400).json({ success: false, error: 'Maximum 20 students can be linked to a parent.' });
+        return;
+      }
+
+      // Update parent_student_ids with the merged array
       const { error: updateError } = await supabase
         .from('auth_users')
-        .update({ parent_student_ids: trimmedIds })
+        .update({ parent_student_ids: mergedIds })
         .eq('id', parentUserId.trim());
 
       if (updateError) throw updateError;
@@ -1203,13 +1223,13 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         userId: parentUserId.trim(),
         username: parentUser.username,
         ip,
-        details: `Parent linked to ${trimmedIds.length} student(s) by ${authReq.authSession!.username}`,
+        details: `Parent linked to ${mergedIds.length} student(s) by ${authReq.authSession!.username}`,
       });
 
       res.json({
         success: true,
         parentUserId: parentUserId.trim(),
-        linkedStudentIds: trimmedIds,
+        linkedStudentIds: mergedIds,
       });
     } catch (error) {
       console.error('Parent-student linking failed:', error instanceof Error ? error.message : error);
