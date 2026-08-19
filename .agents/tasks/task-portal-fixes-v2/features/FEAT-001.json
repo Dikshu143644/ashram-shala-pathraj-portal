@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Supabase migration: Add gallery_images and ai_passwords tables, ensure mobile_number column exists on auth_users",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create supabase/migrations/202506190001_fix_all_issues.sql with: (1) gallery_images table (id uuid PK default gen_random_uuid(), url text NOT NULL, caption text, uploaded_by uuid references auth_users(id), created_at timestamptz default now()), (2) ai_passwords table (id uuid PK default gen_random_uuid(), user_id uuid NOT NULL references auth_users(id) UNIQUE, ai_password_hash text NOT NULL, created_at timestamptz default now()), (3) ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS mobile_number VARCHAR(15)",
     "Apply the migration to the live Supabase instance using the REST SQL endpoint: POST https://dkypdrocnebusgdlndhn.supabase.co/rest/v1/rpc with the service role key header. Alternatively use the Supabase Management API SQL endpoint to execute the SQL.",
@@ -18,5 +18,5 @@
     "Verify the migration file exists and contains correct SQL"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Migration file created successfully. Could not apply migration to remote Supabase DB because: (1) No exec_sql or raw_sql RPC function exposed via PostgREST, (2) Direct DB connection via pooler fails with tenant not found error (project ref may not be on standard pooler), (3) Supabase Management API requires a separate access token not available. The mobile_number column already exists on auth_users. The gallery_images and ai_passwords tables do NOT yet exist remotely. The user instruction explicitly says file creation is the must-have and remote application is optional."
 }
