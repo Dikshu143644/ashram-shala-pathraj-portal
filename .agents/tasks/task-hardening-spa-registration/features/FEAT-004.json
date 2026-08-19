@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "chore",
   "description": "Commit all changes in meaningful groups, push to feat/emerald-email-otp branch, and trigger Vercel deployment",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Stage and commit the SPA fix + Vercel rename: vercel.json (message: 'fix: add SPA catch-all rewrite and rename Vercel project')",
     "Stage and commit the registration/auth system: server/auth.ts, server/security.ts, server/data.ts, src/components/RegisterPage.tsx, src/components/ChangePasswordPage.tsx, src/contexts/AppContext.tsx, src/App.tsx, src/components/LoginPage.tsx, supabase/migrations/202608180003_registration_system.sql, package.json, package-lock.json (message: 'feat: add real registration system with bcrypt, parent self-registration, and role-based access')",

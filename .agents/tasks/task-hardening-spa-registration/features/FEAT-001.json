@@ -5,7 +5,7 @@
   "status": "completed",
   "steps": [
     "Edit vercel.json to add a catch-all SPA rewrite: { \"source\": \"/((?!api/).*)\", \"destination\": \"/index.html\" } after the existing /api/(.*) rewrite",
-    "Use Vercel API (PATCH https://api.vercel.com/v9/projects/<project-id>) with the provided Vercel token (REDACTED_VERCEL_TOKEN) to rename the project name from 'sandbox-nine-taupe' to 'ashram-shala-pathraj'. First GET /v9/projects to find the project, then PATCH to rename.",
+    "Use Vercel API (PATCH https://api.vercel.com/v9/projects/<project-id>) with the provided Vercel token to rename the project name from 'sandbox-nine-taupe' to 'ashram-shala-pathraj'. First GET /v9/projects to find the project, then PATCH to rename.",
     "Verify vercel.json is valid JSON and the rewrite order is correct (API routes first, SPA catch-all last)"
   ],
   "acceptance_criteria": [
