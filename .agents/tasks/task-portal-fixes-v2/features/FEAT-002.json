@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Footer real contact info + Google Maps + Gallery section on landing page + Gallery backend API + AI assistant enhancement with real data + Remove mock audit logs",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "FOOTER FIX in src/components/LandingPage.tsx: Replace the 'Connect' section placeholder email 'ashramshala.pathraj@tribal.gov.in' with 'hmpathraj22@gmail.com'. Replace phone '+91 2148 222 456' with two entries: Principal: 9423864391, Clerk/Web Creator: 7666971183. Add a WhatsApp contact button linking to https://wa.me/917666971183. Add a Google Maps link for 'शासकीय आश्रमशाळा पाथरज, Pathraj, Karjat, Raigad, Maharashtra 410201' - clicking opens Google Maps directions.",
     "GOOGLE MAPS SECTION in src/components/LandingPage.tsx: Add a Contact/Location section above or within the footer that includes an embedded Google Maps iframe for the school location (use maps.google.com embed URL for 'Ashram Shala Pathraj Karjat Raigad Maharashtra 410201'). Include address text in both English and Marathi.",
@@ -29,5 +29,5 @@
     "Run 'source /root/.nvm/nvm.sh && npm run build' and confirm successful build"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All changes implemented and verified. Lint (tsc --noEmit) passes with zero errors. Build (vite + esbuild) succeeds. Had to fix a TypeScript null narrowing issue in agents.ts where userData from maybeSingle() required explicit null check rather than optional chaining for TS to properly narrow the type. The gallery_images table must exist in Supabase for the gallery endpoints to work (migration was created in FEAT-001 but may not be applied remotely yet)."
 }
