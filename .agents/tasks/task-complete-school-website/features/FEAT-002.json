@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Build the complete public HomePage with dark cinematic pomegranate/crimson design. This replaces the old LandingPage.tsx content with a proper school website homepage.",
+  "status": "in_progress",
+  "steps": [
+    "Create src/pages/HomePage.tsx with the full dark cinematic design containing: (1) Hero section with school name in large Devanagari text, English tagline 'Government Tribal Residential School', department kicker, and CTA buttons (Admissions, Contact). (2) Stats section: 459 Students, 25 Staff, 12 Standards, 520 Hostel Beds. (3) About section: brief intro to the Ashram Shala system. (4) Principal's message section with the name: श्री.बनसोडे अजित लालासाहेब. (5) School highlights/features cards (Digital Education, Hostel Facility, Sports, Cultural Activities). (6) Quick links section for Admissions, Contact, Events.",
+    "Use the dark cinematic visual identity: deep twilight/near-black backgrounds (#0a0a0f, #0d0d14 range), deep crimson/pomegranate accents (#8b1a2b, #a91d3a range), warm ember glows, luxury editorial feel. Use motion/react for scroll animations.",
+    "Ensure Marathi-first text with English fallback using the t(en, mr) pattern from AppContext.",
+    "Mobile-first responsive design - test on small viewports first.",
+    "Commit with message: feat: create public homepage with dark cinematic design"
+  ],
+  "acceptance_criteria": [
+    "HomePage renders with dark cinematic theme (near-black backgrounds, crimson accents)",
+    "Hero shows school name in Devanagari prominently",
+    "Stats section shows correct numbers: 459 Students, 25 Staff, 12 Standards, 520 Hostel Beds",
+    "Principal message section present with correct name",
+    "Page is responsive and mobile-first",
+    "npm run lint passes",
+    "npm run build passes"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

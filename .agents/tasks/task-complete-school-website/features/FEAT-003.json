@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Build the About, Academics, and Admission public pages with full content and dark cinematic design.",
+  "status": "pending",
+  "steps": [
+    "Create/update src/pages/AboutPage.tsx with: School history and mission, Ashram Shala system explanation (government residential schools for tribal students), Tribal Development Department affiliation, campus information, residential facility description. Use real data: Location Pathraj Karjat Raigad, established school, 1st-12th standards.",
+    "Create/update src/pages/AcademicsPage.tsx with: Standards 1st to 12th info, 11th-12th Arts stream only (note Science may be added), Marathi medium, subject list per standard (basic subjects: Marathi, Hindi, English, Math, Science, Social Studies for secondary; Arts subjects for 11th-12th), Staff directory section (teaching staff - can show placeholder names and subjects).",
+    "Create/update src/pages/AdmissionPage.tsx with: Admission process explanation, required documents list (caste certificate, Aadhaar, TC, birth certificate, income certificate, etc.), eligibility (tribal students ST category priority), contact for inquiries (9423864391, 7666971183), 'Apply Online' button linking to /register, admission status badge showing 'CLOSED' (सध्या प्रवेश बंद).",
+    "All pages must use the dark cinematic theme consistent with HomePage.",
+    "All pages must use bilingual t(en, mr) pattern.",
+    "Commit with message: feat: add About, Academics, Admission pages"
+  ],
+  "acceptance_criteria": [
+    "About page renders with school history, mission, and Ashram Shala explanation",
+    "Academics page shows standards 1-12, Arts stream info, Marathi medium",
+    "Admission page shows process, documents, eligibility, contact numbers, and CLOSED status",
+    "All three pages use dark cinematic theme",
+    "npm run lint passes",
+    "npm run build passes"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
