@@ -2,7 +2,7 @@
   "id": "FEAT-005",
   "type": "feat",
   "description": "Final integration: ensure portal works behind login with router, cleanup old LandingPage, verify full build passes.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Remove or repurpose src/components/LandingPage.tsx (it is now replaced by the HomePage + PublicLayout).",
     "Ensure /login route renders LoginPage properly and after successful auth redirects to /portal.",
