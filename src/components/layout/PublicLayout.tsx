@@ -1,0 +1,201 @@
+import { useState } from 'react';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Globe, LogIn, Menu, X, School } from 'lucide-react';
+import { useAppContext } from '../../contexts/AppContext';
+
+const navLinks = [
+  { to: '/', labelEn: 'Home', labelMr: 'मुख्यपृष्ठ' },
+  { to: '/about', labelEn: 'About', labelMr: 'माहिती' },
+  { to: '/academics', labelEn: 'Academics', labelMr: 'शैक्षणिक' },
+  { to: '/admission', labelEn: 'Admission', labelMr: 'प्रवेश' },
+  { to: '/hostel', labelEn: 'Hostel', labelMr: 'वसतिगृह' },
+  { to: '/gallery', labelEn: 'Gallery', labelMr: 'गॅलरी' },
+  { to: '/contact', labelEn: 'Contact', labelMr: 'संपर्क' },
+];
+
+export default function PublicLayout() {
+  const { language, setLanguage } = useAppContext();
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const t = (en: string, mr: string) => (language === 'en' ? en : mr);
+
+  return (
+    <div className="public-page">
+      {/* Fixed Navigation */}
+      <header className="public-nav fixed inset-x-0 top-0 z-50">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          {/* Logo / School Name */}
+          <Link to="/" className="flex items-center gap-3 text-white no-underline">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--public-accent-crimson)]">
+              <School className="h-4.5 w-4.5 text-white" />
+            </div>
+            <span className="hidden font-devanagari text-sm font-semibold sm:inline">
+              आश्रमशाळा पाथरज
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.to === '/'}
+                className={({ isActive }) =>
+                  `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'text-white bg-white/10'
+                      : 'text-[var(--public-text-secondary)] hover:text-white hover:bg-white/5'
+                  }`
+                }
+              >
+                {language === 'en' ? link.labelEn : link.labelMr}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Right side actions */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')}
+              className="flex items-center gap-1.5 rounded-full border border-[var(--public-border)] px-3 py-1.5 text-xs font-medium text-[var(--public-text-secondary)] transition-colors hover:border-[var(--public-text-muted)] hover:text-white"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              {language === 'en' ? 'मराठी' : 'EN'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="hidden items-center gap-1.5 rounded-full bg-[var(--public-accent-crimson)] px-4 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[var(--public-accent-pomegranate)] sm:flex"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              {t('Login', 'लॉगिन')}
+            </button>
+
+            {/* Mobile menu button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex items-center justify-center rounded-lg p-2 text-[var(--public-text-secondary)] hover:text-white lg:hidden"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <nav className="border-t border-[var(--public-border)] bg-[var(--public-bg-primary)] px-4 py-4 lg:hidden" aria-label="Mobile navigation">
+            <div className="flex flex-col gap-1">
+              {navLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end={link.to === '/'}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'text-white bg-white/10'
+                        : 'text-[var(--public-text-secondary)] hover:text-white hover:bg-white/5'
+                    }`
+                  }
+                >
+                  {language === 'en' ? link.labelEn : link.labelMr}
+                </NavLink>
+              ))}
+              <button
+                type="button"
+                onClick={() => { setMobileMenuOpen(false); navigate('/login'); }}
+                className="mt-2 flex items-center gap-2 rounded-full bg-[var(--public-accent-crimson)] px-4 py-3 text-sm font-semibold text-white sm:hidden"
+              >
+                <LogIn className="h-4 w-4" />
+                {t('Login', 'लॉगिन')}
+              </button>
+            </div>
+          </nav>
+        )}
+      </header>
+
+      {/* Main Content */}
+      <main className="pt-16">
+        <Outlet />
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-[var(--public-border)] bg-[var(--public-bg-secondary)]">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {/* School Info */}
+            <div className="sm:col-span-2 lg:col-span-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--public-accent-crimson)]">
+                  <School className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-devanagari text-sm font-semibold text-white">आश्रमशाळा पाथरज</p>
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--public-text-muted)]">Est. Government School</p>
+                </div>
+              </div>
+              <p className="text-xs leading-relaxed text-[var(--public-text-muted)]">
+                {t(
+                  'Government Secondary and Higher Secondary Ashram School, Pathraj. Under Tribal Development Department, Maharashtra.',
+                  'शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज. आदिवासी विकास विभाग, महाराष्ट्र शासन.'
+                )}
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--public-text-secondary)]">
+                {t('Quick Links', 'झटपट लिंक')}
+              </h4>
+              <ul className="space-y-2">
+                {navLinks.slice(1).map((link) => (
+                  <li key={link.to}>
+                    <Link to={link.to} className="text-xs text-[var(--public-text-muted)] transition-colors hover:text-white no-underline">
+                      {language === 'en' ? link.labelEn : link.labelMr}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact Info */}
+            <div>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--public-text-secondary)]">
+                {t('Contact', 'संपर्क')}
+              </h4>
+              <ul className="space-y-2 text-xs text-[var(--public-text-muted)]">
+                <li>{t('Principal: 9423864391', 'मुख्याध्यापक: ९४२३८६४३९१')}</li>
+                <li>{t('Office: 7666971183', 'कार्यालय: ७६६६९७११८३')}</li>
+                <li>hmpathraj22@gmail.com</li>
+              </ul>
+            </div>
+
+            {/* Address */}
+            <div>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--public-text-secondary)]">
+                {t('Address', 'पत्ता')}
+              </h4>
+              <p className="text-xs leading-relaxed text-[var(--public-text-muted)]">
+                {t(
+                  'Pathraj, Tal. Karjat, Dist. Raigad, Maharashtra 410201',
+                  'पाथरज, ता. कर्जत, जि. रायगड, महाराष्ट्र ४१०२०१'
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 border-t border-[var(--public-border)] pt-6 text-center">
+            <p className="text-[11px] text-[var(--public-text-muted)]">
+              &copy; 2026 {t('Tribal Development Department, Government of Maharashtra', 'आदिवासी विकास विभाग, महाराष्ट्र शासन')}
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

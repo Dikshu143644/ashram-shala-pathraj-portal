@@ -1,0 +1,32 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Install react-router-dom, set up routing structure, and create the dark cinematic design system for public pages. Restructure App.tsx to use React Router with public pages accessible without login and portal pages behind auth.",
+  "status": "completed",
+  "steps": [
+    "Run 'source /root/.nvm/nvm.sh && npm install react-router-dom @types/react-router-dom' to install routing deps",
+    "Update src/index.css: Add a new section of CSS variables for the public website dark cinematic theme (deep twilight/near-black navy backgrounds, deep crimson/pomegranate red accents, warm ember glow). Keep existing Auralis variables for the portal. Add classes like .public-page with the dark theme styles.",
+    "Create src/components/layout/PublicLayout.tsx - a layout wrapper for all public pages with: fixed top navigation (school name in Devanagari, nav links: Home, About, Academics, Admission, Hostel, Gallery, Contact, right side: Login button + language toggle), a footer with school info, and a main content area. Use the dark cinematic theme. Mobile-first with hamburger menu.",
+    "Create src/components/layout/PortalLayout.tsx - extract the current authenticated layout (sidebar, mobile nav, header) from App.tsx into this component.",
+    "Rewrite src/App.tsx to use BrowserRouter with routes: Public routes (/, /about, /academics, /admission, /hostel, /gallery, /contact, /login, /register) and protected portal routes (/portal/*). The portal routes should redirect to /login if not authenticated. Public routes use PublicLayout, portal routes use PortalLayout.",
+    "Update src/main.tsx if needed to wrap with BrowserRouter at the top level.",
+    "Create placeholder page components in src/pages/: HomePage.tsx, AboutPage.tsx, AcademicsPage.tsx, AdmissionPage.tsx, HostelPage.tsx, GalleryPage.tsx, ContactPage.tsx - each with minimal content and proper dark cinematic styling to confirm routing works.",
+    "Ensure LoginPage.tsx and RegisterPage.tsx work within the router (use navigate() instead of callback props where needed).",
+    "Commit with message: feat: add react-router-dom and page routing structure"
+  ],
+  "acceptance_criteria": [
+    "react-router-dom is installed and listed in package.json dependencies",
+    "Navigating to / shows the public homepage with dark cinematic theme",
+    "Navigating to /about, /academics, /admission, /hostel, /gallery, /contact shows respective placeholder pages",
+    "Navigating to /login shows the login page",
+    "The portal is only accessible after authentication",
+    "npm run lint passes without errors",
+    "npm run build passes without errors"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": "react-router-dom v7.18.2 installed (bundled types, no @types needed). Build produces a 545KB JS chunk which is large but acceptable for now. All lint and build checks pass cleanly."
+}

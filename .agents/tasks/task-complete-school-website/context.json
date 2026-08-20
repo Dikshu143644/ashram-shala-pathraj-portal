@@ -1,0 +1,30 @@
+{
+  "project_type": "Full-stack TypeScript - Vite React SPA (frontend) + Express API on Supabase (backend)",
+  "language": "TypeScript / TSX",
+  "build_system": "Vite 6 for frontend, esbuild for server.ts bundling. MUST run 'source /root/.nvm/nvm.sh' before any npm/node commands.",
+  "test_framework": "No test framework configured (no jest/vitest). Validation is via lint + build.",
+  "build_command": "source /root/.nvm/nvm.sh && npm run build",
+  "test_command": "source /root/.nvm/nvm.sh && npm run lint",
+  "verification_instructions": "1. Run 'source /root/.nvm/nvm.sh && npm run lint' (tsc --noEmit). 2. Run 'source /root/.nvm/nvm.sh && npm run build' (vite build + esbuild server.ts). Both must pass with exit code 0.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "source /root/.nvm/nvm.sh && npm install",
+  "environment_constraints": "OPEN_INTERNET network mode. Must source nvm before any npm/node commands. react-router-dom NOT installed yet - needs to be added.",
+  "contribution_requirements": "Push to branch feat/complete-school-website. Meaningful commits per logical chunk.",
+  "key_patterns": "Components in src/components/. Single AppContext for auth/language state. Tailwind CSS 4 with @import 'tailwindcss'. Motion (framer-motion) for animations. Lucide-react for icons. Material Symbols Outlined loaded via CDN for some icons. Design system CSS variables in src/index.css. Geist + Noto Sans Devanagari fonts. Language toggle with t(en, mr) pattern.",
+  "relevant_files": [
+    "src/App.tsx",
+    "src/main.tsx",
+    "src/index.css",
+    "src/components/LandingPage.tsx",
+    "src/components/LoginPage.tsx",
+    "src/components/RegisterPage.tsx",
+    "src/components/Header.tsx",
+    "src/contexts/AppContext.tsx",
+    "index.html",
+    "package.json",
+    "tsconfig.json",
+    "vercel.json",
+    "vite.config.ts"
+  ],
+  "directory_structure": "src/components/ - UI components. src/contexts/ - React contexts (AppContext). src/data/ - static data. src/lib/ - utilities/helpers. src/types/ - TypeScript types. src/utils/ - utility functions. server/ - Express API. api/ - Vercel serverless functions. vercel.json - SPA rewrites configured."
+}

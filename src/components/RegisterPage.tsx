@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   ArrowLeft,
@@ -32,7 +33,8 @@ interface RegisterPageProps {
 }
 
 export default function RegisterPage({ onBack }: RegisterPageProps) {
-  const { language, setLanguage, register, sendOtp, verifyOtp, setPassword, setIsRegistering } = useAppContext();
+  const navigate = useNavigate();
+  const { language, setLanguage, register, sendOtp, verifyOtp, setPassword, setIsRegistering, isAuthenticated } = useAppContext();
   const [fullName, setFullName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [email, setEmail] = useState('');
@@ -163,8 +165,19 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
 
   const handleBackToLogin = () => {
     setIsRegistering(false);
-    if (onBack) onBack();
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/login');
+    }
   };
+
+  // Redirect to portal after successful authentication
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/portal', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F7F7F5] p-4 sm:p-8">
@@ -174,11 +187,9 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
 
       {/* Top bar */}
       <div className="absolute left-4 top-4 z-20 flex items-center gap-2 sm:left-7 sm:top-6">
-        {onBack && (
-          <button type="button" onClick={onBack} className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#E7E7E4] bg-white px-4 text-xs font-medium text-black hover:bg-[#F3F2EF]">
-            <ArrowLeft className="h-3.5 w-3.5" />{t('Back', 'मागे')}
-          </button>
-        )}
+        <button type="button" onClick={() => onBack ? onBack() : navigate('/')} className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#E7E7E4] bg-white px-4 text-xs font-medium text-black hover:bg-[#F3F2EF]">
+          <ArrowLeft className="h-3.5 w-3.5" />{t('Back', 'मागे')}
+        </button>
       </div>
       <motion.button initial={false} onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')} type="button" className="absolute right-4 top-4 z-20 flex min-h-10 items-center gap-2 rounded-full border border-[#E7E7E4] bg-white px-4 text-xs font-medium text-black hover:bg-[#F3F2EF] sm:right-7 sm:top-6">
         <Globe className="h-4 w-4" />{language === 'en' ? 'मराठी' : 'English'}
@@ -235,14 +246,12 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             </button>
 
             <div className="mt-4 text-center">
-              <button type="button" onClick={() => { setIsRegistering(false); if (onBack) onBack(); }} className="flex items-center justify-center gap-1.5 mx-auto rounded-full px-3 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
+              <button type="button" onClick={() => navigate('/login')} className="flex items-center justify-center gap-1.5 mx-auto rounded-full px-3 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
                 <ArrowLeft className="h-3.5 w-3.5" />{t('Back to login', 'लॉगिनवर परत जा')}
               </button>
-              {onBack && (
-                <button type="button" onClick={handleBackToLogin} className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
-                  <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Home', 'मुख्यपृष्ठावर परत जा')}
-                </button>
-              )}
+              <button type="button" onClick={() => navigate('/')} className="flex items-center justify-center gap-1.5 mx-auto rounded-full px-3 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
+                <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Home', 'मुख्यपृष्ठावर परत जा')}
+              </button>
             </div>
           </form>
         )}

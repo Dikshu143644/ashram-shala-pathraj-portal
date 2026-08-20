@@ -1,0 +1,31 @@
+{
+  "id": "FEAT-005",
+  "type": "feat",
+  "description": "Final integration: ensure portal works behind login with router, cleanup old LandingPage, verify full build passes.",
+  "status": "in_progress",
+  "steps": [
+    "Remove or repurpose src/components/LandingPage.tsx (it is now replaced by the HomePage + PublicLayout).",
+    "Ensure /login route renders LoginPage properly and after successful auth redirects to /portal.",
+    "Ensure /register route renders RegisterPage properly.",
+    "Ensure all portal tabs (admission, classTeacher, hostel, whatsapp, clerk, superAdmin, aiAssistant) work under /portal/* routes.",
+    "Verify the PublicLayout navigation links all work: Home(/), About(/about), Academics(/academics), Admission(/admission), Hostel(/hostel), Gallery(/gallery), Contact(/contact), Login button links to /login.",
+    "Clean up any unused imports or dead code.",
+    "Run final lint and build verification.",
+    "Commit with message: feat: integrate portal behind login with router"
+  ],
+  "acceptance_criteria": [
+    "Old LandingPage.tsx is removed or no longer used as a route",
+    "/login shows the LoginPage",
+    "/register shows the RegisterPage",
+    "After login, user lands in the portal with sidebar tabs",
+    "All public pages accessible without login",
+    "No TypeScript errors (npm run lint passes)",
+    "Build succeeds (npm run build passes)"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

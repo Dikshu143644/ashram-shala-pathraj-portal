@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-004",
+  "type": "feat",
+  "description": "Build the Hostel, Gallery, and Contact public pages with full content and dark cinematic design.",
+  "status": "completed",
+  "steps": [
+    "Create/update src/pages/HostelPage.tsx with: Hostel facility description, 520 beds capacity, Boys wing and Girls wing info, Mess timings (Breakfast 7AM, Lunch 12:30PM, Dinner 7:30PM), Wardens: श्री.माने राजेंद्र परशराम (Boys), श्रीम.पखाले सविता पुंडलिक (Girls), daily routine section.",
+    "Create/update src/pages/GalleryPage.tsx with: Photo gallery that fetches from /api/gallery endpoint (existing API). Display images in a responsive grid. Show empty state with message if no images. Dark cinematic theme.",
+    "Create/update src/pages/ContactPage.tsx with: Full school address (शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज, ता.कर्जत, जि.रायगड, महाराष्ट्र 410201), Principal mobile 9423864391, Office/Clerk mobile 7666971183, Email hmpathraj22@gmail.com, Google Maps embed iframe, WhatsApp button linking to wa.me/919423864391.",
+    "All pages must use the dark cinematic theme consistent with HomePage.",
+    "All pages must use bilingual t(en, mr) pattern.",
+    "Commit with message: feat: add Hostel, Gallery, Contact pages"
+  ],
+  "acceptance_criteria": [
+    "Hostel page shows 520 beds, boys/girls wing wardens, mess timings, daily routine",
+    "Gallery page fetches from /api/gallery and displays images (handles empty state)",
+    "Contact page shows address, phone numbers, email, map embed, WhatsApp button",
+    "All three pages use dark cinematic theme",
+    "npm run lint passes",
+    "npm run build passes"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": "All three pages implemented with dark cinematic design, motion animations, bilingual content. Build produces a chunk warning (>500KB) but is not an error. Lint and build pass cleanly."
+}

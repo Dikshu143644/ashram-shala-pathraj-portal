@@ -1,0 +1,7 @@
+{
+  "task_id": "task-complete-school-website",
+  "task_description": "Build a complete public school website for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज with 7 public pages (Home, About, Academics, Admission, Hostel, Gallery, Contact), dark cinematic pomegranate/crimson design theme, React Router for URL-based navigation, and the existing admin portal behind login.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005"],
+  "blocked_reason": null
+}
