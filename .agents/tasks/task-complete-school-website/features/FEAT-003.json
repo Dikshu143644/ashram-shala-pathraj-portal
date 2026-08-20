@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Build the About, Academics, and Admission public pages with full content and dark cinematic design.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Create/update src/pages/AboutPage.tsx with: School history and mission, Ashram Shala system explanation (government residential schools for tribal students), Tribal Development Department affiliation, campus information, residential facility description. Use real data: Location Pathraj Karjat Raigad, established school, 1st-12th standards.",
     "Create/update src/pages/AcademicsPage.tsx with: Standards 1st to 12th info, 11th-12th Arts stream only (note Science may be added), Marathi medium, subject list per standard (basic subjects: Marathi, Hindi, English, Math, Science, Social Studies for secondary; Arts subjects for 11th-12th), Staff directory section (teaching staff - can show placeholder names and subjects).",
