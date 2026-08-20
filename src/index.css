@@ -1,5 +1,81 @@
 @import "tailwindcss";
 
+/* ===== PUBLIC WEBSITE - DARK CINEMATIC THEME ===== */
+:root {
+  --public-bg-primary: #0a0e1a;
+  --public-bg-secondary: #111827;
+  --public-bg-tertiary: #1a1f2e;
+  --public-bg-card: #151b2b;
+  --public-bg-nav: rgba(10, 14, 26, 0.92);
+  --public-accent-crimson: #9b1b30;
+  --public-accent-pomegranate: #c0392b;
+  --public-accent-ember: #e67e22;
+  --public-accent-warm: #f39c12;
+  --public-text-primary: #f5f5f5;
+  --public-text-secondary: #a0aec0;
+  --public-text-muted: #718096;
+  --public-border: rgba(255, 255, 255, 0.08);
+  --public-border-accent: rgba(155, 27, 48, 0.4);
+  --public-glow-crimson: rgba(155, 27, 48, 0.15);
+  --public-glow-ember: rgba(230, 126, 34, 0.1);
+  --public-shadow-dark: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --public-shadow-card: 0 2px 16px rgba(0, 0, 0, 0.3);
+  --public-gradient-hero: linear-gradient(180deg, #0a0e1a 0%, #111827 50%, #1a1f2e 100%);
+  --public-gradient-card: linear-gradient(145deg, #151b2b 0%, #1a2035 100%);
+  --public-gradient-accent: linear-gradient(135deg, #9b1b30 0%, #c0392b 100%);
+}
+
+.public-page {
+  background-color: var(--public-bg-primary);
+  color: var(--public-text-primary);
+  min-height: 100vh;
+}
+
+.public-nav {
+  background: var(--public-bg-nav);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--public-border);
+}
+
+.public-card {
+  background: var(--public-gradient-card);
+  border: 1px solid var(--public-border);
+  border-radius: 1rem;
+  box-shadow: var(--public-shadow-card);
+}
+
+.public-btn-primary {
+  background: var(--public-gradient-accent);
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.public-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(155, 27, 48, 0.4);
+}
+
+.public-section-title {
+  color: var(--public-text-primary);
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+}
+
+.public-accent-text {
+  color: var(--public-accent-crimson);
+}
+
+.public-ember-text {
+  color: var(--public-accent-ember);
+}
+
 /* ===== AURALIS DESIGN SYSTEM ===== */
 :root {
   /* Auralis Monochrome Palette */

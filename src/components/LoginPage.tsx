@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   ArrowLeft,
@@ -34,7 +35,8 @@ interface LoginPageProps {
 }
 
 export default function LoginPage({ onBack }: LoginPageProps) {
-  const { language, setLanguage, beginLogin, sendOtp, verifyOtp, setIsRegistering } = useAppContext();
+  const navigate = useNavigate();
+  const { language, setLanguage, beginLogin, sendOtp, verifyOtp, setIsRegistering, isAuthenticated } = useAppContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState<AppRole>('web_creator');
@@ -48,6 +50,13 @@ export default function LoginPage({ onBack }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const inFlightRef = useRef(false);
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
+
+  // Redirect to portal after successful authentication
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/portal', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -156,11 +165,9 @@ export default function LoginPage({ onBack }: LoginPageProps) {
 
       {/* Top bar with language toggle and back button */}
       <div className="absolute left-4 top-4 z-20 flex items-center gap-2 sm:left-7 sm:top-6">
-        {onBack && (
-          <button type="button" onClick={onBack} className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#E7E7E4] bg-white px-4 text-xs font-medium text-black hover:bg-[#F3F2EF]">
-            <ArrowLeft className="h-3.5 w-3.5" />{t('Back', 'मागे')}
-          </button>
-        )}
+        <button type="button" onClick={() => onBack ? onBack() : navigate('/')} className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#E7E7E4] bg-white px-4 text-xs font-medium text-black hover:bg-[#F3F2EF]">
+          <ArrowLeft className="h-3.5 w-3.5" />{t('Back', 'मागे')}
+        </button>
       </div>
       <motion.button initial={false} onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')} type="button" className="absolute right-4 top-4 z-20 flex min-h-10 items-center gap-2 rounded-full border border-[#E7E7E4] bg-white px-4 text-xs font-medium text-black hover:bg-[#F3F2EF] sm:right-7 sm:top-6">
         <Globe className="h-4 w-4" />{language === 'en' ? 'मराठी' : 'English'}
@@ -211,14 +218,12 @@ export default function LoginPage({ onBack }: LoginPageProps) {
             </button>
 
             <div className="mt-3 text-center">
-              <button type="button" onClick={() => setIsRegistering(true)} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
+              <button type="button" onClick={() => navigate('/register')} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
                 <UserPlus className="h-3.5 w-3.5" />{t('Register as Parent', 'पालक म्हणून नोंदणी करा')}
               </button>
-              {onBack && (
-                <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
-                  <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Home', 'मुख्यपृष्ठावर परत जा')}
-                </button>
-              )}
+              <button type="button" onClick={() => navigate('/')} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
+                <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Home', 'मुख्यपृष्ठावर परत जा')}
+              </button>
             </div>
           </form>
         ) : (
