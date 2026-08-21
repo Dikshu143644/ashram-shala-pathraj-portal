@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>कृत्रिम बुद्धिमत्ता (AI) — घटक चाचणी | शासकीय आश्रमशाळा, पाथरज</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Mukta', 'sans-serif'] },
+                    colors: {
+                        gform: {
+                            bg: '#f0ebf8', card: '#ffffff', primary: '#673ab7',
+                            primaryDark: '#512da8', border: '#dadce0', accent: '#e8eaed',
+                            correct: '#15803d', incorrect: '#b91c1c'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body { background-color: #f0ebf8; font-family: 'Mukta', sans-serif; }
+        .form-header-bar {
+            background-color: #673ab7;
+            height: 10px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .radio-custom:checked + label { color: #673ab7; font-weight: 600; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            .shadow-md, .shadow-lg { box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="py-6 px-3 sm:px-6 md:px-8 text-gray-800">
+    <div class="max-w-3xl mx-auto space-y-4">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <div class="form-header-bar"></div>
+            <div class="p-6 sm:p-8">
+                <div class="text-center border-b pb-4 mb-4">
+                    <span class="inline-block bg-purple-100 text-purple-800 text-xs sm:text-sm font-bold px-3 py-1 rounded-full mb-2">
+                        इयत्ता ११ वी व १२ वी | घटक चाचणी - २०२६
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा, पाथरज
+                    </h1>
+                    <p class="text-base sm:text-lg text-purple-900 font-semibold mt-1">ता. कर्जत, जि. रायगड</p>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-between items-center bg-purple-50 p-4 rounded-lg text-sm sm:text-base border border-purple-100 gap-2">
+                    <div><span class="font-bold text-gray-700">विषय :</span> कृत्रिम बुद्धिमत्ता (AI)</div>
+                    <div><span class="font-bold text-gray-700">एकूण गुण :</span> २०</div>
+                    <div><span class="font-bold text-gray-700">वेळ :</span> २० मिनिटे</div>
+                </div>
+                <div class="mt-4 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg text-sm text-amber-900">
+                    <p class="font-bold mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-amber-600"></i> सूचना :
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 text-xs sm:text-sm">
+                        <li>सर्व २० प्रश्न सोडवणे अनिवार्य आहे.</li>
+                        <li>प्रत्येक प्रश्नाला १ गुण दिलेला आहे.</li>
+                        <li>योग्य पर्यायावर क्लिक करून आपले उत्तर निवडा.</li>
+                        <li>चाचणी पूर्ण झाल्यावर तळाशी असलेल्या 'सबमिट करा' बटणावर क्लिक करा.</li>
+                        <li>उत्तर सबमिट केल्यावर तुम्हाला तुमचे एकूण गुण लगेच पाहायला मिळतील.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <form id="quizForm" onsubmit="submitQuiz(event)">
+            <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 mb-4">
+                <h2 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-graduate text-purple-700"></i> विद्यार्थ्याची माहिती (Student Details)
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="studentName" class="block text-sm font-semibold text-gray-700 mb-1">विद्यार्थ्याचे नाव <span class="text-red-500">*</span></label>
+                        <input type="text" id="studentName" required placeholder="पूर्ण नाव प्रविष्ट करा"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-600 focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label for="studentClass" class="block text-sm font-semibold text-gray-700 mb-1">इयत्ता <span class="text-red-500">*</span></label>
+                        <select id="studentClass" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-600 focus:outline-none text-sm bg-white">
+                            <option value="">इयत्ता निवडा</option>
+                            <option value="11th STD">११ वी (11th STD)</option>
+                            <option value="12th STD">१२ वी (12th STD)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="studentDiv" class="block text-sm font-semibold text-gray-700 mb-1">तुकडी <span class="text-red-500">*</span></label>
+                        <input type="text" id="studentDiv" required placeholder="उदा. अ / ब / A / B"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-600 focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label for="studentRoll" class="block text-sm font-semibold text-gray-700 mb-1">रोल नं. (Roll No.) <span class="text-red-500">*</span></label>
+                        <input type="number" id="studentRoll" min="1" required placeholder="क्रमांक प्रविष्ट करा"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-600 focus:outline-none text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <div id="questionsContainer" class="space-y-4"></div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="text-xs text-gray-500">* फॉर्म सबमिट करण्यापूर्वी सर्व प्रश्न सोडवले आहेत याची खात्री करा.</div>
+                <button type="submit" class="w-full sm:w-auto bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 px-8 rounded-lg shadow transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> चाचणी सबमिट करा
+                </button>
+            </div>
+        </form>
+
+        <div id="resultModal" class="hidden bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden" aria-live="polite">
+            <div class="bg-purple-700 text-white p-6 text-center">
+                <div class="inline-block bg-white text-purple-800 rounded-full p-3 mb-3 shadow"><i class="fa-solid fa-trophy text-3xl"></i></div>
+                <h2 class="text-2xl font-bold">चाचणी यशस्वीरीत्या सबमिट झाली!</h2>
+                <p class="text-purple-100 text-sm mt-1">शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा, पाथरज</p>
+            </div>
+            <div class="p-6">
+                <div class="bg-purple-50 border border-purple-200 rounded-xl p-6 text-center mb-6">
+                    <div class="text-gray-600 font-medium text-sm mb-1">तुमचा प्राप्त गुण (Your Score)</div>
+                    <div class="text-4xl sm:text-5xl font-black text-purple-800 my-2" id="scoreDisplay">00 / 20</div>
+                    <div id="gradeBadge" class="inline-block px-4 py-1.5 rounded-full text-xs font-bold mt-2">-</div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs sm:text-sm text-gray-700 border-t border-purple-200 pt-4 mt-4 text-left">
+                        <div><span class="font-semibold text-gray-500">नाव:</span> <span id="resName" class="font-bold"></span></div>
+                        <div><span class="font-semibold text-gray-500">इयत्ता:</span> <span id="resClass" class="font-bold"></span></div>
+                        <div><span class="font-semibold text-gray-500">तुकडी:</span> <span id="resDiv" class="font-bold"></span></div>
+                        <div><span class="font-semibold text-gray-500">रोल नं:</span> <span id="resRoll" class="font-bold"></span></div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-3 no-print mb-8">
+                    <button type="button" onclick="window.print()" class="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 px-5 rounded-lg text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> गुणपत्रिका प्रिंट करा / PDF सेव्ह करा
+                    </button>
+                    <button type="button" onclick="location.reload()" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-semibold py-2 px-5 rounded-lg text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> पुन्हा सोडवा
+                    </button>
+                </div>
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-purple-700"></i> उत्तरांचे स्पष्टीकरण व विश्लेषण (Answer Review)
+                    </h3>
+                    <div id="reviewContainer" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { section: "AI आणि आरोग्य 🏥", qNum: 1, text: "आरोग्य क्षेत्रात AI चा मुख्य उपयोग कोणता आहे?", options: ["खेळ खेळणे", "वैद्यकीय माहितीचे विश्लेषण करणे", "गाणी ऐकणे", "चित्र काढणे"], correct: 1 },
+            { section: "AI आणि आरोग्य 🏥", qNum: 2, text: "वैद्यकीय प्रतिमांचे विश्लेषण करण्यासाठी AI कशी मदत करू शकते?", options: ["रोगाची संभाव्य चिन्हे ओळखण्यास", "रुग्णाला जेवण देण्यास", "रुग्णालय साफ करण्यास", "औषधे स्वतः खाण्यास"], correct: 0 },
+            { section: "AI आणि आरोग्य 🏥", qNum: 3, text: "आरोग्याशी संबंधित AI चा वापर करताना काय करणे योग्य आहे?", options: ["AI वर पूर्णपणे अवलंबून राहणे", "डॉक्टरांचा सल्ला घेणे", "स्वतः औषध सुरू करणे", "कोणतीही माहिती तपासू नये"], correct: 1 },
+            { section: "AI आणि आरोग्य 🏥", qNum: 4, text: "AI रुग्णालयात कोणत्या कामासाठी उपयोगी ठरू शकते?", options: ["माहिती व्यवस्थापन", "क्रिकेट खेळणे", "स्वयंपाक करणे", "प्रवास करणे"], correct: 0 },
+            { section: "AI आणि आरोग्य 🏥", qNum: 5, text: "AI डॉक्टरांसाठी काय करू शकते?", options: ["डॉक्टरांची पूर्ण जागा घेऊ शकते", "निर्णय घेण्यास आणि माहितीचे विश्लेषण करण्यास मदत करू शकते", "डॉक्टरांना कामापासून दूर करू शकते", "रुग्णांना स्वतः तपासू शकते"], correct: 1 },
+            { section: "AI आणि शेती 🌾", qNum: 6, text: "शेतीमध्ये AI चा उपयोग कशासाठी करता येतो?", options: ["पिकांची माहिती विश्लेषित करण्यासाठी", "फक्त संगीत ऐकण्यासाठी", "चित्रपट पाहण्यासाठी", "गेम खेळण्यासाठी"], correct: 0 },
+            { section: "AI आणि शेती 🌾", qNum: 7, text: "पिकाच्या पानाचा फोटो AI ला दिल्यास काय ओळखण्यास मदत होऊ शकते?", options: ["पिकावरील रोग", "शेतकऱ्याचे नाव", "शेताचा मालक", "गावाचे नाव"], correct: 0 },
+            { section: "AI आणि शेती 🌾", qNum: 8, text: "AI शेतकऱ्यांना हवामानाची माहिती का उपयोगी ठरवू शकते?", options: ["शेतीच्या कामांचे नियोजन करण्यासाठी", "मोबाइल चार्ज करण्यासाठी", "टीव्ही पाहण्यासाठी", "वाहन चालवण्यासाठी"], correct: 0 },
+            { section: "AI आणि शेती 🌾", qNum: 9, text: "AI च्या मदतीने शेतीमध्ये कोणत्या गोष्टीचे नियोजन सुधारता येऊ शकते?", options: ["पाण्याचा वापर", "मोबाईलचा आवाज", "टीव्हीचा स्क्रीन", "संगणकाचा रंग"], correct: 0 },
+            { section: "AI आणि शेती 🌾", qNum: 10, text: "AI शेतकऱ्यांना योग्य पीक निवडण्यास कशी मदत करू शकते?", options: ["माती व हवामानाशी संबंधित माहितीचे विश्लेषण करून", "अंदाजाने", "फक्त जाहिरात पाहून", "कोणतीही माहिती न वापरता"], correct: 0 },
+            { section: "AI आणि शिक्षण 📚", qNum: 11, text: "विद्यार्थ्यांना कठीण विषय समजून घेण्यासाठी AI कशी मदत करू शकते?", options: ["विषय सोप्या भाषेत समजावून सांगून", "पुस्तक फाडून", "परीक्षा रद्द करून", "शाळा बंद करून"], correct: 0 },
+            { section: "AI आणि शिक्षण 📚", qNum: 12, text: "AI च्या मदतीने काय तयार करता येते?", options: ["सराव प्रश्न", "फक्त कपडे", "फक्त अन्न", "फक्त वाहने"], correct: 0 },
+            { section: "AI आणि शिक्षण 📚", qNum: 13, text: "गणित शिकताना AI चा योग्य वापर कोणता?", options: ["फक्त अंतिम उत्तर कॉपी करणे", "उदाहरणाची सोडवण्याची पद्धत समजून घेणे", "प्रश्न न वाचणे", "अभ्यास न करणे"], correct: 1 },
+            { section: "AI आणि शिक्षण 📚", qNum: 14, text: "AI कडून मिळालेली माहिती वापरण्यापूर्वी काय करावे?", options: ["माहितीची पडताळणी करावी", "लगेच पाठ करावी", "कोणालाही सांगू नये", "ती नेहमीच खरी मानावी"], correct: 0 },
+            { section: "AI आणि शिक्षण 📚", qNum: 15, text: "विद्यार्थ्यांनी AI चा वापर कशासाठी करणे योग्य आहे?", options: ["शिकण्यासाठी आणि सरावासाठी", "परीक्षेत कॉपी करण्यासाठी", "गृहपाठ न करण्यासाठी", "अभ्यास टाळण्यासाठी"], correct: 0 },
+            { section: "AI आणि हवामान 🌦️", qNum: 16, text: "हवामानाचा अंदाज घेण्यासाठी AI कशाचे विश्लेषण करू शकते?", options: ["हवामानाशी संबंधित डेटा", "विद्यार्थ्यांची पुस्तके", "गाण्यांचे बोल", "चित्रपट"], correct: 0 },
+            { section: "AI आणि हवामान 🌦️", qNum: 17, text: "AI च्या मदतीने कोणत्या हवामानविषयक घटनेचा अंदाज घेण्यास मदत होऊ शकते?", options: ["पाऊस", "परीक्षेचे गुण", "खेळाचा निकाल", "चित्रपटाचे तिकीट"], correct: 0 },
+            { section: "AI आणि हवामान 🌦️", qNum: 18, text: "हवामानाचा अंदाज शेतकऱ्यांना कशासाठी उपयोगी ठरतो?", options: ["शेतीचे नियोजन करण्यासाठी", "मोबाइल खरेदी करण्यासाठी", "टीव्ही पाहण्यासाठी", "संगणक खेळण्यासाठी"], correct: 0 },
+            { section: "AI आणि हवामान 🌦️", qNum: 19, text: "AI नैसर्गिक आपत्तींबाबत कशी मदत करू शकते?", options: ["उपलब्ध डेटाचे विश्लेषण करून संभाव्य जोखीम ओळखण्यास", "आपत्ती निर्माण करण्यास", "पाऊस थांबवण्यास", "वादळ स्वतः नियंत्रित करण्यास"], correct: 0 },
+            { section: "AI आणि हवामान 🌦️", qNum: 20, text: "हवामानाच्या बाबतीत AI च्या माहितीबरोबर काय तपासणे योग्य आहे?", options: ["विश्वासनीय अधिकृत हवामान स्रोत", "कोणतीही अफवा", "सोशल मीडियावरील प्रत्येक पोस्ट", "मित्राचा अंदाज"], correct: 0 }
+        ];
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            let currentSection = '';
+            quizData.forEach((q, idx) => {
+                if (q.section !== currentSection) {
+                    currentSection = q.section;
+                    const sectionHeader = document.createElement('div');
+                    sectionHeader.className = 'bg-purple-800 text-white font-bold px-4 py-2.5 rounded-lg text-base sm:text-lg shadow mt-6 mb-3 flex items-center gap-2';
+                    sectionHeader.innerHTML = `<span>घटक : ${currentSection}</span>`;
+                    container.appendChild(sectionHeader);
+                }
+                const qCard = document.createElement('div');
+                qCard.className = 'bg-white rounded-lg shadow-sm p-5 border border-gray-200 hover:border-purple-300 transition';
+                qCard.id = `qCard_${idx}`;
+                const optionLetters = ['A', 'B', 'C', 'D'];
+                const optionsHTML = q.options.map((opt, optIdx) => `
+                    <div class="flex items-center p-2.5 rounded-md hover:bg-purple-50 cursor-pointer transition border border-transparent hover:border-purple-100">
+                        <input type="radio" id="q_${idx}_opt_${optIdx}" name="q_${idx}" value="${optIdx}" required
+                            class="w-4 h-4 text-purple-700 focus:ring-purple-600 border-gray-300 cursor-pointer radio-custom">
+                        <label for="q_${idx}_opt_${optIdx}" class="ml-3 text-sm sm:text-base text-gray-800 cursor-pointer flex-1">
+                            <span class="font-semibold text-purple-900 mr-1.5">${optionLetters[optIdx]})</span> ${opt}
+                        </label>
+                    </div>`).join('');
+                qCard.innerHTML = `
+                    <div class="font-bold text-gray-900 text-base sm:text-lg mb-3 flex items-start gap-2">
+                        <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded font-extrabold min-w-[28px] text-center mt-0.5">${q.qNum}</span>
+                        <span class="flex-1">${q.text}</span>
+                    </div>
+                    <div class="space-y-1 pl-1">${optionsHTML}</div>`;
+                container.appendChild(qCard);
+            });
+        }
+
+        function submitQuiz(event) {
+            event.preventDefault();
+            const name = document.getElementById('studentName').value.trim();
+            const sClass = document.getElementById('studentClass').value;
+            const sDiv = document.getElementById('studentDiv').value.trim();
+            const sRoll = document.getElementById('studentRoll').value.trim();
+            if (!name || !sClass || !sDiv || !sRoll) {
+                alert('कृपया विद्यार्थ्याची सर्व माहिती प्रविष्ट करा.');
+                return;
+            }
+
+            let score = 0;
+            const reviewContainer = document.getElementById('reviewContainer');
+            const optionLetters = ['A', 'B', 'C', 'D'];
+            reviewContainer.innerHTML = '';
+
+            quizData.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q_${idx}"]:checked`);
+                const userAns = selected ? Number(selected.value) : -1;
+                const isCorrect = userAns === q.correct;
+                if (isCorrect) score++;
+
+                const revCard = document.createElement('div');
+                revCard.className = `p-4 rounded-lg border text-sm ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+                revCard.innerHTML = `
+                    <div class="font-bold text-gray-900 mb-2 flex items-start justify-between gap-2">
+                        <div><span class="font-bold text-gray-600 mr-1">प्र. ${q.qNum}.</span> ${q.text}</div>
+                        <div>${isCorrect
+                            ? '<span class="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1"><i class="fa-solid fa-check"></i> बरोबर (1/1)</span>'
+                            : '<span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1"><i class="fa-solid fa-xmark"></i> चूक (0/1)</span>'}</div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 text-xs sm:text-sm">
+                        <div class="${userAns === q.correct ? 'text-green-800' : 'text-red-700'} font-bold">
+                            तुमचे उत्तर: ${userAns >= 0 ? `${optionLetters[userAns]}) ${q.options[userAns]}` : 'उत्तर दिलेले नाही'}
+                        </div>
+                        <div class="text-green-800 font-bold">योग्य उत्तर: ${optionLetters[q.correct]}) ${q.options[q.correct]}</div>
+                    </div>`;
+                reviewContainer.appendChild(revCard);
+            });
+
+            document.getElementById('resName').textContent = name;
+            document.getElementById('resClass').textContent = sClass;
+            document.getElementById('resDiv').textContent = sDiv;
+            document.getElementById('resRoll').textContent = sRoll;
+            document.getElementById('scoreDisplay').textContent = `${String(score).padStart(2, '0')} / 20`;
+
+            const badge = document.getElementById('gradeBadge');
+            const percentage = (score / quizData.length) * 100;
+            if (percentage >= 80) {
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold mt-2 bg-green-200 text-green-900';
+                badge.textContent = 'उत्कृष्ट कामगिरी (Outstanding! 🌟)';
+            } else if (percentage >= 50) {
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold mt-2 bg-blue-200 text-blue-900';
+                badge.textContent = 'छान प्रयत्न (Good Job! 👍)';
+            } else {
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold mt-2 bg-amber-200 text-amber-900';
+                badge.textContent = 'अजून सरावाची गरज आहे (Keep Practicing! 📚)';
+            }
+
+            document.getElementById('quizForm').classList.add('hidden');
+            document.getElementById('resultModal').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('DOMContentLoaded', renderQuestions);
+    </script>
+</body>
+</html>
