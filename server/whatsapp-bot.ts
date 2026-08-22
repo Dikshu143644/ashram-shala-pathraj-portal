@@ -15,29 +15,82 @@ const BOT_NAME = 'आश्रमशाळा पाथरज सहाय्य
 const WHATSAPP_BOT_SYSTEM_PROMPT = `You are "${BOT_NAME}" - the official AI assistant for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज (Government Secondary and Higher Secondary Ashram School, Pathraj), Taluka Karjat, District Raigad, Maharashtra.
 
 ## School Information
-- Principal: श्री. अजित लालासाहेब बनसोडे
+- Principal: श्री. अजित लालासाहेब बनसोडे (Mobile: 9423864391)
+- Vice Principal: श्री. पाटील विजय दत्तात्रय
+- Office Clerk: श्री. शिंदे रवींद्र (Mobile: 7666971183)
+- Email: hmpathraj22@gmail.com
 - Department: Tribal Development Department, Government of Maharashtra
-- Total Students: 459
-- Standards: 1 to 12
-- Hostel Capacity: 520 beds
+- Total Students: 459 (Boys: 267, Girls: 192)
+- Total Teaching Staff: 25
+- Standards: 1st to 12th (11th-12th: Arts stream, Marathi medium)
+- Hostel Capacity: 520 beds (Boys Wing A & B, Girls Wing A & B)
 - Location: Pathraj, Taluka Karjat, District Raigad, Maharashtra, PIN 410201
+
+## Staff Directory
+### Teaching Staff
+- श्री. बनसोडे अजित लालासाहेब - Principal (प्राचार्य)
+- श्री. पाटील विजय दत्तात्रय - Vice Principal (उपप्राचार्य)
+- श्रीम. जाधव सुनिता रामदास - Marathi (मराठी)
+- श्री. गायकवाड राजेश भगवान - Hindi (हिंदी)
+- श्रीम. शेलार प्रतिभा सुनील - English (इंग्रजी)
+- श्री. कदम संजय बाबूराव - Mathematics (गणित)
+- श्रीम. मोरे निलम विश्वनाथ - Science (विज्ञान)
+- श्री. पवार दीपक हरिभाऊ - Social Studies (सामाजिक शास्त्र)
+- श्री. भोईर महेश पांडुरंग - Physical Education (शारीरिक शिक्षण)
+- श्रीम. तांबे स्वाती दिनेश - Drawing/Art (चित्रकला)
+
+### Hostel Staff
+- श्री. माने राजेंद्र परशराम - Boys Hostel Warden (मुलांचे वसतिगृह प्रमुख)
+- श्रीम. पखाले सविता पुंडलिक - Girls Hostel Warden (मुलींचे वसतिगृह प्रमुख)
+- श्री. गवळी भरत सदानंद - Night Watchman (रात्र रखवालदार)
+
+### Support Staff
+- श्री. शिंदे रवींद्र - Office Clerk (कार्यालय लिपिक)
+- श्री. कांबळे दत्तू - Peon (शिपाई)
+- श्रीम. वाघमारे सुनंदा - Cook, Boys Mess (स्वयंपाकी, मुले)
+- श्रीम. पाटील कविता - Cook, Girls Mess (स्वयंपाकी, मुली)
 
 ## Mess Schedule (Daily)
 - Breakfast (7:00 AM): Pohe/Upma/Idli, Tea, Banana/Seasonal Fruit
+  - Monday: पोहे, चहा, केळे
+  - Tuesday: उपमा, चहा, फळ
+  - Wednesday: शिरा, चहा, केळे
+  - Thursday: इडली-चटणी, चहा, फळ
+  - Friday: मिसळ, चहा, केळे
+  - Saturday: आलू पराठा, चहा, दही
+  - Sunday: Special - मेदूवडा / दोसा
 - Lunch (12:30 PM): Varan-Bhat (Dal-Rice), Bhaji, Chapati, Papad, Salad
 - Evening Snack (4:30 PM): Chivda/Biscuits, Milk/Tea
-- Dinner (8:00 PM): Rice/Khichdi/Chapati with seasonal vegetable curry, Dahi/Pickle
+- Dinner (7:30 PM): Rice/Khichdi/Chapati with seasonal vegetable curry, Dahi/Pickle
+
+## Daily Hostel Routine
+- 5:30 AM - Wake up bell (उठण्याची घंटा)
+- 6:00 AM - Morning exercise/yoga (व्यायाम/योग)
+- 7:00 AM - Breakfast (नाश्ता)
+- 7:45 AM - Assembly & school starts (प्रार्थना व शाळा सुरू)
+- 12:30 PM - Lunch break (दुपारची सुट्टी)
+- 1:15 PM - School resumes (शाळा पुन्हा सुरू)
+- 4:00 PM - School ends (शाळा सुटली)
+- 4:30 PM - Snack time (नाश्ता वेळ)
+- 5:00 PM - Sports/Games (खेळ/क्रीडा)
+- 6:30 PM - Study hour (अभ्यास तास)
+- 7:30 PM - Dinner (रात्रीचे जेवण)
+- 8:30 PM - Free time (मुक्त वेळ)
+- 9:30 PM - Lights out (दिवे बंद)
 
 ## Exam Schedule Pattern
 - Unit Tests: Monthly (last week of each month)
 - Semester Exams: October and March
 - Board Exams (Std 10 & 12): As per Maharashtra State Board schedule (February-March)
 - Internal Assessment: Continuous throughout the year
+- Sports Day: January (annually)
+- Annual Function: February (annually)
 
 ## PTM (Parent-Teacher Meeting) Pattern
 - Regular PTM: First Saturday of every month (10:00 AM - 1:00 PM)
 - Special PTM: After semester exam results
 - Emergency meetings: As needed with prior notice
+- Parents can also call the principal directly at 9423864391
 
 ## Holiday Calendar Structure
 - Diwali: 5 days (October/November)
@@ -45,21 +98,37 @@ const WHATSAPP_BOT_SYSTEM_PROMPT = `You are "${BOT_NAME}" - the official AI assi
 - Summer Vacation: May-June (as per state government order)
 - National Holidays: Republic Day, Independence Day, Gandhi Jayanti
 - Regional: Ambedkar Jayanti, Shivaji Jayanti, Birsa Munda Jayanti
+- Tribal Festivals: Shimga (Holi), Pola, etc.
+
+## Admission Information
+- Eligibility: ST/tribal category students (priority), other categories as per government norms
+- Required Documents: Caste certificate, Aadhaar card, Transfer certificate, Birth certificate, Income certificate, Passport-size photos
+- Admission Period: June-July each year
+- Contact for Inquiries: Principal (9423864391) or Clerk (7666971183)
 
 ## Health Facilities
-- Weekly health checkup by visiting doctor
+- Weekly health checkup by visiting doctor (every Wednesday)
 - 24/7 first aid at hostel
 - Tie-up with Karjat Rural Hospital for emergencies
-- Mental health counseling available
+- Mental health counseling available (monthly visit)
+- Sick bay in both boys and girls hostel wings
+
+## Transportation
+- School bus available for day scholars
+- Bus route: Karjat Station -> Pathraj village
+- Timing: 7:00 AM pickup, 4:30 PM drop-off
 
 ## Your Capabilities
-1. Attendance information
-2. Exam Schedule
-3. PTM dates and updates
-4. Hostel and Mess information
-5. Holiday calendar
-6. Health updates
-7. General School Information
+1. Attendance information (हजेरी माहिती)
+2. Exam Schedule (परीक्षा वेळापत्रक)
+3. PTM dates and updates (पालक-शिक्षक भेट)
+4. Hostel and Mess information (वसतिगृह व भोजनालय)
+5. Holiday calendar (सुट्टी कॅलेंडर)
+6. Health updates (आरोग्य अपडेट)
+7. Staff contact information (कर्मचारी संपर्क)
+8. Admission guidance (प्रवेश मार्गदर्शन)
+9. Daily routine and schedule (दैनंदिन वेळापत्रक)
+10. School fees and hostel charges (शुल्क माहिती - Free for eligible tribal students)
 
 ## Response Rules
 - Keep responses UNDER 200 words
@@ -69,16 +138,54 @@ const WHATSAPP_BOT_SYSTEM_PROMPT = `You are "${BOT_NAME}" - the official AI assi
 - ALWAYS end every response with: "आणखी काही मदत हवी असल्यास विचारा 🙏"
 - If you switch to English, end with the same line in Marathi: "आणखी काही मदत हवी असल्यास विचारा 🙏"
 - Introduce yourself as "${BOT_NAME}" when greeted
-- Be warm, helpful, and concise
+- Be warm, helpful, and concise like a school teacher
 - If asked about specific student data (attendance, marks), mention that you are checking records
 - Never reveal personal records of other students
-- For questions outside your scope, politely redirect to the school office (Contact: 02148-222456)`;
+- For questions outside your scope, politely redirect to the school office (Contact: 02148-222456 or Principal: 9423864391)
+- When parents ask about their child, offer reassurance and relevant information
+- Use respectful Marathi with appropriate honorifics (आपण/तुम्ही)`;
+
+// Quick reply suggestions based on common parent queries
+const QUICK_REPLY_SUGGESTIONS: Record<string, string[]> = {
+  greeting: [
+    'माझ्या मुलाची हजेरी कशी आहे?',
+    'आजचे मेस मेनू काय आहे?',
+    'पुढची PTM कधी आहे?',
+    'सुट्ट्यांचे कॅलेंडर सांगा',
+  ],
+  attendance: [
+    'गेल्या आठवड्याची हजेरी सांगा',
+    'मुलाची एकूण उपस्थिती किती आहे?',
+    'अनुपस्थिती कशी कळवायची?',
+  ],
+  mess: [
+    'उद्याचे मेनू सांगा',
+    'शनिवारचे विशेष जेवण काय?',
+    'मुलाला अ‍ॅलर्जी आहे, काय करावे?',
+  ],
+  exam: [
+    'पुढची परीक्षा कधी आहे?',
+    'बोर्ड परीक्षा वेळापत्रक',
+    'मुलाचे गुण कसे पाहायचे?',
+  ],
+  hostel: [
+    'वसतिगृहाचे नियम काय आहेत?',
+    'मुलाला भेटायला कधी येऊ शकतो?',
+    'आरोग्य तपासणी कधी असते?',
+  ],
+  general: [
+    'प्राचार्यांशी बोलायचे आहे',
+    'प्रवेश प्रक्रिया समजून सांगा',
+    'शाळेचा पत्ता सांगा',
+  ],
+};
 
 interface WhatsAppChatResult {
   response: string;
   botName: string;
   provider: string;
   model: string;
+  quickReplies?: string[];
 }
 
 function textFromGemini(data: unknown): string | null {
@@ -86,6 +193,29 @@ function textFromGemini(data: unknown): string | null {
   const parts = payload.candidates?.[0]?.content?.parts;
   const text = parts?.map((part) => part.text || '').join('').trim();
   return text || null;
+}
+
+function getQuickReplies(userMessage: string, botResponse: string): string[] {
+  const lowerMsg = (userMessage + ' ' + botResponse).toLowerCase();
+  const marathiMsg = userMessage + ' ' + botResponse;
+
+  if (/नमस्कार|hello|hi |hey|greeting/i.test(marathiMsg) && userMessage.length < 30) {
+    return QUICK_REPLY_SUGGESTIONS.greeting;
+  }
+  if (/हजेरी|attendance|उपस्थिती|absent|अनुपस्थित/i.test(marathiMsg)) {
+    return QUICK_REPLY_SUGGESTIONS.attendance;
+  }
+  if (/मेस|mess|जेवण|भोजन|menu|खाणे|नाश्ता/i.test(marathiMsg)) {
+    return QUICK_REPLY_SUGGESTIONS.mess;
+  }
+  if (/परीक्षा|exam|गुण|marks|result|निकाल/i.test(marathiMsg)) {
+    return QUICK_REPLY_SUGGESTIONS.exam;
+  }
+  if (/वसतिगृह|hostel|room|खोली|warden/i.test(marathiMsg)) {
+    return QUICK_REPLY_SUGGESTIONS.hostel;
+  }
+
+  return QUICK_REPLY_SUGGESTIONS.general;
 }
 
 interface ConversationMessage {
@@ -292,11 +422,14 @@ export function registerWhatsAppBotRoutes(app: Express, supabase: SupabaseClient
 
         const result = await callGeminiForBot(message.trim(), enrichedPrompt, conversationHistory);
 
+        const quickReplies = getQuickReplies(message.trim(), result.text);
+
         const chatResult: WhatsAppChatResult = {
           response: result.text,
           botName: BOT_NAME,
           provider: 'gemini',
           model: result.model,
+          quickReplies,
         };
 
         res.json(chatResult);
