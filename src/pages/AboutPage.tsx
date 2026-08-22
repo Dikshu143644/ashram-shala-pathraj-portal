@@ -11,13 +11,13 @@ export default function AboutPage() {
       {/* ===== HERO SECTION ===== */}
       <section
         className="relative flex min-h-[50vh] flex-col items-center justify-center px-4 py-20 text-center"
-        style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0d0d14 50%, #111118 100%)' }}
+        style={{ background: '#F7F7F5' }}
       >
         {/* Background glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[400px] w-[400px] rounded-full opacity-15"
-            style={{ background: 'radial-gradient(circle, rgba(139, 26, 43, 0.4) 0%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%)' }}
           />
         </div>
 
@@ -42,7 +42,7 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.7 }}
             className="mb-5 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
-            style={{ color: '#f5f5f5' }}
+            style={{ color: '#000000' }}
           >
             {t('About Our School', 'आमच्या शाळेबद्दल')}
           </motion.h1>
@@ -64,12 +64,12 @@ export default function AboutPage() {
         {/* Bottom fade */}
         <div
           className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #0d0d14)' }}
+          style={{ background: 'linear-gradient(to bottom, transparent, #F7F7F5)' }}
         />
       </section>
 
       {/* ===== SCHOOL HISTORY & MISSION ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -80,22 +80,22 @@ export default function AboutPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <BookOpen className="h-5 w-5" style={{ color: '#c42847' }} />
+                <BookOpen className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('School History & Mission', 'शाळेचा इतिहास आणि ध्येय')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <p className="text-sm leading-relaxed sm:text-base mb-6" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.9' }}>
@@ -116,7 +116,7 @@ export default function AboutPage() {
       </section>
 
       {/* ===== ASHRAM SHALA SYSTEM ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0f' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -127,22 +127,22 @@ export default function AboutPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <Building className="h-5 w-5" style={{ color: '#c42847' }} />
+                <Building className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('The Ashram Shala System', 'आश्रमशाळा प्रणाली')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <p className="text-sm leading-relaxed sm:text-base mb-6" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.9' }}>
@@ -173,9 +173,9 @@ export default function AboutPage() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1, duration: 0.4 }}
                     className="flex items-start gap-3 rounded-xl p-4"
-                    style={{ background: 'rgba(139, 26, 43, 0.06)', border: '1px solid rgba(139, 26, 43, 0.12)' }}
+                    style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid rgba(5, 150, 105, 0.06)' }}
                   >
-                    <item.iconEl className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#a91d3a' }} />
+                    <item.iconEl className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#059669' }} />
                     <p className="text-sm" style={{ color: 'var(--public-text-secondary)' }}>{t(item.en, item.mr)}</p>
                   </motion.div>
                 ))}
@@ -186,7 +186,7 @@ export default function AboutPage() {
       </section>
 
       {/* ===== TRIBAL DEVELOPMENT DEPARTMENT ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -197,22 +197,22 @@ export default function AboutPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <Shield className="h-5 w-5" style={{ color: '#c42847' }} />
+                <Shield className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Tribal Development Department', 'आदिवासी विकास विभाग')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <p className="text-sm leading-relaxed sm:text-base mb-6" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.9' }}>
@@ -233,7 +233,7 @@ export default function AboutPage() {
       </section>
 
       {/* ===== CAMPUS INFORMATION ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0f' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -244,22 +244,22 @@ export default function AboutPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <MapPin className="h-5 w-5" style={{ color: '#c42847' }} />
+                <MapPin className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Campus Information', 'परिसर माहिती')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <p className="text-sm leading-relaxed sm:text-base mb-6" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.9' }}>
@@ -286,9 +286,9 @@ export default function AboutPage() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.08, duration: 0.4 }}
                     className="rounded-xl p-4 text-center"
-                    style={{ background: 'rgba(139, 26, 43, 0.06)', border: '1px solid rgba(139, 26, 43, 0.12)' }}
+                    style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid rgba(5, 150, 105, 0.06)' }}
                   >
-                    <p className="text-lg font-bold text-white">{item.value}</p>
+                    <p className="text-lg font-bold text-black">{item.value}</p>
                     <p className="text-xs mt-1" style={{ color: 'var(--public-text-muted)' }}>{item.label}</p>
                   </motion.div>
                 ))}
@@ -299,7 +299,7 @@ export default function AboutPage() {
       </section>
 
       {/* ===== RESIDENTIAL FACILITY ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -310,22 +310,22 @@ export default function AboutPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <Home className="h-5 w-5" style={{ color: '#c42847' }} />
+                <Home className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Residential Facility', 'निवासी सुविधा')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <p className="text-sm leading-relaxed sm:text-base mb-6" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.9' }}>
@@ -342,9 +342,9 @@ export default function AboutPage() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.1, duration: 0.4 }}
                   className="rounded-xl p-5 text-center"
-                  style={{ background: 'rgba(139, 26, 43, 0.08)', border: '1px solid rgba(139, 26, 43, 0.15)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.04)', border: '1px solid #E7E7E4' }}
                 >
-                  <p className="text-2xl font-bold text-white">520</p>
+                  <p className="text-2xl font-bold text-black">520</p>
                   <p className="text-xs mt-1" style={{ color: 'var(--public-text-muted)' }}>{t('Total Beds', 'एकूण बेड')}</p>
                 </motion.div>
                 <motion.div
@@ -353,9 +353,9 @@ export default function AboutPage() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.2, duration: 0.4 }}
                   className="rounded-xl p-5 text-center"
-                  style={{ background: 'rgba(139, 26, 43, 0.08)', border: '1px solid rgba(139, 26, 43, 0.15)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.04)', border: '1px solid #E7E7E4' }}
                 >
-                  <Users className="h-5 w-5 mx-auto mb-2" style={{ color: '#a91d3a' }} />
+                  <Users className="h-5 w-5 mx-auto mb-2" style={{ color: '#059669' }} />
                   <p className="text-xs" style={{ color: 'var(--public-text-muted)' }}>{t('Boys Wing', 'मुलांचा विभाग')}</p>
                 </motion.div>
                 <motion.div
@@ -364,14 +364,14 @@ export default function AboutPage() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.3, duration: 0.4 }}
                   className="rounded-xl p-5 text-center"
-                  style={{ background: 'rgba(139, 26, 43, 0.08)', border: '1px solid rgba(139, 26, 43, 0.15)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.04)', border: '1px solid #E7E7E4' }}
                 >
-                  <Users className="h-5 w-5 mx-auto mb-2" style={{ color: '#a91d3a' }} />
+                  <Users className="h-5 w-5 mx-auto mb-2" style={{ color: '#059669' }} />
                   <p className="text-xs" style={{ color: 'var(--public-text-muted)' }}>{t('Girls Wing', 'मुलींचा विभाग')}</p>
                 </motion.div>
               </div>
 
-              <div className="mt-8 pt-6" style={{ borderTop: '1px solid rgba(139, 26, 43, 0.15)' }}>
+              <div className="mt-8 pt-6" style={{ borderTop: '1px solid #E7E7E4' }}>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.9' }}>
                   {t(
                     'Students are provided with nutritious meals three times a day, clean drinking water, regular health check-ups, and recreational facilities. The hostel environment is designed to feel like a second home where students can focus on their studies and personal growth.',

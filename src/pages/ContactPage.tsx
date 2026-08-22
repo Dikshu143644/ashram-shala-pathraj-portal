@@ -11,13 +11,13 @@ export default function ContactPage() {
       {/* ===== HERO SECTION ===== */}
       <section
         className="relative flex min-h-[50vh] flex-col items-center justify-center px-4 py-20 text-center"
-        style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0d0d14 50%, #111118 100%)' }}
+        style={{ background: '#F7F7F5' }}
       >
         {/* Background glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[400px] w-[400px] rounded-full opacity-15"
-            style={{ background: 'radial-gradient(circle, rgba(139, 26, 43, 0.4) 0%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%)' }}
           />
         </div>
 
@@ -42,7 +42,7 @@ export default function ContactPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.7 }}
             className="mb-5 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
-            style={{ color: '#f5f5f5' }}
+            style={{ color: '#000000' }}
           >
             {t('Contact Us', 'आमच्याशी संपर्क साधा')}
           </motion.h1>
@@ -64,12 +64,12 @@ export default function ContactPage() {
         {/* Bottom fade */}
         <div
           className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #0d0d14)' }}
+          style={{ background: 'linear-gradient(to bottom, transparent, #F7F7F5)' }}
         />
       </section>
 
       {/* ===== SCHOOL ADDRESS ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -80,22 +80,22 @@ export default function ContactPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <MapPin className="h-5 w-5" style={{ color: '#c42847' }} />
+                <MapPin className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('School Address', 'शाळेचा पत्ता')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               {/* Marathi Address */}
@@ -111,7 +111,7 @@ export default function ContactPage() {
               </div>
 
               {/* English Address */}
-              <div className="pt-6" style={{ borderTop: '1px solid rgba(139, 26, 43, 0.1)' }}>
+              <div className="pt-6" style={{ borderTop: '1px solid #E7E7E4' }}>
                 <p className="text-xs uppercase tracking-wider mb-3" style={{ color: 'var(--public-text-muted)' }}>
                   {t('Address (English)', 'पत्ता (इंग्रजी)')}
                 </p>
@@ -127,7 +127,7 @@ export default function ContactPage() {
       </section>
 
       {/* ===== CONTACT DETAILS ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0f' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -138,15 +138,15 @@ export default function ContactPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <Phone className="h-5 w-5" style={{ color: '#c42847' }} />
+                <Phone className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Contact Details', 'संपर्क तपशील')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div className="grid gap-6 sm:grid-cols-2">
               {/* Principal */}
@@ -157,16 +157,16 @@ export default function ContactPage() {
                 transition={{ delay: 0.1, duration: 0.5 }}
                 className="rounded-2xl p-6 sm:p-8"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                  border: '1px solid rgba(139, 26, 43, 0.15)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 <div
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full mb-4"
-                  style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
                 >
-                  <User className="h-4 w-4" style={{ color: '#c42847' }} />
+                  <User className="h-4 w-4" style={{ color: '#059669' }} />
                 </div>
                 <p className="text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
                   {t('Principal', 'मुख्याध्यापक')}
@@ -174,7 +174,7 @@ export default function ContactPage() {
                 <a
                   href="tel:9423864391"
                   className="text-lg font-semibold no-underline transition-colors hover:opacity-80"
-                  style={{ color: '#c42847' }}
+                  style={{ color: '#059669' }}
                 >
                   9423864391
                 </a>
@@ -188,16 +188,16 @@ export default function ContactPage() {
                 transition={{ delay: 0.2, duration: 0.5 }}
                 className="rounded-2xl p-6 sm:p-8"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                  border: '1px solid rgba(139, 26, 43, 0.15)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 <div
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full mb-4"
-                  style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
                 >
-                  <Phone className="h-4 w-4" style={{ color: '#c42847' }} />
+                  <Phone className="h-4 w-4" style={{ color: '#059669' }} />
                 </div>
                 <p className="text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
                   {t('Office / Clerk', 'कार्यालय / लिपिक')}
@@ -205,7 +205,7 @@ export default function ContactPage() {
                 <a
                   href="tel:7666971183"
                   className="text-lg font-semibold no-underline transition-colors hover:opacity-80"
-                  style={{ color: '#c42847' }}
+                  style={{ color: '#059669' }}
                 >
                   7666971183
                 </a>
@@ -219,16 +219,16 @@ export default function ContactPage() {
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="rounded-2xl p-6 sm:p-8"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                  border: '1px solid rgba(139, 26, 43, 0.15)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 <div
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full mb-4"
-                  style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
                 >
-                  <Mail className="h-4 w-4" style={{ color: '#c42847' }} />
+                  <Mail className="h-4 w-4" style={{ color: '#059669' }} />
                 </div>
                 <p className="text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
                   {t('Email', 'ईमेल')}
@@ -236,7 +236,7 @@ export default function ContactPage() {
                 <a
                   href="mailto:hmpathraj22@gmail.com"
                   className="text-sm font-semibold no-underline transition-colors hover:opacity-80 sm:text-base"
-                  style={{ color: '#c42847' }}
+                  style={{ color: '#059669' }}
                 >
                   hmpathraj22@gmail.com
                 </a>
@@ -250,9 +250,9 @@ export default function ContactPage() {
                 transition={{ delay: 0.4, duration: 0.5 }}
                 className="rounded-2xl p-6 sm:p-8"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                  border: '1px solid rgba(139, 26, 43, 0.15)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 <div
@@ -281,7 +281,7 @@ export default function ContactPage() {
       </section>
 
       {/* ===== GOOGLE MAPS ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -292,21 +292,21 @@ export default function ContactPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <MapPin className="h-5 w-5" style={{ color: '#c42847' }} />
+                <MapPin className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Location', 'स्थान')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="overflow-hidden rounded-2xl"
               style={{
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <iframe
@@ -326,7 +326,7 @@ export default function ContactPage() {
       </section>
 
       {/* ===== CONTACT FORM (Coming Soon) ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0f' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -337,22 +337,22 @@ export default function ContactPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <Send className="h-5 w-5" style={{ color: '#c42847' }} />
+                <Send className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Send a Message', 'संदेश पाठवा')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               {/* Simple visual contact form */}
@@ -367,8 +367,8 @@ export default function ContactPage() {
                     placeholder={t('Enter your name', 'आपले नाव प्रविष्ट करा')}
                     className="w-full rounded-xl px-4 py-3 text-sm outline-none placeholder:opacity-40"
                     style={{
-                      background: 'rgba(139, 26, 43, 0.06)',
-                      border: '1px solid rgba(139, 26, 43, 0.15)',
+                      background: 'rgba(5, 150, 105, 0.03)',
+                      border: '1px solid #E7E7E4',
                       color: 'var(--public-text-secondary)',
                     }}
                   />
@@ -384,8 +384,8 @@ export default function ContactPage() {
                     placeholder={t('Enter your mobile number', 'आपला मोबाईल नंबर प्रविष्ट करा')}
                     className="w-full rounded-xl px-4 py-3 text-sm outline-none placeholder:opacity-40"
                     style={{
-                      background: 'rgba(139, 26, 43, 0.06)',
-                      border: '1px solid rgba(139, 26, 43, 0.15)',
+                      background: 'rgba(5, 150, 105, 0.03)',
+                      border: '1px solid #E7E7E4',
                       color: 'var(--public-text-secondary)',
                     }}
                   />
@@ -401,8 +401,8 @@ export default function ContactPage() {
                     placeholder={t('Write your message here', 'आपला संदेश येथे लिहा')}
                     className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none placeholder:opacity-40"
                     style={{
-                      background: 'rgba(139, 26, 43, 0.06)',
-                      border: '1px solid rgba(139, 26, 43, 0.15)',
+                      background: 'rgba(5, 150, 105, 0.03)',
+                      border: '1px solid #E7E7E4',
                       color: 'var(--public-text-secondary)',
                     }}
                   />
@@ -412,7 +412,7 @@ export default function ContactPage() {
                   <button
                     disabled
                     className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white opacity-60 cursor-not-allowed"
-                    style={{ background: 'linear-gradient(135deg, #8b1a2b, #a91d3a)' }}
+                    style={{ background: '#000000' }}
                   >
                     <Send className="h-4 w-4" />
                     {t('Coming Soon', 'लवकरच उपलब्ध')}

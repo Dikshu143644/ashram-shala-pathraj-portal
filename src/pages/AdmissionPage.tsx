@@ -53,13 +53,13 @@ export default function AdmissionPage() {
       {/* ===== HERO SECTION ===== */}
       <section
         className="relative flex min-h-[50vh] flex-col items-center justify-center px-4 py-20 text-center"
-        style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0d0d14 50%, #111118 100%)' }}
+        style={{ background: '#F7F7F5' }}
       >
         {/* Background glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
             className="absolute left-1/3 top-1/3 h-[350px] w-[350px] rounded-full opacity-15"
-            style={{ background: 'radial-gradient(circle, rgba(139, 26, 43, 0.4) 0%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%)' }}
           />
         </div>
 
@@ -84,7 +84,7 @@ export default function AdmissionPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.7 }}
             className="mb-5 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
-            style={{ color: '#f5f5f5' }}
+            style={{ color: '#000000' }}
           >
             {t('Admission', 'प्रवेश')}
           </motion.h1>
@@ -106,12 +106,12 @@ export default function AdmissionPage() {
         {/* Bottom fade */}
         <div
           className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #0d0d14)' }}
+          style={{ background: 'linear-gradient(to bottom, transparent, #F7F7F5)' }}
         />
       </section>
 
       {/* ===== ADMISSION STATUS BANNER ===== */}
-      <section className="px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -119,21 +119,21 @@ export default function AdmissionPage() {
             transition={{ duration: 0.5 }}
             className="rounded-2xl p-6 sm:p-8 text-center"
             style={{
-              background: 'linear-gradient(145deg, rgba(139, 26, 43, 0.1) 0%, rgba(80, 10, 20, 0.15) 100%)',
-              border: '1px solid rgba(196, 40, 71, 0.3)',
-              boxShadow: '0 4px 24px rgba(139, 26, 43, 0.15)',
+              background: '#FCFCFB',
+              border: '1px solid rgba(5, 150, 105, 0.04)',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
             }}
           >
             <div className="flex items-center justify-center gap-2 mb-3">
-              <XCircle className="h-5 w-5" style={{ color: '#c42847' }} />
+              <XCircle className="h-5 w-5" style={{ color: '#059669' }} />
               <span
                 className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider"
-                style={{ background: 'rgba(196, 40, 71, 0.2)', color: '#c42847', border: '1px solid rgba(196, 40, 71, 0.3)' }}
+                style={{ background: 'rgba(196, 40, 71, 0.2)', color: '#059669', border: '1px solid rgba(5, 150, 105, 0.04)' }}
               >
                 {t('CLOSED', 'बंद')}
               </span>
             </div>
-            <p className="text-base font-semibold text-white mb-1">
+            <p className="text-base font-semibold text-black mb-1">
               {t('Admissions Currently Closed', 'सध्या प्रवेश बंद आहे')}
             </p>
             <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
@@ -147,7 +147,7 @@ export default function AdmissionPage() {
       </section>
 
       {/* ===== ADMISSION PROCESS ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -156,10 +156,10 @@ export default function AdmissionPage() {
             transition={{ duration: 0.7 }}
             className="text-center mb-12"
           >
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
               {t('Admission Process', 'प्रवेश प्रक्रिया')}
             </h2>
-            <div className="mx-auto mb-4 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, transparent, #a91d3a, transparent)' }} />
+            <div className="mx-auto mb-4 h-0.5 w-16" style={{ background: '#059669' }} />
             <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
               {t('Step-by-step guide to admission', 'प्रवेशासाठी टप्प्याटप्प्याने मार्गदर्शन')}
             </p>
@@ -175,20 +175,20 @@ export default function AdmissionPage() {
                 transition={{ delay: i * 0.15, duration: 0.5 }}
                 className="relative flex gap-5 rounded-2xl p-6 sm:p-8"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                  border: '1px solid rgba(139, 26, 43, 0.15)',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 {/* Step number */}
                 <div
                   className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold"
-                  style={{ background: 'linear-gradient(135deg, #8b1a2b, #a91d3a)', color: '#fff' }}
+                  style={{ background: '#000000', color: '#fff' }}
                 >
                   {step.step}
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-white mb-2 sm:text-lg">
+                  <h3 className="text-base font-semibold text-black mb-2 sm:text-lg">
                     {t(step.titleEn, step.titleMr)}
                   </h3>
                   <p className="text-sm leading-relaxed" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.7' }}>
@@ -202,7 +202,7 @@ export default function AdmissionPage() {
       </section>
 
       {/* ===== REQUIRED DOCUMENTS ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0f' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -213,22 +213,22 @@ export default function AdmissionPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <FileText className="h-5 w-5" style={{ color: '#c42847' }} />
+                <FileText className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Required Documents', 'आवश्यक कागदपत्रे')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-6 sm:p-8"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <ul className="space-y-4">
@@ -241,7 +241,7 @@ export default function AdmissionPage() {
                     transition={{ delay: i * 0.08, duration: 0.4 }}
                     className="flex items-start gap-3"
                   >
-                    <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#a91d3a' }} />
+                    <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#059669' }} />
                     <span className="text-sm" style={{ color: 'var(--public-text-secondary)' }}>
                       {t(doc.en, doc.mr)}
                     </span>
@@ -254,7 +254,7 @@ export default function AdmissionPage() {
       </section>
 
       {/* ===== ELIGIBILITY ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -265,22 +265,22 @@ export default function AdmissionPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <UserCheck className="h-5 w-5" style={{ color: '#c42847' }} />
+                <UserCheck className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Eligibility', 'पात्रता')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-6 sm:p-8"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <ul className="space-y-4">
@@ -299,7 +299,7 @@ export default function AdmissionPage() {
                     transition={{ delay: i * 0.08, duration: 0.4 }}
                     className="flex items-start gap-3"
                   >
-                    <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#a91d3a' }} />
+                    <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#059669' }} />
                     <span className="text-sm" style={{ color: 'var(--public-text-secondary)' }}>
                       {t(item.en, item.mr)}
                     </span>
@@ -323,7 +323,7 @@ export default function AdmissionPage() {
       </section>
 
       {/* ===== APPLY ONLINE ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0f' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -332,18 +332,18 @@ export default function AdmissionPage() {
             transition={{ duration: 0.7 }}
             className="text-center rounded-2xl p-8 sm:p-12"
             style={{
-              background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-              border: '1px solid rgba(139, 26, 43, 0.2)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
+              background: '#FCFCFB',
+              border: '1px solid #E7E7E4',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
             }}
           >
             <div
               className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+              style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
             >
-              <ClipboardList className="h-6 w-6" style={{ color: '#c42847' }} />
+              <ClipboardList className="h-6 w-6" style={{ color: '#059669' }} />
             </div>
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
               {t('Apply Online', 'ऑनलाइन अर्ज करा')}
             </h2>
             <p className="mb-8 text-sm" style={{ color: 'var(--public-text-muted)' }}>
@@ -356,8 +356,8 @@ export default function AdmissionPage() {
               to="/register"
               className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 no-underline"
               style={{
-                background: 'linear-gradient(135deg, #8b1a2b 0%, #a91d3a 50%, #c42847 100%)',
-                boxShadow: '0 4px 20px rgba(139, 26, 43, 0.4)',
+                background: '#000000',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
               }}
             >
               {t('Register & Apply', 'नोंदणी करा आणि अर्ज करा')}
@@ -368,7 +368,7 @@ export default function AdmissionPage() {
       </section>
 
       {/* ===== CONTACT FOR INQUIRIES ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -379,15 +379,15 @@ export default function AdmissionPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <Phone className="h-5 w-5" style={{ color: '#c42847' }} />
+                <Phone className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Contact for Inquiries', 'चौकशीसाठी संपर्क')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
@@ -427,16 +427,16 @@ export default function AdmissionPage() {
                   transition={{ delay: i * 0.1, duration: 0.5 }}
                   className="rounded-xl p-5"
                   style={{
-                    background: 'linear-gradient(145deg, #111118 0%, #15151f 100%)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                    background: '#FCFCFB',
+                    border: '1px solid #E7E7E4',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                   }}
                 >
-                  <contact.icon className="h-5 w-5 mb-3" style={{ color: '#a91d3a' }} />
+                  <contact.icon className="h-5 w-5 mb-3" style={{ color: '#059669' }} />
                   <p className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--public-text-muted)' }}>
                     {t(contact.titleEn, contact.titleMr)}
                   </p>
-                  <p className="text-base font-semibold text-white mb-1">{t(contact.valueEn, contact.valueMr)}</p>
+                  <p className="text-base font-semibold text-black mb-1">{t(contact.valueEn, contact.valueMr)}</p>
                   <p className="text-xs" style={{ color: 'var(--public-text-secondary)' }}>
                     {t(contact.nameEn, contact.nameMr)}
                   </p>

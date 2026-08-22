@@ -79,17 +79,17 @@ export default function AcademicsPage() {
       {/* ===== HERO SECTION ===== */}
       <section
         className="relative flex min-h-[50vh] flex-col items-center justify-center px-4 py-20 text-center"
-        style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0d0d14 50%, #111118 100%)' }}
+        style={{ background: '#F7F7F5' }}
       >
         {/* Background glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
             className="absolute right-1/3 top-1/3 h-[350px] w-[350px] rounded-full opacity-15"
-            style={{ background: 'radial-gradient(circle, rgba(139, 26, 43, 0.4) 0%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%)' }}
           />
           <div
             className="absolute left-1/4 bottom-1/4 h-[250px] w-[250px] rounded-full opacity-10"
-            style={{ background: 'radial-gradient(circle, rgba(230, 126, 34, 0.3) 0%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(0, 0, 0, 0.02) 0%, transparent 70%)' }}
           />
         </div>
 
@@ -114,7 +114,7 @@ export default function AcademicsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.7 }}
             className="mb-5 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
-            style={{ color: '#f5f5f5' }}
+            style={{ color: '#000000' }}
           >
             {t('Academics', 'शैक्षणिक')}
           </motion.h1>
@@ -136,12 +136,12 @@ export default function AcademicsPage() {
         {/* Bottom fade */}
         <div
           className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #0d0d14)' }}
+          style={{ background: 'linear-gradient(to bottom, transparent, #F7F7F5)' }}
         />
       </section>
 
       {/* ===== OVERVIEW SECTION ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -150,10 +150,10 @@ export default function AcademicsPage() {
             transition={{ duration: 0.7 }}
             className="text-center mb-12"
           >
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
               {t('Standards & Medium', 'इयत्ता आणि माध्यम')}
             </h2>
-            <div className="mx-auto mb-6 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, transparent, #a91d3a, transparent)' }} />
+            <div className="mx-auto mb-6 h-0.5 w-16" style={{ background: '#059669' }} />
           </motion.div>
 
           {/* Quick Info Cards */}
@@ -172,13 +172,13 @@ export default function AcademicsPage() {
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 className="flex flex-col items-center text-center rounded-xl p-5"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #15151f 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
-                <item.icon className="h-6 w-6 mb-3" style={{ color: '#a91d3a' }} />
-                <p className="text-sm font-medium text-white">{t(item.labelEn, item.labelMr)}</p>
+                <item.icon className="h-6 w-6 mb-3" style={{ color: '#059669' }} />
+                <p className="text-sm font-medium text-black">{t(item.labelEn, item.labelMr)}</p>
               </motion.div>
             ))}
           </div>
@@ -204,7 +204,7 @@ export default function AcademicsPage() {
       </section>
 
       {/* ===== SUBJECTS BY STANDARD ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0f' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -213,10 +213,10 @@ export default function AcademicsPage() {
             transition={{ duration: 0.7 }}
             className="text-center mb-12"
           >
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
               {t('Subjects by Standard', 'इयत्तेनुसार विषय')}
             </h2>
-            <div className="mx-auto mb-4 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, transparent, #a91d3a, transparent)' }} />
+            <div className="mx-auto mb-4 h-0.5 w-16" style={{ background: '#059669' }} />
             <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
               {t('Curriculum details for each academic level', 'प्रत्येक शैक्षणिक स्तरासाठी अभ्यासक्रम तपशील')}
             </p>
@@ -232,20 +232,20 @@ export default function AcademicsPage() {
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 className="rounded-2xl p-6 sm:p-8"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                  border: '1px solid rgba(139, 26, 43, 0.15)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 {/* Level header */}
                 <div className="flex items-center gap-3 mb-5">
                   <div
                     className="inline-flex h-9 w-9 items-center justify-center rounded-lg"
-                    style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                    style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
                   >
-                    <level.icon className="h-4 w-4" style={{ color: '#c42847' }} />
+                    <level.icon className="h-4 w-4" style={{ color: '#059669' }} />
                   </div>
-                  <h3 className="text-base font-semibold text-white sm:text-lg">
+                  <h3 className="text-base font-semibold text-black sm:text-lg">
                     {t(level.titleEn, level.titleMr)}
                   </h3>
                 </div>
@@ -254,7 +254,7 @@ export default function AcademicsPage() {
                 <ul className="space-y-2.5">
                   {level.subjects.map((subject) => (
                     <li key={subject.en} className="flex items-center gap-2.5">
-                      <div className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#a91d3a' }} />
+                      <div className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#059669' }} />
                       <span className="text-sm" style={{ color: 'var(--public-text-secondary)' }}>
                         {t(subject.en, subject.mr)}
                       </span>
@@ -268,7 +268,7 @@ export default function AcademicsPage() {
       </section>
 
       {/* ===== STAFF DIRECTORY ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -277,10 +277,10 @@ export default function AcademicsPage() {
             transition={{ duration: 0.7 }}
             className="text-center mb-12"
           >
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
               {t('Teaching Staff', 'शिक्षक वर्ग')}
             </h2>
-            <div className="mx-auto mb-4 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, transparent, #a91d3a, transparent)' }} />
+            <div className="mx-auto mb-4 h-0.5 w-16" style={{ background: '#059669' }} />
             <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
               {t('Our dedicated educators shaping the future', 'भविष्य घडवणारे आमचे समर्पित शिक्षक')}
             </p>
@@ -296,20 +296,20 @@ export default function AcademicsPage() {
                 transition={{ delay: i * 0.08, duration: 0.5 }}
                 className="rounded-xl p-5 text-center"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #15151f 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 {/* Avatar placeholder */}
                 <div
                   className="mx-auto mb-3 h-12 w-12 rounded-full flex items-center justify-center"
-                  style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.2)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
                 >
-                  <Users className="h-5 w-5" style={{ color: '#a91d3a' }} />
+                  <Users className="h-5 w-5" style={{ color: '#059669' }} />
                 </div>
-                <p className="text-sm font-semibold text-white mb-1">{staff.name}</p>
-                <p className="text-xs mb-1" style={{ color: '#a91d3a' }}>{staff.role}</p>
+                <p className="text-sm font-semibold text-black mb-1">{staff.name}</p>
+                <p className="text-xs mb-1" style={{ color: '#059669' }}>{staff.role}</p>
                 <p className="text-xs" style={{ color: 'var(--public-text-muted)' }}>{staff.subject}</p>
               </motion.div>
             ))}

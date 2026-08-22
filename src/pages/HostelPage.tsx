@@ -24,13 +24,13 @@ export default function HostelPage() {
       {/* ===== HERO SECTION ===== */}
       <section
         className="relative flex min-h-[50vh] flex-col items-center justify-center px-4 py-20 text-center"
-        style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0d0d14 50%, #111118 100%)' }}
+        style={{ background: '#F7F7F5' }}
       >
         {/* Background glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[400px] w-[400px] rounded-full opacity-15"
-            style={{ background: 'radial-gradient(circle, rgba(139, 26, 43, 0.4) 0%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%)' }}
           />
         </div>
 
@@ -55,7 +55,7 @@ export default function HostelPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.7 }}
             className="mb-5 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
-            style={{ color: '#f5f5f5' }}
+            style={{ color: '#000000' }}
           >
             {t('Hostel Facilities', 'वसतिगृह सुविधा')}
           </motion.h1>
@@ -77,12 +77,12 @@ export default function HostelPage() {
         {/* Bottom fade */}
         <div
           className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #0d0d14)' }}
+          style={{ background: 'linear-gradient(to bottom, transparent, #F7F7F5)' }}
         />
       </section>
 
       {/* ===== HOSTEL OVERVIEW ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -93,22 +93,22 @@ export default function HostelPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <Home className="h-5 w-5" style={{ color: '#c42847' }} />
+                <Home className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Hostel Overview', 'वसतिगृह विहंगावलोकन')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <p className="text-sm leading-relaxed sm:text-base mb-8" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.9' }}>
@@ -126,9 +126,9 @@ export default function HostelPage() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.1, duration: 0.4 }}
                   className="rounded-xl p-5 text-center"
-                  style={{ background: 'rgba(139, 26, 43, 0.08)', border: '1px solid rgba(139, 26, 43, 0.15)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.04)', border: '1px solid #E7E7E4' }}
                 >
-                  <p className="text-3xl font-bold text-white">520</p>
+                  <p className="text-3xl font-bold text-black">520</p>
                   <p className="text-xs mt-1" style={{ color: 'var(--public-text-muted)' }}>{t('Total Beds', 'एकूण बेड')}</p>
                 </motion.div>
                 <motion.div
@@ -137,10 +137,10 @@ export default function HostelPage() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.2, duration: 0.4 }}
                   className="rounded-xl p-5 text-center"
-                  style={{ background: 'rgba(139, 26, 43, 0.08)', border: '1px solid rgba(139, 26, 43, 0.15)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.04)', border: '1px solid #E7E7E4' }}
                 >
-                  <Users className="h-5 w-5 mx-auto mb-2" style={{ color: '#a91d3a' }} />
-                  <p className="text-sm font-semibold text-white">{t('Boys Wing', 'मुलांचा विभाग')}</p>
+                  <Users className="h-5 w-5 mx-auto mb-2" style={{ color: '#059669' }} />
+                  <p className="text-sm font-semibold text-black">{t('Boys Wing', 'मुलांचा विभाग')}</p>
                   <p className="text-xs mt-1" style={{ color: 'var(--public-text-muted)' }}>{t('Separate facility', 'स्वतंत्र सुविधा')}</p>
                 </motion.div>
                 <motion.div
@@ -149,10 +149,10 @@ export default function HostelPage() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.3, duration: 0.4 }}
                   className="rounded-xl p-5 text-center"
-                  style={{ background: 'rgba(139, 26, 43, 0.08)', border: '1px solid rgba(139, 26, 43, 0.15)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.04)', border: '1px solid #E7E7E4' }}
                 >
-                  <Users className="h-5 w-5 mx-auto mb-2" style={{ color: '#a91d3a' }} />
-                  <p className="text-sm font-semibold text-white">{t('Girls Wing', 'मुलींचा विभाग')}</p>
+                  <Users className="h-5 w-5 mx-auto mb-2" style={{ color: '#059669' }} />
+                  <p className="text-sm font-semibold text-black">{t('Girls Wing', 'मुलींचा विभाग')}</p>
                   <p className="text-xs mt-1" style={{ color: 'var(--public-text-muted)' }}>{t('Separate facility', 'स्वतंत्र सुविधा')}</p>
                 </motion.div>
               </div>
@@ -162,7 +162,7 @@ export default function HostelPage() {
       </section>
 
       {/* ===== MESS / DINING TIMINGS ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0f' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -173,22 +173,22 @@ export default function HostelPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <UtensilsCrossed className="h-5 w-5" style={{ color: '#c42847' }} />
+                <UtensilsCrossed className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Mess / Dining Timings', 'भोजन वेळ')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <p className="text-sm leading-relaxed sm:text-base mb-8" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.9' }}>
@@ -211,13 +211,13 @@ export default function HostelPage() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.12, duration: 0.5 }}
                     className="flex items-center justify-between rounded-xl p-5"
-                    style={{ background: 'rgba(139, 26, 43, 0.06)', border: '1px solid rgba(139, 26, 43, 0.12)' }}
+                    style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid rgba(5, 150, 105, 0.06)' }}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className="h-4 w-4 flex-shrink-0" style={{ color: '#a91d3a' }} />
-                      <span className="text-sm font-medium text-white sm:text-base">{item.meal}</span>
+                      <item.icon className="h-4 w-4 flex-shrink-0" style={{ color: '#059669' }} />
+                      <span className="text-sm font-medium text-black sm:text-base">{item.meal}</span>
                     </div>
-                    <span className="text-sm font-semibold sm:text-base" style={{ color: '#c42847' }}>
+                    <span className="text-sm font-semibold sm:text-base" style={{ color: '#059669' }}>
                       {language === 'mr' ? item.mrTime : item.time}
                     </span>
                   </motion.div>
@@ -229,7 +229,7 @@ export default function HostelPage() {
       </section>
 
       {/* ===== WARDENS ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -240,15 +240,15 @@ export default function HostelPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <UserCheck className="h-5 w-5" style={{ color: '#c42847' }} />
+                <UserCheck className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Hostel Wardens', 'वसतिगृह प्रमुख')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div className="grid gap-6 sm:grid-cols-2">
               <motion.div
@@ -258,21 +258,21 @@ export default function HostelPage() {
                 transition={{ delay: 0.1, duration: 0.5 }}
                 className="rounded-2xl p-6 sm:p-8"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                  border: '1px solid rgba(139, 26, 43, 0.15)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 <div
                   className="inline-flex h-12 w-12 items-center justify-center rounded-full mb-4"
-                  style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
                 >
-                  <Users className="h-5 w-5" style={{ color: '#c42847' }} />
+                  <Users className="h-5 w-5" style={{ color: '#059669' }} />
                 </div>
                 <p className="text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
                   {t('Boys Hostel Warden', 'मुलांचे वसतिगृह प्रमुख')}
                 </p>
-                <p className="font-devanagari text-lg font-semibold text-white">
+                <p className="font-devanagari text-lg font-semibold text-black">
                   श्री.माने राजेंद्र परशराम
                 </p>
               </motion.div>
@@ -284,21 +284,21 @@ export default function HostelPage() {
                 transition={{ delay: 0.2, duration: 0.5 }}
                 className="rounded-2xl p-6 sm:p-8"
                 style={{
-                  background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                  border: '1px solid rgba(139, 26, 43, 0.15)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  background: '#FCFCFB',
+                  border: '1px solid #E7E7E4',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 <div
                   className="inline-flex h-12 w-12 items-center justify-center rounded-full mb-4"
-                  style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                  style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
                 >
-                  <Users className="h-5 w-5" style={{ color: '#c42847' }} />
+                  <Users className="h-5 w-5" style={{ color: '#059669' }} />
                 </div>
                 <p className="text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
                   {t('Girls Hostel Warden', 'मुलींचे वसतिगृह प्रमुख')}
                 </p>
-                <p className="font-devanagari text-lg font-semibold text-white">
+                <p className="font-devanagari text-lg font-semibold text-black">
                   श्रीम.पखाले सविता पुंडलिक
                 </p>
               </motion.div>
@@ -308,7 +308,7 @@ export default function HostelPage() {
       </section>
 
       {/* ===== DAILY ROUTINE ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0f' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -319,22 +319,22 @@ export default function HostelPage() {
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <Clock className="h-5 w-5" style={{ color: '#c42847' }} />
+                <Clock className="h-5 w-5" style={{ color: '#059669' }} />
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#f5f5f5' }}>
+              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
                 {t('Daily Routine', 'दैनंदिन वेळापत्रक')}
               </h2>
             </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: 'linear-gradient(90deg, #a91d3a, transparent)' }} />
+            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
 
             <div
               className="rounded-2xl p-8 sm:p-10"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <div className="space-y-0">
@@ -346,14 +346,14 @@ export default function HostelPage() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.06, duration: 0.4 }}
                     className="flex items-center justify-between py-4"
-                    style={{ borderBottom: i < dailyRoutine.length - 1 ? '1px solid rgba(139, 26, 43, 0.1)' : 'none' }}
+                    style={{ borderBottom: i < dailyRoutine.length - 1 ? '1px solid #E7E7E4' : 'none' }}
                   >
                     <div className="flex items-center gap-3">
                       <div
                         className="h-2 w-2 rounded-full flex-shrink-0"
-                        style={{ background: '#a91d3a' }}
+                        style={{ background: '#059669' }}
                       />
-                      <span className="text-xs font-mono font-medium sm:text-sm" style={{ color: '#c42847', minWidth: '130px' }}>
+                      <span className="text-xs font-mono font-medium sm:text-sm" style={{ color: '#059669', minWidth: '130px' }}>
                         {item.time}
                       </span>
                     </div>

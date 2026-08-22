@@ -40,13 +40,13 @@ export default function GalleryPage() {
       {/* ===== HERO SECTION ===== */}
       <section
         className="relative flex min-h-[50vh] flex-col items-center justify-center px-4 py-20 text-center"
-        style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0d0d14 50%, #111118 100%)' }}
+        style={{ background: '#F7F7F5' }}
       >
         {/* Background glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[400px] w-[400px] rounded-full opacity-15"
-            style={{ background: 'radial-gradient(circle, rgba(139, 26, 43, 0.4) 0%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%)' }}
           />
         </div>
 
@@ -71,7 +71,7 @@ export default function GalleryPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.7 }}
             className="mb-5 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
-            style={{ color: '#f5f5f5' }}
+            style={{ color: '#000000' }}
           >
             {t('Photo Gallery', 'फोटो गॅलरी')}
           </motion.h1>
@@ -93,12 +93,12 @@ export default function GalleryPage() {
         {/* Bottom fade */}
         <div
           className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #0d0d14)' }}
+          style={{ background: 'linear-gradient(to bottom, transparent, #F7F7F5)' }}
         />
       </section>
 
       {/* ===== GALLERY CONTENT ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#0d0d14' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
         <div className="mx-auto max-w-6xl">
           {/* Loading State */}
           {loading && (
@@ -107,7 +107,7 @@ export default function GalleryPage() {
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center py-20"
             >
-              <Loader className="h-8 w-8 animate-spin mb-4" style={{ color: '#a91d3a' }} />
+              <Loader className="h-8 w-8 animate-spin mb-4" style={{ color: '#059669' }} />
               <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
                 {t('Loading photos...', 'फोटो लोड होत आहेत...')}
               </p>
@@ -122,18 +122,18 @@ export default function GalleryPage() {
               transition={{ duration: 0.5 }}
               className="rounded-2xl p-10 sm:p-16 text-center"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <div
                 className="inline-flex h-16 w-16 items-center justify-center rounded-full mb-6"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <ImageOff className="h-7 w-7" style={{ color: '#a91d3a' }} />
+                <ImageOff className="h-7 w-7" style={{ color: '#059669' }} />
               </div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: '#f5f5f5' }}>
+              <h3 className="text-lg font-semibold mb-3" style={{ color: '#000000' }}>
                 {t('Unable to load photos', 'फोटो लोड करता आले नाहीत')}
               </h3>
               <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--public-text-muted)' }}>
@@ -153,18 +153,18 @@ export default function GalleryPage() {
               transition={{ duration: 0.5 }}
               className="rounded-2xl p-10 sm:p-16 text-center"
               style={{
-                background: 'linear-gradient(145deg, #111118 0%, #151520 100%)',
-                border: '1px solid rgba(139, 26, 43, 0.15)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                background: '#FCFCFB',
+                border: '1px solid #E7E7E4',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}
             >
               <div
                 className="inline-flex h-16 w-16 items-center justify-center rounded-full mb-6"
-                style={{ background: 'rgba(139, 26, 43, 0.12)', border: '1px solid rgba(139, 26, 43, 0.25)' }}
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
               >
-                <Camera className="h-7 w-7" style={{ color: '#a91d3a' }} />
+                <Camera className="h-7 w-7" style={{ color: '#059669' }} />
               </div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: '#f5f5f5' }}>
+              <h3 className="text-lg font-semibold mb-3" style={{ color: '#000000' }}>
                 {t('Gallery Coming Soon', 'गॅलरी लवकरच येत आहे')}
               </h3>
               <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--public-text-muted)' }}>
@@ -188,8 +188,8 @@ export default function GalleryPage() {
                   transition={{ delay: i * 0.08, duration: 0.5 }}
                   className="group relative overflow-hidden rounded-2xl aspect-square"
                   style={{
-                    border: '1px solid rgba(139, 26, 43, 0.15)',
-                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
+                    border: '1px solid #E7E7E4',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                   }}
                 >
                   <img
@@ -200,7 +200,7 @@ export default function GalleryPage() {
                   {/* Caption overlay on hover */}
                   <div
                     className="absolute inset-0 flex items-end opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                    style={{ background: 'linear-gradient(to top, rgba(10, 10, 15, 0.9) 0%, transparent 60%)' }}
+                    style={{ background: 'linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 60%)' }}
                   >
                     <div className="p-4 w-full">
                       <p className="text-xs sm:text-sm font-medium text-white line-clamp-2">
