@@ -40,7 +40,9 @@ export default function ClassTeacherPortal() {
 
   return (
     <motion.div
-      initial={false}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
       className="portal-page"
     >
       <div className="portal-heading flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

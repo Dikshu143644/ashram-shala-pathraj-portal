@@ -224,7 +224,9 @@ export default function AiAssistant() {
 
   return (
     <motion.div
-      initial={false}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
       className="portal-page max-w-5xl!"
     >
       {/* Header Bar */}

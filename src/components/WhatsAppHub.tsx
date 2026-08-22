@@ -135,7 +135,7 @@ export default function WhatsAppHub() {
   };
 
   return (
-    <motion.div initial={false} className="portal-page">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }} className="portal-page">
       <div className="portal-heading">
         <p className="portal-kicker">{t('COMMUNICATION TRACKING', 'संवाद नोंद')}</p>
         <h2 className="portal-title">{t('WhatsApp Hub', 'व्हॉट्सअॅप केंद्र')}</h2>

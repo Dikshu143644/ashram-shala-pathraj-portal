@@ -188,7 +188,13 @@ export default function PortalLayout() {
             </button>
           </div>
           <AnimatePresence mode="wait" initial={false}>
-            <motion.div key={activeTab} initial={false} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
               {renderContent()}
             </motion.div>
           </AnimatePresence>
