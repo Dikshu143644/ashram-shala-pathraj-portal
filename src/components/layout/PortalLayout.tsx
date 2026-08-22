@@ -8,6 +8,7 @@ import {
   GraduationCap,
   Menu,
   MessageCircle,
+  Phone,
   School,
   Shield,
   X,
@@ -22,8 +23,9 @@ import WhatsAppHub from '../WhatsAppHub';
 import ClerkPortal from '../ClerkPortal';
 import SuperAdminCenter from '../SuperAdminCenter';
 import AiAssistant from '../AiAssistant';
+import CallingAgent from '../CallingAgent';
 
-type TabKey = 'admission' | 'classTeacher' | 'hostel' | 'whatsapp' | 'clerk' | 'superAdmin' | 'aiAssistant';
+type TabKey = 'admission' | 'classTeacher' | 'hostel' | 'whatsapp' | 'clerk' | 'superAdmin' | 'aiAssistant' | 'callingAgent';
 
 interface TabConfig {
   key: TabKey;
@@ -41,6 +43,7 @@ const tabs: TabConfig[] = [
   { key: 'clerk', labelEn: 'Staff & Letters', labelMr: 'कर्मचारी व पत्रे', icon: FileStack, roles: ['web_creator', 'principal', 'clerk'] },
   { key: 'superAdmin', labelEn: 'Administration', labelMr: 'प्रशासन', icon: Shield, roles: ['web_creator'] },
   { key: 'aiAssistant', labelEn: 'AI Assistant', labelMr: 'AI सहाय्यक', icon: Bot, roles: ['web_creator', 'principal', 'class_teacher', 'clerk', 'subject_teacher', 'student_parent'] },
+  { key: 'callingAgent', labelEn: 'Voice Agent', labelMr: 'व्हॉइस एजंट', icon: Phone, roles: ['web_creator', 'principal'] },
 ];
 
 function SplashScreen({ onComplete }: { onComplete: () => void }) {
@@ -90,6 +93,7 @@ export default function PortalLayout() {
       case 'clerk': return <ClerkPortal />;
       case 'superAdmin': return <SuperAdminCenter />;
       case 'aiAssistant': return <AiAssistant />;
+      case 'callingAgent': return <CallingAgent />;
       default: return <AdmissionPortal />;
     }
   };
