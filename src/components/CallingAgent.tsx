@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Phone, Send, Clock, Users, CheckCircle, AlertCircle, Loader2, Volume2, PhoneCall } from 'lucide-react';
+import { Phone, Send, Clock, Users, CheckCircle, AlertCircle, Loader2, Volume2, PhoneCall, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
 
@@ -41,6 +41,7 @@ export default function CallingAgent() {
   const [targetGroup, setTargetGroup] = useState<TargetGroup>('all_parents');
   const [standard, setStandard] = useState('5 वी');
   const [sending, setSending] = useState(false);
+  const [sendChannel, setSendChannel] = useState<'voice' | 'whatsapp'>('voice');
   const [lastResult, setLastResult] = useState<{ success: boolean; text: string; script?: string } | null>(null);
   const [history, setHistory] = useState<NotificationRecord[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -72,29 +73,56 @@ export default function CallingAgent() {
     setLastResult(null);
 
     try {
-      const response = await fetch('/api/voice/notify-parents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: message.trim(),
-          targetGroup,
-          standard: targetGroup === 'specific_standard' ? standard : undefined,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setLastResult({
-          success: true,
-          text: `${t('Notification queued for', 'सूचना पाठवली')} ${data.notification?.totalRecipients || 0} ${t('parents', 'पालकांना')}`,
-          script: data.notification?.voiceScript,
+      if (sendChannel === 'whatsapp') {
+        // Use WhatsApp broadcast API
+        const response = await fetch('/api/whatsapp/broadcast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ message: message.trim() }),
         });
-        setMessage('');
-        // Refresh history
-        setTimeout(fetchHistory, 1000);
+
+        const data = await response.json();
+
+        if (response.ok) {
+          if (data.warning && data.sent === 0) {
+            setLastResult({ success: false, text: data.warning });
+          } else {
+            setLastResult({
+              success: true,
+              text: `${t('WhatsApp broadcast sent to', 'WhatsApp प्रसारण पाठवले')} ${data.sent}/${data.total} ${t('parents', 'पालकांना')}${data.failed > 0 ? ` (${data.failed} ${t('failed', 'अयशस्वी')})` : ''}`,
+            });
+            setMessage('');
+          }
+        } else {
+          setLastResult({ success: false, text: data.error || t('Broadcast failed', 'प्रसारण अयशस्वी') });
+        }
       } else {
-        setLastResult({ success: false, text: data.error || t('Failed to send', 'पाठवणे अयशस्वी') });
+        // Use voice notification API
+        const response = await fetch('/api/voice/notify-parents', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: message.trim(),
+            targetGroup,
+            standard: targetGroup === 'specific_standard' ? standard : undefined,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setLastResult({
+            success: true,
+            text: `${t('Notification queued for', 'सूचना पाठवली')} ${data.notification?.totalRecipients || 0} ${t('parents', 'पालकांना')}`,
+            script: data.notification?.voiceScript,
+          });
+          setMessage('');
+          // Refresh history
+          setTimeout(fetchHistory, 1000);
+        } else {
+          setLastResult({ success: false, text: data.error || t('Failed to send', 'पाठवणे अयशस्वी') });
+        }
       }
     } catch {
       setLastResult({ success: false, text: t('Network error. Please try again.', 'नेटवर्क त्रुटी. पुन्हा प्रयत्न करा.') });
@@ -179,6 +207,37 @@ export default function CallingAgent() {
             </div>
           </div>
 
+          {/* Channel Selector */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-[#6B6B6B]">{t('Send Via', 'माध्यम')}</label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setSendChannel('voice')}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  sendChannel === 'voice'
+                    ? 'bg-black text-white'
+                    : 'border border-[#E7E7E4] bg-white text-[#6B6B6B] hover:bg-[#F3F2EF]'
+                }`}
+              >
+                <PhoneCall className="h-3.5 w-3.5" />
+                {t('Voice Call', 'व्हॉइस कॉल')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSendChannel('whatsapp')}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  sendChannel === 'whatsapp'
+                    ? 'bg-black text-white'
+                    : 'border border-[#E7E7E4] bg-white text-[#6B6B6B] hover:bg-[#F3F2EF]'
+                }`}
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                {t('WhatsApp', 'WhatsApp')}
+              </button>
+            </div>
+          </div>
+
           {/* Standard selector (conditional) */}
           <AnimatePresence>
             {targetGroup === 'specific_standard' && (
@@ -218,12 +277,21 @@ export default function CallingAgent() {
           {/* Info box */}
           <div className="rounded-xl border border-[#E7E7E4] bg-[#F3F2EF] p-3">
             <div className="flex items-start gap-2">
-              <Volume2 className="mt-0.5 h-4 w-4 shrink-0 text-[#6B6B6B]" />
+              {sendChannel === 'voice' ? (
+                <Volume2 className="mt-0.5 h-4 w-4 shrink-0 text-[#6B6B6B]" />
+              ) : (
+                <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-[#6B6B6B]" />
+              )}
               <p className="text-xs leading-relaxed text-[#6B6B6B]">
-                {t(
-                  'The AI will convert your message into a natural Marathi voice script and deliver it to parents. Calls are logged for records.',
-                  'AI तुमचा संदेश नैसर्गिक मराठी व्हॉइस स्क्रिप्टमध्ये रूपांतरित करेल आणि पालकांना वितरित करेल. कॉल नोंदी ठेवल्या जातात.'
-                )}
+                {sendChannel === 'voice'
+                  ? t(
+                      'The AI will convert your message into a natural Marathi voice script and deliver it to parents. Calls are logged for records.',
+                      'AI तुमचा संदेश नैसर्गिक मराठी व्हॉइस स्क्रिप्टमध्ये रूपांतरित करेल आणि पालकांना वितरित करेल. कॉल नोंदी ठेवल्या जातात.',
+                    )
+                  : t(
+                      'Your message will be sent via WhatsApp to all parent phone numbers in batches of 50. Requires WhatsApp Business API configuration.',
+                      'तुमचा संदेश WhatsApp द्वारे सर्व पालक फोन नंबरवर 50 च्या बॅचमध्ये पाठवला जाईल. WhatsApp Business API कॉन्फिगरेशन आवश्यक आहे.',
+                    )}
               </p>
             </div>
           </div>
@@ -242,7 +310,11 @@ export default function CallingAgent() {
               ) : (
                 <Send className="h-4 w-4" />
               )}
-              {sending ? t('Sending...', 'पाठवत आहे...') : t('Send Voice Notification', 'व्हॉइस सूचना पाठवा')}
+              {sending
+                ? t('Sending...', 'पाठवत आहे...')
+                : sendChannel === 'voice'
+                  ? t('Send Voice Notification', 'व्हॉइस सूचना पाठवा')
+                  : t('Send WhatsApp Broadcast', 'WhatsApp प्रसारण पाठवा')}
             </motion.button>
           </div>
         </div>
