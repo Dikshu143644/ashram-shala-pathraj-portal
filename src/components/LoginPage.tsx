@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { type AppRole, useAppContext } from '../contexts/AppContext';
 
-const roleOptions: { value: AppRole; labelEn: string; labelMr: string }[] = [
+const allRoleOptions: { value: AppRole; labelEn: string; labelMr: string }[] = [
   { value: 'web_creator', labelEn: 'Super Admin', labelMr: 'सुपर अॅडमिन' },
   { value: 'principal', labelEn: 'Principal', labelMr: 'मुख्याध्यापक' },
   { value: 'class_teacher', labelEn: 'Class Teacher', labelMr: 'वर्गशिक्षक' },
@@ -28,18 +28,23 @@ const roleOptions: { value: AppRole; labelEn: string; labelMr: string }[] = [
   { value: 'student_parent', labelEn: 'Student/Parent', labelMr: 'विद्यार्थी/पालक' },
 ];
 
+const publicRoleOptions = allRoleOptions.filter((r) =>
+  ['class_teacher', 'subject_teacher', 'student_parent'].includes(r.value)
+);
+
 type LoginStage = 'credentials' | 'otp';
 
 interface LoginPageProps {
   onBack?: () => void;
+  fixedRole?: AppRole;
 }
 
-export default function LoginPage({ onBack }: LoginPageProps) {
+export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
   const navigate = useNavigate();
   const { language, setLanguage, beginLogin, sendOtp, verifyOtp, setIsRegistering, isAuthenticated } = useAppContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<AppRole>('web_creator');
+  const [selectedRole, setSelectedRole] = useState<AppRole>(fixedRole || 'student_parent');
   const [showPassword, setShowPassword] = useState(false);
   const [stage, setStage] = useState<LoginStage>('credentials');
   const [challengeToken, setChallengeToken] = useState('');
@@ -191,15 +196,17 @@ export default function LoginPage({ onBack }: LoginPageProps) {
 
         {stage === 'credentials' ? (
           <form onSubmit={handleCredentialSubmit} className="space-y-4">
+            {!fixedRole && (
             <div>
               <label htmlFor="login-role" className="mb-2 block text-xs font-medium text-[#6B6B6B]">{t('Portal role', 'पोर्टल भूमिका')}</label>
               <div className="relative">
                 <select id="login-role" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value as AppRole)} className="h-12 w-full appearance-none rounded-xl border border-[#E7E7E4] bg-white px-4 pr-11 text-sm text-black">
-                  {roleOptions.map((option) => <option key={option.value} value={option.value}>{language === 'en' ? option.labelEn : option.labelMr}</option>)}
+                  {publicRoleOptions.map((option) => <option key={option.value} value={option.value}>{language === 'en' ? option.labelEn : option.labelMr}</option>)}
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A3A3A3]" />
               </div>
             </div>
+            )}
 
             <div>
               <label htmlFor="username" className="mb-2 block text-xs font-medium text-[#6B6B6B]">{t('Username or ID', 'वापरकर्तानाव किंवा आयडी')}</label>
@@ -218,9 +225,11 @@ export default function LoginPage({ onBack }: LoginPageProps) {
             </button>
 
             <div className="mt-3 text-center">
+              {!fixedRole && (
               <button type="button" onClick={() => navigate('/register')} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
                 <UserPlus className="h-3.5 w-3.5" />{t('Register as Parent', 'पालक म्हणून नोंदणी करा')}
               </button>
+              )}
               <button type="button" onClick={() => navigate('/')} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black">
                 <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Home', 'मुख्यपृष्ठावर परत जा')}
               </button>

@@ -46,6 +46,9 @@ function AppRoutes() {
 
       {/* Auth pages (no layout wrapper - they have their own UI) */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/clerk/login" element={<LoginPage fixedRole="clerk" />} />
+      <Route path="/admin/login" element={<LoginPage fixedRole="web_creator" />} />
+      <Route path="/principal/login" element={<LoginPage fixedRole="principal" />} />
       <Route path="/register" element={<RegisterPage />} />
 
       {/* Protected portal routes */}
