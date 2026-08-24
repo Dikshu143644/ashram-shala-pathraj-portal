@@ -2,6 +2,7 @@ import { createHash, createHmac, randomUUID, randomBytes } from 'node:crypto';
 import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
 import { clearSession, issueSession, readSession, requireSameOrigin, requireSession, type AuthenticatedRequest } from './security.js';
 
 const RATE_LIMIT_WINDOW_SECONDS = 60;
@@ -187,6 +188,97 @@ function otpConfiguration(): { resendApiKey: string; resendFromEmail: string; hm
   if (!resendApiKey || !resendFromEmail || !hmacSecret || hmacSecret.length < 32) return null;
   return { resendApiKey, resendFromEmail, hmacSecret };
 }
+
+/**
+ * Send OTP email with Gmail SMTP fallback.
+ * Tries Resend API first. If Resend fails (non-2xx, especially 403/422 for sandbox restrictions),
+ * falls back to Gmail SMTP using nodemailer.
+ */
+async function sendOtpEmail(
+  to: string,
+  code: string,
+  otpExpiryLabel: string,
+  idempotencyKey: string,
+  subject: string,
+  textBody: string,
+  htmlBody: string,
+): Promise<{ success: boolean; error?: string }> {
+  const resendApiKey = process.env.RESEND_API_KEY?.trim();
+  const resendFromEmail = process.env.RESEND_FROM_EMAIL?.trim();
+
+  // Try Resend first
+  if (resendApiKey && resendFromEmail) {
+    try {
+      const emailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey,
+        },
+        body: JSON.stringify({
+          from: resendFromEmail,
+          to: [to],
+          subject,
+          text: textBody,
+          html: htmlBody,
+        }),
+        signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
+      });
+
+      if (emailResponse.ok) {
+        return { success: true };
+      }
+
+      const resendError = await emailResponse.text();
+      console.warn(`Resend API failed (${emailResponse.status}): ${resendError.slice(0, 200)}. Trying Gmail SMTP fallback...`);
+    } catch (resendErr) {
+      console.warn('Resend API error:', resendErr instanceof Error ? resendErr.message : resendErr, '. Trying Gmail SMTP fallback...');
+    }
+  }
+
+  // Fallback to Gmail SMTP
+  const gmailUser = process.env.GMAIL_USER?.trim();
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD?.trim();
+
+  if (gmailUser && gmailAppPassword) {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: gmailUser,
+          pass: gmailAppPassword,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"Ashram Shala Pathraj" <${gmailUser}>`,
+        to,
+        subject,
+        text: textBody,
+        html: htmlBody,
+      });
+
+      console.log(`OTP email sent via Gmail SMTP to ${to}`);
+      return { success: true };
+    } catch (gmailErr) {
+      console.error('Gmail SMTP fallback failed:', gmailErr instanceof Error ? gmailErr.message : gmailErr);
+      return { success: false, error: 'Both Resend and Gmail SMTP failed to deliver email.' };
+    }
+  }
+
+  // Neither provider available
+  if (!resendApiKey && !gmailUser) {
+    return { success: false, error: 'No email provider configured (set RESEND_API_KEY or GMAIL_USER + GMAIL_APP_PASSWORD).' };
+  }
+
+  return { success: false, error: 'Could not send the verification email via any provider.' };
+}
+
+// SMS rate limiting state (in-memory per instance)
+const smsRateLimitMap = new Map<string, { count: number; firstSentAt: number }>();
+const SMS_RATE_LIMIT_WINDOW_MS = 10 * 60_000; // 10 minutes
+const SMS_RATE_LIMIT_MAX = 3;
 
 async function cleanupExpiredAuthState(supabase: SupabaseClient): Promise<void> {
   const { error } = await supabase.rpc('cleanup_auth_security_state');
@@ -486,38 +578,23 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
 
       const otpExpiryDate = new Date(reservation.effective_otp_expires_at);
       const otpExpiryLabel = `${otpExpiryDate.getUTCHours().toString().padStart(2, '0')}:${otpExpiryDate.getUTCMinutes().toString().padStart(2, '0')} UTC`;
-      let emailResponse: globalThis.Response;
-      try {
-        emailResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${configuration.resendApiKey}`,
-            'Content-Type': 'application/json',
-            'Idempotency-Key': `login-otp/${reservation.challenge_id}/${operationId}`,
-          },
-          body: JSON.stringify({
-            from: configuration.resendFromEmail,
-            to: [user.email],
-            subject: 'Your Ashram Shala login verification code',
-            text: `Your Ashram Shala Pathraj login verification code is ${code}. It expires at ${otpExpiryLabel}. Resends for this login use the same code. Never share this code or your password.`,
-            html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:24px">Login verification code</h1><p>Use this one-time code to finish signing in:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#006948">${code}</p><p>This code expires at ${otpExpiryLabel}. Resends for this login use the same code. Never share this code or your password.</p></div>`,
-          }),
-          signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
-        });
-      } catch (error) {
-        const timedOut = error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError');
-        console.error('Resend OTP delivery was not confirmed:', error instanceof Error ? error.message : error);
-        res.status(timedOut ? 504 : 502).json({
-          success: false,
-          error: 'Email delivery could not be confirmed. Please retry; the same code will be used.',
-          retryAfter: SEND_RESERVATION_SECONDS,
-        });
-        return;
-      }
 
-      if (!emailResponse.ok) {
-        const providerError = await emailResponse.text();
-        console.error('Resend OTP delivery failed:', emailResponse.status, providerError.slice(0, 200));
+      const emailSubject = 'Your Ashram Shala login verification code';
+      const emailText = `Your Ashram Shala Pathraj login verification code is ${code}. It expires at ${otpExpiryLabel}. Resends for this login use the same code. Never share this code or your password.`;
+      const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:24px">Login verification code</h1><p>Use this one-time code to finish signing in:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#006948">${code}</p><p>This code expires at ${otpExpiryLabel}. Resends for this login use the same code. Never share this code or your password.</p></div>`;
+
+      const emailResult = await sendOtpEmail(
+        user.email,
+        code,
+        otpExpiryLabel,
+        `login-otp/${reservation.challenge_id}/${operationId}`,
+        emailSubject,
+        emailText,
+        emailHtml,
+      );
+
+      if (!emailResult.success) {
+        console.error('OTP email delivery failed:', emailResult.error);
         await supabase.rpc('cancel_otp_send', {
           p_challenge_id: reservation.challenge_id,
           p_request_id: operationId,
@@ -873,28 +950,21 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       // Send AI PIN via email so the user has a recovery path
       const user = await loadActiveUser(supabase, authReq.authSession!.userId);
       if (user?.email) {
-        const resendApiKey = process.env.RESEND_API_KEY?.trim();
-        const resendFromEmail = process.env.RESEND_FROM_EMAIL?.trim();
-        if (resendApiKey && resendFromEmail) {
-          try {
-            await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${resendApiKey}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                from: resendFromEmail,
-                to: [user.email],
-                subject: 'Your Ashram Shala AI Assistant PIN',
-                text: `Your AI Assistant PIN for Ashram Shala Pathraj portal is: ${aiPin}\n\nUse this PIN to log in to the AI chatbot assistant. Keep it safe and do not share it with anyone.\n\nIf you did not request this, please contact the school office immediately.`,
-                html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:20px">Your AI Assistant PIN</h1><p>Your AI Assistant PIN is:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#006948">${aiPin}</p><p>Use this PIN to log in to the AI chatbot assistant. Keep it safe and do not share it with anyone.</p><p style="color:#93000a">If you did not request this, please contact the school office immediately.</p></div>`,
-              }),
-              signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
-            });
-          } catch (emailError) {
-            console.error('Failed to send AI PIN email:', emailError instanceof Error ? emailError.message : emailError);
-          }
+        const pinSubject = 'Your Ashram Shala AI Assistant PIN';
+        const pinText = `Your AI Assistant PIN for Ashram Shala Pathraj portal is: ${aiPin}\n\nUse this PIN to log in to the AI chatbot assistant. Keep it safe and do not share it with anyone.\n\nIf you did not request this, please contact the school office immediately.`;
+        const pinHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:20px">Your AI Assistant PIN</h1><p>Your AI Assistant PIN is:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#006948">${aiPin}</p><p>Use this PIN to log in to the AI chatbot assistant. Keep it safe and do not share it with anyone.</p><p style="color:#93000a">If you did not request this, please contact the school office immediately.</p></div>`;
+
+        const pinEmailResult = await sendOtpEmail(
+          user.email,
+          aiPin,
+          '',
+          `ai-pin/${authReq.authSession!.userId}/${randomUUID()}`,
+          pinSubject,
+          pinText,
+          pinHtml,
+        );
+        if (!pinEmailResult.success) {
+          console.error('Failed to send AI PIN email:', pinEmailResult.error);
         }
       }
 
@@ -1074,29 +1144,22 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
 
       if (insertError) throw insertError;
 
-      // Send email with temp password via Resend
-      const resendApiKey = process.env.RESEND_API_KEY?.trim();
-      const resendFromEmail = process.env.RESEND_FROM_EMAIL?.trim();
-      if (resendApiKey && resendFromEmail) {
-        try {
-          await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${resendApiKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              from: resendFromEmail,
-              to: [email.toLowerCase()],
-              subject: 'Your Ashram Shala Portal Account',
-              text: `Your staff account has been created.\n\nUsername: ${username}\nTemporary Password: ${tempPassword}\n\nPlease log in and change your password immediately.`,
-              html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:20px">Your Staff Account</h1><p>Your account has been created with the following credentials:</p><p><strong>Username:</strong> ${username}<br/><strong>Temporary Password:</strong> <code>${tempPassword}</code></p><p style="color:#93000a;font-weight:600">Please log in and change your password immediately.</p></div>`,
-            }),
-            signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
-          });
-        } catch (emailError) {
-          console.error('Failed to send account creation email:', emailError instanceof Error ? emailError.message : emailError);
-        }
+      // Send email with temp password via Resend (with Gmail SMTP fallback)
+      const accountSubject = 'Your Ashram Shala Portal Account';
+      const accountText = `Your staff account has been created.\n\nUsername: ${username}\nTemporary Password: ${tempPassword}\n\nPlease log in and change your password immediately.`;
+      const accountHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:20px">Your Staff Account</h1><p>Your account has been created with the following credentials:</p><p><strong>Username:</strong> ${username}<br/><strong>Temporary Password:</strong> <code>${tempPassword}</code></p><p style="color:#93000a;font-weight:600">Please log in and change your password immediately.</p></div>`;
+
+      const accountEmailResult = await sendOtpEmail(
+        email.toLowerCase(),
+        tempPassword,
+        '',
+        `admin-create/${newUser.id}/${randomUUID()}`,
+        accountSubject,
+        accountText,
+        accountHtml,
+      );
+      if (!accountEmailResult.success) {
+        console.error('Failed to send account creation email:', accountEmailResult.error);
       }
 
       await logSecurity(supabase, {
@@ -1283,6 +1346,164 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     } catch (error) {
       console.error('Parent-student linking failed:', error instanceof Error ? error.message : error);
       res.status(500).json({ success: false, error: 'Unable to link parent to students.' });
+    }
+  });
+
+  // POST /api/auth/send-sms-otp - Send OTP via SMS (with rate limiting)
+  app.post('/api/auth/send-sms-otp', async (req: Request, res: Response) => {
+    const ip = clientIp(req);
+    const operationId = requestId(req);
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Request-ID', operationId);
+
+    const configuration = otpConfiguration();
+    if (!configuration) {
+      res.status(503).json({ success: false, error: 'OTP service is not configured.' });
+      return;
+    }
+
+    const { challengeToken: token, mobileNumber } = req.body as { challengeToken?: unknown; mobileNumber?: unknown };
+    if (!validChallengeToken(token)) {
+      res.status(400).json({ success: false, error: 'Verification session is invalid or expired.' });
+      return;
+    }
+    if (typeof mobileNumber !== 'string' || !/^[6-9]\d{9}$/.test(mobileNumber)) {
+      res.status(400).json({ success: false, error: 'A valid 10-digit Indian mobile number is required.' });
+      return;
+    }
+
+    // Rate limit: max 3 SMS per 10 minutes per phone number
+    const now = Date.now();
+    const rateLimitKey = `sms:${mobileNumber}`;
+    const existing = smsRateLimitMap.get(rateLimitKey);
+    if (existing) {
+      if (now - existing.firstSentAt < SMS_RATE_LIMIT_WINDOW_MS) {
+        if (existing.count >= SMS_RATE_LIMIT_MAX) {
+          const retryAfter = Math.ceil((SMS_RATE_LIMIT_WINDOW_MS - (now - existing.firstSentAt)) / 1000);
+          rejectRateLimit(res, 'Too many SMS OTP requests. Please try again later.', retryAfter);
+          return;
+        }
+      } else {
+        // Window expired, reset
+        smsRateLimitMap.delete(rateLimitKey);
+      }
+    }
+
+    try {
+      const hash = challengeHash(token);
+      const challenge = await loadChallenge(supabase, hash);
+      if (!challenge || new Date(challenge.expires_at).getTime() <= Date.now()) {
+        res.status(400).json({ success: false, error: 'Verification session is invalid or expired.' });
+        return;
+      }
+
+      // IP rate limiting
+      const ipLimited = await isRateLimited(supabase, 'sms_otp_ip', ip, OTP_ATTEMPTS_PER_WINDOW);
+      if (ipLimited) {
+        rejectRateLimit(res, 'Too many OTP requests. Please try again later.', RATE_LIMIT_WINDOW_SECONDS);
+        return;
+      }
+
+      const code = deriveOtpCode(hash, configuration.hmacSecret);
+      const codeHash = otpHash(hash, code, configuration.hmacSecret);
+      const remainingChallengeMs = new Date(challenge.expires_at).getTime() - now;
+      const proposedOtpExpiresAt = new Date(now + Math.min(OTP_TTL_MS, remainingChallengeMs)).toISOString();
+
+      const { data: reservationData, error: reservationError } = await supabase.rpc('reserve_otp_send', {
+        p_challenge_hash: hash,
+        p_otp_hash: codeHash,
+        p_otp_expires_at: proposedOtpExpiresAt,
+        p_request_id: operationId,
+        p_max_sends: MAX_SENDS,
+        p_cooldown_seconds: RESEND_COOLDOWN_MS / 1000,
+        p_reservation_seconds: SEND_RESERVATION_SECONDS,
+      });
+      if (reservationError) throw reservationError;
+
+      const reservation = firstRpcRow<SendReservationRow>(reservationData);
+      if (!reservation) throw new Error('OTP reservation RPC returned no row');
+
+      if (reservation.reservation_status === 'sent') {
+        res.json({ success: true, resendAfterSeconds: RESEND_COOLDOWN_MS / 1000 });
+        return;
+      }
+      if (reservation.reservation_status === 'busy' || reservation.reservation_status === 'cooldown') {
+        rejectRateLimit(res, `Please wait ${reservation.retry_after_seconds} seconds before requesting another code.`, reservation.retry_after_seconds);
+        return;
+      }
+      if (reservation.reservation_status === 'send_limit') {
+        rejectRateLimit(res, 'OTP send limit reached. Start the process again.', Math.ceil(remainingChallengeMs / 1000));
+        return;
+      }
+      if (reservation.reservation_status !== 'reserved' || !reservation.challenge_id) {
+        res.status(400).json({ success: false, error: 'Verification session is invalid or expired.' });
+        return;
+      }
+
+      // Send SMS OTP
+      const smsApiKey = process.env.SMS_API_KEY?.trim();
+      const smsProviderUrl = process.env.SMS_PROVIDER_URL?.trim();
+
+      if (smsApiKey && smsProviderUrl) {
+        // Production: Send via SMS provider
+        try {
+          const smsResponse = await fetch(smsProviderUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${smsApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              to: `+91${mobileNumber}`,
+              message: `Your Ashram Shala Pathraj verification code is ${code}. Do not share this with anyone.`,
+            }),
+            signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
+          });
+
+          if (!smsResponse.ok) {
+            const smsError = await smsResponse.text();
+            console.error('SMS provider failed:', smsResponse.status, smsError.slice(0, 200));
+            await supabase.rpc('cancel_otp_send', { p_challenge_id: reservation.challenge_id, p_request_id: operationId });
+            res.status(502).json({ success: false, error: 'Could not send SMS. Please try email verification instead.' });
+            return;
+          }
+        } catch (smsErr) {
+          console.error('SMS delivery error:', smsErr instanceof Error ? smsErr.message : smsErr);
+          await supabase.rpc('cancel_otp_send', { p_challenge_id: reservation.challenge_id, p_request_id: operationId });
+          res.status(502).json({ success: false, error: 'Could not send SMS. Please try email verification instead.' });
+          return;
+        }
+      } else {
+        // Development mode: Log OTP to console
+        console.log(`[DEV SMS OTP] To: +91${mobileNumber}, Code: ${code}`);
+      }
+
+      // Confirm the OTP send
+      const { error: confirmError } = await supabase.rpc('confirm_otp_send', {
+        p_challenge_id: reservation.challenge_id,
+        p_request_id: operationId,
+      });
+      if (confirmError) console.error('SMS OTP delivery confirmation update failed:', confirmError.message);
+
+      // Update rate limit counter
+      const currentLimit = smsRateLimitMap.get(rateLimitKey);
+      if (currentLimit && now - currentLimit.firstSentAt < SMS_RATE_LIMIT_WINDOW_MS) {
+        currentLimit.count++;
+      } else {
+        smsRateLimitMap.set(rateLimitKey, { count: 1, firstSentAt: now });
+      }
+
+      await logSecurity(supabase, {
+        action: 'sms_otp_sent',
+        userId: challenge.user_id,
+        ip,
+        details: `SMS OTP sent to +91${mobileNumber.slice(0, 2)}****${mobileNumber.slice(8)}`,
+      });
+
+      res.json({ success: true, resendAfterSeconds: RESEND_COOLDOWN_MS / 1000 });
+    } catch (error) {
+      console.error('SMS OTP send failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Could not send SMS verification code.' });
     }
   });
 }

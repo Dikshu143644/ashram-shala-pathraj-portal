@@ -10,7 +10,7 @@ import {
   KeyRound,
   Lock,
   Mail,
-  Phone,
+  MessageSquare,
   RefreshCw,
   School,
   ShieldCheck,
@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useAppContext } from '../contexts/AppContext';
 
-type RegisterStage = 'form' | 'otp' | 'set-password' | 'done';
+type RegisterStage = 'form' | 'verify-method' | 'otp' | 'set-password' | 'done';
 
 const relationshipOptions = [
   { value: 'Father', labelEn: 'Father', labelMr: 'वडील' },
@@ -80,16 +80,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
       if (result.challengeToken) {
         setChallengeToken(result.challengeToken);
         setMaskedEmail(result.maskedEmail || '');
-        setStage('otp');
-
-        const sendResult = await sendOtp(result.challengeToken);
-        if (sendResult.success) {
-          setMaskedEmail(sendResult.maskedEmail || result.maskedEmail || '');
-          setResendIn(sendResult.resendAfterSeconds || 60);
-        } else {
-          setResendIn(sendResult.retryAfter || 0);
-          setError(sendResult.error || t('Could not send verification email.', 'पडताळणी ईमेल पाठवता आला नाही.'));
-        }
+        setStage('verify-method');
       }
     } finally {
       inFlightRef.current = false;
@@ -176,6 +167,53 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
     }
   };
 
+  const handleVerifyViaEmail = async () => {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    setError('');
+    setIsLoading(true);
+    try {
+      const sendResult = await sendOtp(challengeToken);
+      if (sendResult.success) {
+        setMaskedEmail(sendResult.maskedEmail || maskedEmail);
+        setResendIn(sendResult.resendAfterSeconds || 60);
+        setStage('otp');
+      } else {
+        setResendIn(sendResult.retryAfter || 0);
+        setError(sendResult.error || t('Could not send verification email.', 'पडताळणी ईमेल पाठवता आला नाही.'));
+      }
+    } finally {
+      inFlightRef.current = false;
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyViaSms = async () => {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    setError('');
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/auth/send-sms-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeToken, mobileNumber }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        setResendIn(result.resendAfterSeconds || 60);
+        setStage('otp');
+      } else {
+        setError(result.error || t('Could not send SMS OTP.', 'SMS OTP पाठवता आला नाही.'));
+      }
+    } catch {
+      setError(t('Could not send SMS OTP. Please try again.', 'SMS OTP पाठवता आला नाही. कृपया पुन्हा प्रयत्न करा.'));
+    } finally {
+      inFlightRef.current = false;
+      setIsLoading(false);
+    }
+  };
+
   // Redirect to portal after successful authentication
   useEffect(() => {
     if (isAuthenticated) {
@@ -206,13 +244,15 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
           </motion.div>
           <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6B6B6B]">GOVERNMENT OF MAHARASHTRA</p>
           <h1 id="register-title" className="font-devanagari text-center text-lg font-semibold leading-[1.45] text-black sm:text-xl">
-            {stage === 'otp' ? t('Verify your email', 'तुमचा ईमेल सत्यापित करा')
+            {stage === 'verify-method' ? t('Choose Verification Method', 'सत्यापन पद्धत निवडा')
+              : stage === 'otp' ? t('Verify your email', 'तुमचा ईमेल सत्यापित करा')
               : stage === 'set-password' ? t('Set your password', 'तुमचा पासवर्ड सेट करा')
               : stage === 'done' ? t('Registration complete!', 'नोंदणी पूर्ण!')
               : t('Parent Registration', 'पालक नोंदणी')}
           </h1>
           <p className="mt-2 text-center text-sm text-[#6B6B6B]">
-            {stage === 'otp' ? t(`We sent a 6-digit code to ${maskedEmail || 'your email'}.`, `${maskedEmail || 'तुमच्या ईमेलवर'} 6 अंकी कोड पाठवला आहे.`)
+            {stage === 'verify-method' ? t('How would you like to receive your verification code?', 'तुम्हाला तुमचा सत्यापन कोड कसा मिळवायचा आहे?')
+              : stage === 'otp' ? t(`We sent a 6-digit code to ${maskedEmail || 'your email'}.`, `${maskedEmail || 'तुमच्या ईमेलवर'} 6 अंकी कोड पाठवला आहे.`)
               : stage === 'set-password' ? t('Create a strong password for your account.', 'तुमच्या खात्यासाठी एक मजबूत पासवर्ड तयार करा.')
               : stage === 'done' ? t('You can now use the portal.', 'आता तुम्ही पोर्टल वापरू शकता.')
               : t('Register to access your child\'s information', 'तुमच्या मुलाची माहिती पाहण्यासाठी नोंदणी करा')}
@@ -227,7 +267,15 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             </div>
             <div>
               <label htmlFor="reg-mobile" className="mb-2 block text-xs font-medium text-[#6B6B6B]">{t('Mobile Number', 'मोबाईल नंबर')}</label>
-              <div className="relative"><Phone className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A3A3A3]" /><input id="reg-mobile" type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="9876543210" className="h-12 w-full rounded-xl border border-[#E7E7E4] bg-white pl-11 pr-4 text-sm text-black placeholder:text-[#A3A3A3]" /></div>
+              <div className="relative flex items-center">
+                <div className="absolute left-0 top-0 flex h-12 items-center pl-3 pr-2">
+                  <span className="flex items-center gap-1 rounded-md bg-[#F3F2EF] px-2 py-1 text-xs font-semibold text-[#333] select-none">
+                    <span className="text-sm">🇮🇳</span> +91
+                  </span>
+                  <span className="ml-2 h-5 w-px bg-[#E7E7E4]" />
+                </div>
+                <input id="reg-mobile" type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="9876543210" className="h-12 w-full rounded-xl border border-[#E7E7E4] bg-white pl-[5.5rem] pr-4 text-sm text-black placeholder:text-[#A3A3A3]" />
+              </div>
             </div>
             <div>
               <label htmlFor="reg-email" className="mb-2 block text-xs font-medium text-[#6B6B6B]">{t('Email', 'ईमेल')}</label>
@@ -258,6 +306,43 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
               </button>
             </div>
           </form>
+        )}
+
+        {stage === 'verify-method' && (
+          <div className="space-y-4">
+            <p className="text-center text-xs text-[#6B6B6B]">
+              {t('Your account has been created. Please verify your identity to continue.', 'तुमचे खाते तयार झाले आहे. पुढे जाण्यासाठी कृपया तुमची ओळख सत्यापित करा.')}
+            </p>
+
+            {error && <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-xs text-red-700">{error}</motion.div>}
+
+            <button
+              type="button"
+              onClick={handleVerifyViaEmail}
+              disabled={isLoading}
+              className="flex h-14 w-full items-center justify-center gap-3 rounded-xl border border-[#E7E7E4] bg-white text-sm font-medium text-black transition-all hover:border-emerald-300 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Mail className="h-5 w-5 text-emerald-600" />
+              <span>{t('Verify via Email', 'ईमेलद्वारे सत्यापित करा')}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleVerifyViaSms}
+              disabled={isLoading}
+              className="flex h-14 w-full items-center justify-center gap-3 rounded-xl border border-[#E7E7E4] bg-white text-sm font-medium text-black transition-all hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <MessageSquare className="h-5 w-5 text-blue-600" />
+              <span>{t('Verify via SMS', 'SMS द्वारे सत्यापित करा')}</span>
+            </button>
+
+            {isLoading && (
+              <div className="flex items-center justify-center gap-2 text-xs text-[#6B6B6B]">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#A3A3A3]/30 border-t-[#A3A3A3]" />
+                {t('Sending verification code...', 'सत्यापन कोड पाठवत आहे...')}
+              </div>
+            )}
+          </div>
         )}
 
         {stage === 'otp' && (
