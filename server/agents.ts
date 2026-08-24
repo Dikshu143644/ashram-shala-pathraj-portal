@@ -262,9 +262,12 @@ export function registerAgentRoutes(app: Express, supabase: SupabaseClient): voi
               .limit(30);
             if (attendance?.length) {
               studentContext += `\n\nRecent attendance records (last 30 entries):\n${JSON.stringify(attendance, null, 2)}`;
+            } else {
+              studentContext += '\n\nNo attendance data available for the linked students.';
             }
           } catch {
-            // Attendance table may not exist yet - skip silently
+            // Attendance table may not exist yet
+            studentContext += '\n\nNo attendance data available (table not configured).';
           }
 
           // Try to fetch upcoming events
@@ -277,9 +280,12 @@ export function registerAgentRoutes(app: Express, supabase: SupabaseClient): voi
               .limit(10);
             if (events?.length) {
               studentContext += `\n\nUpcoming school events:\n${JSON.stringify(events, null, 2)}`;
+            } else {
+              studentContext += '\n\nNo upcoming school events data available.';
             }
           } catch {
-            // Events table may not exist yet - skip silently
+            // Events table may not exist yet
+            studentContext += '\n\nNo upcoming school events data available (table not configured).';
           }
         }
       }
@@ -300,10 +306,13 @@ export function registerAgentRoutes(app: Express, supabase: SupabaseClient): voi
             .limit(5);
           if (applications?.length) {
             studentContext += `\n\nUser's admission applications:\n${JSON.stringify(applications, null, 2)}`;
+          } else {
+            studentContext += '\n\nNo admission applications found for this user.';
           }
         }
       } catch {
-        // Applications table may not exist yet - skip silently
+        // Applications table may not exist yet
+        studentContext += '\n\nNo admission applications data available (table not configured).';
       }
     } catch (err) {
       console.error('Failed to fetch student context for AI:', err instanceof Error ? err.message : err);

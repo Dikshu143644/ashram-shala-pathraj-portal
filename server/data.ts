@@ -387,7 +387,11 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
 
       // Delete from Supabase Storage if storage_path exists
       if (imageData.storage_path) {
-        await supabase.storage.from('school-gallery').remove([imageData.storage_path]);
+        const { error: storageError } = await supabase.storage.from('school-gallery').remove([imageData.storage_path]);
+        if (storageError) {
+          console.error(`Storage deletion failed for ${imageData.storage_path}:`, storageError.message);
+          // Proceed with DB deletion even if storage cleanup fails (orphaned object is acceptable)
+        }
       }
 
       const { error } = await supabase.from('gallery_images').delete().eq('id', id);
@@ -419,8 +423,15 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
     let imageBuffer: Buffer;
     let contentType: string;
 
+    // Allowlist safe image content types (reject svg+xml and other dangerous types)
+    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
     if (base64Match) {
       contentType = base64Match[1];
+      if (!ALLOWED_IMAGE_TYPES.includes(contentType)) {
+        res.status(400).json({ error: 'Only JPEG, PNG, WebP, and GIF images are allowed.' });
+        return;
+      }
       imageBuffer = Buffer.from(base64Match[2], 'base64');
     } else {
       // Assume raw base64 without data URI prefix
@@ -482,8 +493,16 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
     }
   });
 
+  // Public submission rate limiter (IP-based since no auth required)
+  const publicWriteLimit = durableRateLimit(supabase, {
+    bucket: 'api_public_write_ip',
+    maximum: 5,
+    windowSeconds: 10 * 60,
+    key: (req) => String(req.ip || 'unknown'),
+  });
+
   // POST /api/applications - Public endpoint for admission application submission
-  app.post('/api/applications', dataGate, async (req: Request, res: Response) => {
+  app.post('/api/applications', publicWriteLimit, dataGate, async (req: Request, res: Response) => {
     const { applicant_name, parent_name, parent_mobile, parent_email, standard_applying } = req.body as {
       applicant_name?: unknown; parent_name?: unknown; parent_mobile?: unknown; parent_email?: unknown; standard_applying?: unknown;
     };

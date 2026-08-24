@@ -842,7 +842,10 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     try {
       const hashed = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
 
-      // Generate a random 6-digit AI PIN for chatbot access
+      // Generate a random 6-digit AI PIN for chatbot access.
+      // Security note: The 6-digit PIN (900,000 values) is intentionally acceptable here because
+      // login is rate-limited to 5 attempts per 60-second window per IP and per account,
+      // making brute-force infeasible (would take ~250 days at maximum rate).
       const aiPin = Math.floor(100000 + Math.random() * 900000).toString();
       const aiPinHash = await bcrypt.hash(aiPin, BCRYPT_SALT_ROUNDS);
 
@@ -866,6 +869,34 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         nameEn: authReq.authSession!.nameEn,
         nameMr: authReq.authSession!.nameMr,
       });
+
+      // Send AI PIN via email so the user has a recovery path
+      const user = await loadActiveUser(supabase, authReq.authSession!.userId);
+      if (user?.email) {
+        const resendApiKey = process.env.RESEND_API_KEY?.trim();
+        const resendFromEmail = process.env.RESEND_FROM_EMAIL?.trim();
+        if (resendApiKey && resendFromEmail) {
+          try {
+            await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${resendApiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                from: resendFromEmail,
+                to: [user.email],
+                subject: 'Your Ashram Shala AI Assistant PIN',
+                text: `Your AI Assistant PIN for Ashram Shala Pathraj portal is: ${aiPin}\n\nUse this PIN to log in to the AI chatbot assistant. Keep it safe and do not share it with anyone.\n\nIf you did not request this, please contact the school office immediately.`,
+                html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:20px">Your AI Assistant PIN</h1><p>Your AI Assistant PIN is:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#006948">${aiPin}</p><p>Use this PIN to log in to the AI chatbot assistant. Keep it safe and do not share it with anyone.</p><p style="color:#93000a">If you did not request this, please contact the school office immediately.</p></div>`,
+              }),
+              signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
+            });
+          } catch (emailError) {
+            console.error('Failed to send AI PIN email:', emailError instanceof Error ? emailError.message : emailError);
+          }
+        }
+      }
 
       await logSecurity(supabase, {
         action: 'password_set',
