@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   ArrowLeft,
-  ChevronDown,
   Eye,
   EyeOff,
   Globe,
@@ -19,19 +18,6 @@ import {
 } from 'lucide-react';
 import { type AppRole, useAppContext } from '../contexts/AppContext';
 
-const allRoleOptions: { value: AppRole; labelEn: string; labelMr: string }[] = [
-  { value: 'web_creator', labelEn: 'Super Admin', labelMr: 'सुपर अॅडमिन' },
-  { value: 'principal', labelEn: 'Principal', labelMr: 'मुख्याध्यापक' },
-  { value: 'class_teacher', labelEn: 'Class Teacher', labelMr: 'वर्गशिक्षक' },
-  { value: 'clerk', labelEn: 'Clerk', labelMr: 'लिपिक' },
-  { value: 'subject_teacher', labelEn: 'Subject Teacher', labelMr: 'विषय शिक्षक' },
-  { value: 'student_parent', labelEn: 'Student/Parent', labelMr: 'विद्यार्थी/पालक' },
-];
-
-const publicRoleOptions = allRoleOptions.filter((r) =>
-  ['class_teacher', 'subject_teacher', 'student_parent'].includes(r.value)
-);
-
 type LoginStage = 'credentials' | 'otp';
 
 interface LoginPageProps {
@@ -44,7 +30,6 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
   const { language, setLanguage, beginLogin, sendOtp, verifyOtp, setIsRegistering, isAuthenticated } = useAppContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<AppRole>(fixedRole || 'student_parent');
   const [showPassword, setShowPassword] = useState(false);
   const [stage, setStage] = useState<LoginStage>('credentials');
   const [challengeToken, setChallengeToken] = useState('');
@@ -196,18 +181,6 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
 
         {stage === 'credentials' ? (
           <form onSubmit={handleCredentialSubmit} className="space-y-4">
-            {!fixedRole && (
-            <div>
-              <label htmlFor="login-role" className="mb-2 block text-xs font-medium text-[#6B6B6B]">{t('Portal role', 'पोर्टल भूमिका')}</label>
-              <div className="relative">
-                <select id="login-role" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value as AppRole)} className="h-12 w-full appearance-none rounded-xl border border-[#E7E7E4] bg-white px-4 pr-11 text-sm text-black">
-                  {publicRoleOptions.map((option) => <option key={option.value} value={option.value}>{language === 'en' ? option.labelEn : option.labelMr}</option>)}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A3A3A3]" />
-              </div>
-            </div>
-            )}
-
             <div>
               <label htmlFor="username" className="mb-2 block text-xs font-medium text-[#6B6B6B]">{t('Username or ID', 'वापरकर्तानाव किंवा आयडी')}</label>
               <div className="relative"><User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A3A3A3]" /><input id="username" type="text" value={username} onChange={(event) => setUsername(event.target.value)} placeholder={t('Enter username', 'वापरकर्तानाव प्रविष्ट करा')} className="h-12 w-full rounded-xl border border-[#E7E7E4] bg-white pl-11 pr-4 text-sm text-black placeholder:text-[#A3A3A3]" autoComplete="username" /></div>
