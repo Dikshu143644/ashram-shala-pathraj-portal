@@ -422,63 +422,36 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         return;
       }
 
-      if (!user.email) {
-        await logSecurity(supabase, {
-          action: 'otp_unavailable',
-          userId: user.id,
-          username: user.username,
-          ip,
-          details: 'No OTP email configured for account',
-        });
-        res.status(403).json({ success: false, error: 'Email verification is not configured for this account.' });
-        return;
-      }
-
-      const configuration = otpConfiguration();
-      if (!configuration) {
-        res.status(503).json({ success: false, error: 'Email verification service is not configured.' });
-        return;
-      }
-
-      const proposedChallengeId = randomUUID();
-      const proposedToken = challengeTokenForId(proposedChallengeId, configuration.hmacSecret);
-      const proposedHash = challengeHash(proposedToken);
-      const expiresAt = new Date(Date.now() + CHALLENGE_TTL_MS).toISOString();
-      const { data: rpcData, error: rpcError } = await supabase.rpc('begin_otp_challenge', {
-        p_user_id: user.id,
-        p_challenge_id: proposedChallengeId,
-        p_challenge_hash: proposedHash,
-        p_expires_at: expiresAt,
-        p_request_ip: ip,
-        p_request_id: operationId,
+      // Direct login - issue session immediately (no OTP required)
+      issueSession(res, {
+        userId: user.id,
+        username: user.username,
+        role: user.role,
+        nameEn: user.name_en,
+        nameMr: user.name_mr,
       });
-      if (rpcError) throw rpcError;
-
-      const challenge = firstRpcRow<ChallengeRpcRow>(rpcData);
-      if (!challenge) throw new Error('Challenge RPC returned no row');
-      const challengeToken = challengeTokenForId(challenge.challenge_id, configuration.hmacSecret);
-      if (challengeHash(challengeToken) !== challenge.stored_challenge_hash) {
-        throw new Error('Challenge token integrity check failed');
-      }
 
       await logSecurity(supabase, {
-        action: 'password_verified',
+        action: 'login_success',
         userId: user.id,
         username: user.username,
         ip,
-        details: challenge.created ? 'Password verified; OTP challenge created' : 'Password verified; active OTP challenge reused',
+        details: 'Successful login with password',
       });
 
       res.json({
         success: true,
-        otpRequired: true,
-        challengeToken,
-        maskedEmail: maskEmail(user.email),
-        expiresInSeconds: Math.max(0, Math.floor((new Date(challenge.challenge_expires_at).getTime() - Date.now()) / 1000)),
+        user: {
+          username: user.username,
+          role: user.role,
+          nameEn: user.name_en,
+          nameMr: user.name_mr,
+          mustChangePassword: user.must_change_password,
+        },
       });
     } catch (error) {
-      console.error('Password verification failed:', error instanceof Error ? error.message : error);
-      res.status(500).json({ success: false, error: 'Unable to start email verification.' });
+      console.error('Login failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to process login.' });
     }
   });
 
@@ -739,7 +712,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     }
   });
 
-  // POST /api/auth/register - Parent self-registration
+  // POST /api/auth/register - Parent self-registration (simplified: form + password -> done)
   app.post('/api/auth/register', async (req: Request, res: Response) => {
     const ip = clientIp(req);
     res.setHeader('Cache-Control', 'no-store');
@@ -755,8 +728,8 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       return;
     }
 
-    const { fullName, mobileNumber, email, relationship } = req.body as {
-      fullName?: unknown; mobileNumber?: unknown; email?: unknown; relationship?: unknown;
+    const { fullName, mobileNumber, email, relationship, password } = req.body as {
+      fullName?: unknown; mobileNumber?: unknown; email?: unknown; relationship?: unknown; password?: unknown;
     };
 
     if (typeof fullName !== 'string' || !fullName.trim() || fullName.length > 160) {
@@ -776,26 +749,76 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       res.status(400).json({ success: false, error: 'Relationship must be Father, Mother, Guardian, or Other.' });
       return;
     }
+    if (typeof password !== 'string' || password.length < 8 || password.length > 100) {
+      res.status(400).json({ success: false, error: 'Password must be between 8 and 100 characters.' });
+      return;
+    }
 
     try {
-      // Check unique mobile_number and email
-      const { data: existingMobile } = await supabase
+      const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+
+      // Check if user already exists with this mobile or email (handle stuck users)
+      const { data: existingByMobile } = await supabase
         .from('auth_users')
-        .select('id')
+        .select('id,username,password_hash,email,mobile_number')
         .eq('mobile_number', mobileNumber)
         .maybeSingle();
-      if (existingMobile) {
-        res.status(409).json({ success: false, error: 'An account with this mobile number already exists.' });
-        return;
-      }
 
-      const { data: existingEmail } = await supabase
+      const { data: existingByEmail } = await supabase
         .from('auth_users')
-        .select('id')
+        .select('id,username,password_hash,email,mobile_number')
         .eq('email', email.toLowerCase())
         .maybeSingle();
-      if (existingEmail) {
-        res.status(409).json({ success: false, error: 'An account with this email already exists.' });
+
+      // If user exists (stuck user from failed OTP registration), allow re-registration
+      // by updating their password to the new one they just provided
+      const existingUser = existingByMobile || existingByEmail;
+      if (existingUser) {
+        // Update the existing stuck user with the new password and details
+        const { error: updateError } = await supabase
+          .from('auth_users')
+          .update({
+            password_hash: hashedPassword,
+            name_en: fullName.trim(),
+            name_mr: fullName.trim(),
+            email: email.toLowerCase(),
+            mobile_number: mobileNumber,
+            username: mobileNumber,
+            must_change_password: false,
+            is_active: true,
+          })
+          .eq('id', existingUser.id);
+
+        if (updateError) throw updateError;
+
+        // Issue session directly
+        issueSession(res, {
+          userId: existingUser.id,
+          username: mobileNumber,
+          role: 'student_parent',
+          nameEn: fullName.trim(),
+          nameMr: fullName.trim(),
+        });
+
+        await logSecurity(supabase, {
+          action: 'parent_re_registered',
+          userId: existingUser.id,
+          username: mobileNumber,
+          ip,
+          details: `Parent re-registration (password reset): ${relationship}`,
+        });
+
+        res.status(200).json({
+          success: true,
+          userId: existingUser.id,
+          user: {
+            username: mobileNumber,
+            role: 'student_parent',
+            nameEn: fullName.trim(),
+            nameMr: fullName.trim(),
+            mustChangePassword: false,
+          },
+        });
         return;
       }
 
@@ -806,14 +829,11 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         .eq('username', mobileNumber)
         .maybeSingle();
       if (existingUsername) {
-        res.status(409).json({ success: false, error: 'An account with this mobile number already exists.' });
+        res.status(409).json({ success: false, error: 'An account with this mobile number already exists. Try logging in or use Forgot Password.' });
         return;
       }
 
-      // Generate a random temporary password (user will set their own after OTP)
-      const tempPassword = randomBytes(16).toString('hex');
-      const hashedPassword = await bcrypt.hash(tempPassword, BCRYPT_SALT_ROUNDS);
-
+      // Create new user with the password they provided
       const { data: newUser, error: insertError } = await supabase
         .from('auth_users')
         .insert({
@@ -832,42 +852,14 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
 
       if (insertError) throw insertError;
 
-      // Initiate OTP challenge for email verification
-      const configuration = otpConfiguration();
-      if (!configuration) {
-        // Clean up orphaned user since OTP cannot proceed
-        await supabase.from('auth_users').delete().eq('id', newUser.id);
-        res.status(503).json({ success: false, error: 'Email verification service is not configured.' });
-        return;
-      }
-
-      const proposedChallengeId = randomUUID();
-      const proposedToken = challengeTokenForId(proposedChallengeId, configuration.hmacSecret);
-      const proposedHash = challengeHash(proposedToken);
-      const expiresAt = new Date(Date.now() + CHALLENGE_TTL_MS).toISOString();
-
-      let challengeTokenResult: string;
-      try {
-        const { data: rpcData, error: rpcError } = await supabase.rpc('begin_otp_challenge', {
-          p_user_id: newUser.id,
-          p_challenge_id: proposedChallengeId,
-          p_challenge_hash: proposedHash,
-          p_expires_at: expiresAt,
-          p_request_ip: ip,
-          p_request_id: randomUUID(),
-        });
-        if (rpcError) throw rpcError;
-
-        const challenge = firstRpcRow<ChallengeRpcRow>(rpcData);
-        if (!challenge) throw new Error('Challenge RPC returned no row');
-        challengeTokenResult = challengeTokenForId(challenge.challenge_id, configuration.hmacSecret);
-      } catch (otpError) {
-        // OTP challenge failed after user was inserted - delete orphaned user
-        await supabase.from('auth_users').delete().eq('id', newUser.id);
-        console.error('Registration OTP challenge failed, orphan cleaned up:', otpError instanceof Error ? otpError.message : otpError);
-        res.status(500).json({ success: false, error: 'Unable to complete registration. Please try again.' });
-        return;
-      }
+      // Issue session directly - user is logged in immediately after registration
+      issueSession(res, {
+        userId: newUser.id,
+        username: newUser.username,
+        role: 'student_parent',
+        nameEn: fullName.trim(),
+        nameMr: fullName.trim(),
+      });
 
       await logSecurity(supabase, {
         action: 'parent_registered',
@@ -880,8 +872,13 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       res.status(201).json({
         success: true,
         userId: newUser.id,
-        challengeToken: challengeTokenResult,
-        maskedEmail: maskEmail(email.toLowerCase()),
+        user: {
+          username: newUser.username,
+          role: 'student_parent',
+          nameEn: fullName.trim(),
+          nameMr: fullName.trim(),
+          mustChangePassword: false,
+        },
       });
     } catch (error) {
       console.error('Registration failed:', error instanceof Error ? error.message : error);
@@ -1346,6 +1343,237 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     } catch (error) {
       console.error('Parent-student linking failed:', error instanceof Error ? error.message : error);
       res.status(500).json({ success: false, error: 'Unable to link parent to students.' });
+    }
+  });
+
+  // ====================================================================
+  // FORGOT PASSWORD - In-memory OTP store for password reset
+  // ====================================================================
+  const forgotPasswordOtpStore = new Map<string, { code: string; userId: string; expiresAt: number }>();
+
+  // Clean up expired entries every 5 minutes
+  const forgotPasswordCleanupTimer = setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of forgotPasswordOtpStore.entries()) {
+      if (value.expiresAt < now) forgotPasswordOtpStore.delete(key);
+    }
+  }, 5 * 60_000);
+  forgotPasswordCleanupTimer.unref();
+
+  // POST /api/auth/forgot-password - Send reset OTP to user's email
+  app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
+    const ip = clientIp(req);
+    res.setHeader('Cache-Control', 'no-store');
+
+    try {
+      const limited = await isRateLimited(supabase, 'forgot_password_ip', ip, 5);
+      if (limited) {
+        rejectRateLimit(res, 'Too many requests. Please try again later.', RATE_LIMIT_WINDOW_SECONDS);
+        return;
+      }
+    } catch {
+      res.status(503).json({ success: false, error: 'Service temporarily unavailable.' });
+      return;
+    }
+
+    const { identifier } = req.body as { identifier?: unknown };
+    if (typeof identifier !== 'string' || !identifier.trim() || identifier.length > 320) {
+      res.status(400).json({ success: false, error: 'Please enter your mobile number or email address.' });
+      return;
+    }
+
+    const normalizedIdentifier = identifier.trim().toLowerCase();
+
+    try {
+      // Look up user by mobile number, email, or username
+      let user: { id: string; email: string | null; username: string; name_en: string } | null = null;
+
+      if (/^[6-9]\d{9}$/.test(normalizedIdentifier)) {
+        // Mobile number lookup
+        const { data } = await supabase
+          .from('auth_users')
+          .select('id,email,username,name_en')
+          .eq('mobile_number', normalizedIdentifier)
+          .eq('is_active', true)
+          .maybeSingle();
+        user = data;
+      }
+
+      if (!user && normalizedIdentifier.includes('@')) {
+        // Email lookup
+        const { data } = await supabase
+          .from('auth_users')
+          .select('id,email,username,name_en')
+          .eq('email', normalizedIdentifier)
+          .eq('is_active', true)
+          .maybeSingle();
+        user = data;
+      }
+
+      if (!user) {
+        // Username lookup
+        const { data } = await supabase
+          .from('auth_users')
+          .select('id,email,username,name_en')
+          .eq('username', normalizedIdentifier)
+          .eq('is_active', true)
+          .maybeSingle();
+        user = data;
+      }
+
+      if (!user || !user.email) {
+        // Return generic message to prevent user enumeration
+        res.json({ success: true, message: 'If an account exists with this identifier, a reset code will be sent to the registered email.' });
+        return;
+      }
+
+      // Generate 6-digit OTP
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = Date.now() + 10 * 60_000; // 10 minutes
+
+      // Store OTP keyed by the identifier (so user can use same identifier to reset)
+      forgotPasswordOtpStore.set(normalizedIdentifier, { code, userId: user.id, expiresAt });
+
+      // Send OTP via email (using same helper as login OTP)
+      const emailSubject = 'Password Reset Code - Ashram Shala Pathraj';
+      const emailText = `Your password reset code is: ${code}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`;
+      const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:20px">Password Reset Code</h1><p>Hi ${user.name_en},</p><p>Your password reset code is:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#006948">${code}</p><p>This code expires in 10 minutes.</p><p>If you did not request this, please ignore this email.</p></div>`;
+
+      const emailResult = await sendOtpEmail(
+        user.email,
+        code,
+        '10 minutes',
+        `forgot-password/${user.id}/${randomUUID()}`,
+        emailSubject,
+        emailText,
+        emailHtml,
+      );
+
+      if (!emailResult.success) {
+        console.error('Forgot password email failed:', emailResult.error);
+        res.status(502).json({ success: false, error: 'Could not send reset email. Please try again.' });
+        return;
+      }
+
+      await logSecurity(supabase, {
+        action: 'forgot_password_otp_sent',
+        userId: user.id,
+        username: user.username,
+        ip,
+        details: `Password reset OTP sent to ${maskEmail(user.email)}`,
+      });
+
+      res.json({
+        success: true,
+        message: 'If an account exists with this identifier, a reset code will be sent to the registered email.',
+        maskedEmail: maskEmail(user.email),
+      });
+    } catch (error) {
+      console.error('Forgot password failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to process request.' });
+    }
+  });
+
+  // POST /api/auth/reset-password - Verify OTP and set new password
+  app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
+    const ip = clientIp(req);
+    res.setHeader('Cache-Control', 'no-store');
+
+    try {
+      const limited = await isRateLimited(supabase, 'reset_password_ip', ip, 10);
+      if (limited) {
+        rejectRateLimit(res, 'Too many attempts. Please try again later.', RATE_LIMIT_WINDOW_SECONDS);
+        return;
+      }
+    } catch {
+      res.status(503).json({ success: false, error: 'Service temporarily unavailable.' });
+      return;
+    }
+
+    const { identifier, otp, newPassword } = req.body as { identifier?: unknown; otp?: unknown; newPassword?: unknown };
+
+    if (typeof identifier !== 'string' || !identifier.trim()) {
+      res.status(400).json({ success: false, error: 'Identifier is required.' });
+      return;
+    }
+    if (typeof otp !== 'string' || !/^\d{6}$/.test(otp)) {
+      res.status(400).json({ success: false, error: 'A valid 6-digit code is required.' });
+      return;
+    }
+    if (typeof newPassword !== 'string' || newPassword.length < 8 || newPassword.length > 100) {
+      res.status(400).json({ success: false, error: 'Password must be between 8 and 100 characters.' });
+      return;
+    }
+
+    const normalizedIdentifier = identifier.trim().toLowerCase();
+    const storedOtp = forgotPasswordOtpStore.get(normalizedIdentifier);
+
+    if (!storedOtp) {
+      res.status(400).json({ success: false, error: 'No reset code found. Please request a new one.' });
+      return;
+    }
+
+    if (Date.now() > storedOtp.expiresAt) {
+      forgotPasswordOtpStore.delete(normalizedIdentifier);
+      res.status(400).json({ success: false, error: 'Reset code has expired. Please request a new one.' });
+      return;
+    }
+
+    if (storedOtp.code !== otp) {
+      res.status(401).json({ success: false, error: 'Invalid reset code. Please try again.' });
+      return;
+    }
+
+    try {
+      const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+
+      const { error } = await supabase
+        .from('auth_users')
+        .update({
+          password_hash: hashedPassword,
+          must_change_password: false,
+          password_changed_at: new Date().toISOString(),
+        })
+        .eq('id', storedOtp.userId);
+
+      if (error) throw error;
+
+      // Remove the used OTP
+      forgotPasswordOtpStore.delete(normalizedIdentifier);
+
+      // Load user data for session
+      const user = await loadActiveUser(supabase, storedOtp.userId);
+      if (user) {
+        // Issue session so user is logged in after password reset
+        issueSession(res, {
+          userId: user.id,
+          username: user.username,
+          role: user.role,
+          nameEn: user.name_en,
+          nameMr: user.name_mr,
+        });
+      }
+
+      await logSecurity(supabase, {
+        action: 'password_reset',
+        userId: storedOtp.userId,
+        ip,
+        details: 'Password reset via forgot-password OTP',
+      });
+
+      res.json({
+        success: true,
+        user: user ? {
+          username: user.username,
+          role: user.role,
+          nameEn: user.name_en,
+          nameMr: user.name_mr,
+          mustChangePassword: false,
+        } : undefined,
+      });
+    } catch (error) {
+      console.error('Reset password failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to reset password.' });
     }
   });
 

@@ -49,7 +49,7 @@ interface AppContextType {
   beginLogin: (username: string, password: string) => Promise<BeginLoginResult>;
   sendOtp: (challengeToken: string) => Promise<SendOtpResult>;
   verifyOtp: (challengeToken: string, code: string) => Promise<OperationResult>;
-  register: (data: { fullName: string; mobileNumber: string; email: string; relationship: string }) => Promise<RegisterResult>;
+  register: (data: { fullName: string; mobileNumber: string; email: string; relationship: string; password: string }) => Promise<RegisterResult>;
   setPassword: (password: string, confirmPassword: string) => Promise<OperationResult>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<OperationResult>;
   logout: () => void;
@@ -191,17 +191,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         newOperationId(),
       );
 
-      if (
-        response.ok &&
-        data.success === true &&
-        data.otpRequired === true &&
-        typeof data.challengeToken === 'string'
-      ) {
-        return {
-          success: true,
-          challengeToken: data.challengeToken,
-          maskedEmail: typeof data.maskedEmail === 'string' ? data.maskedEmail : undefined,
+      // Direct login - server issues session immediately
+      if (response.ok && data.success === true && data.user && typeof data.user === 'object') {
+        const userData = data.user as Record<string, unknown>;
+        const user: AuthUser = {
+          username: userData.username as string,
+          role: userData.role as AppRole,
+          nameEn: userData.nameEn as string,
+          nameMr: userData.nameMr as string,
+          mustChangePassword: userData.mustChangePassword === true,
         };
+        setCurrentUser(user);
+        setIsAuthenticated(true);
+        setRole(user.role);
+        setMustChangePassword(user.mustChangePassword || false);
+        sessionStorage.setItem('ashram_auth', JSON.stringify(user));
+        return { success: true };
       }
 
       return {
@@ -284,7 +289,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem('ashram_auth');
   }, []);
 
-  const register = useCallback(async (regData: { fullName: string; mobileNumber: string; email: string; relationship: string }): Promise<RegisterResult> => {
+  const register = useCallback(async (regData: { fullName: string; mobileNumber: string; email: string; relationship: string; password: string }): Promise<RegisterResult> => {
     try {
       const { response, data } = await apiRequest(
         '/api/auth/register',
@@ -293,11 +298,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
 
       if ((response.ok || response.status === 201) && data.success === true) {
+        // Server now directly logs in the user after registration
+        if (data.user && typeof data.user === 'object') {
+          const userData = data.user as Record<string, unknown>;
+          const user: AuthUser = {
+            username: userData.username as string,
+            role: userData.role as AppRole,
+            nameEn: userData.nameEn as string,
+            nameMr: userData.nameMr as string,
+            mustChangePassword: userData.mustChangePassword === true,
+          };
+          setCurrentUser(user);
+          setIsAuthenticated(true);
+          setRole(user.role);
+          setMustChangePassword(user.mustChangePassword || false);
+          sessionStorage.setItem('ashram_auth', JSON.stringify(user));
+        }
         return {
           success: true,
           userId: typeof data.userId === 'string' ? data.userId : undefined,
-          challengeToken: typeof data.challengeToken === 'string' ? data.challengeToken : undefined,
-          maskedEmail: typeof data.maskedEmail === 'string' ? data.maskedEmail : undefined,
         };
       }
 

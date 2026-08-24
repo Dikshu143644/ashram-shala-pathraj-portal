@@ -11,6 +11,7 @@ import GalleryPage from './pages/GalleryPage';
 import ContactPage from './pages/ContactPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
+import ForgotPasswordPage from './components/ForgotPasswordPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isAuthChecking } = useAppContext();
@@ -50,6 +51,7 @@ function AppRoutes() {
       <Route path="/admin/login" element={<LoginPage fixedRole="web_creator" />} />
       <Route path="/principal/login" element={<LoginPage fixedRole="principal" />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
       {/* Protected portal routes */}
       <Route
