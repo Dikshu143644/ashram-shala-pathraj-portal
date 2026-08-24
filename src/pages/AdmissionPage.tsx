@@ -1,11 +1,64 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../contexts/AppContext';
 import { motion } from 'motion/react';
-import { FileText, CheckCircle, Phone, XCircle, ClipboardList, UserCheck, ArrowRight, AlertTriangle, Mail } from 'lucide-react';
+import { FileText, CheckCircle, Phone, XCircle, ClipboardList, UserCheck, ArrowRight, AlertTriangle, Mail, Send } from 'lucide-react';
 
 export default function AdmissionPage() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
+
+  const [applicantName, setApplicantName] = useState('');
+  const [parentName, setParentName] = useState('');
+  const [parentMobile, setParentMobile] = useState('');
+  const [parentEmail, setParentEmail] = useState('');
+  const [standardApplying, setStandardApplying] = useState('');
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
+  const [formLoading, setFormLoading] = useState(false);
+
+  const handleApplicationSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+
+    if (!applicantName.trim()) { setFormError(t('Student name is required.', 'विद्यार्थ्याचे नाव आवश्यक आहे.')); return; }
+    if (!parentName.trim()) { setFormError(t('Parent/Guardian name is required.', 'पालक/पालकाचे नाव आवश्यक आहे.')); return; }
+    if (!/^[6-9]\d{9}$/.test(parentMobile)) { setFormError(t('Enter a valid 10-digit mobile number.', 'वैध 10 अंकी मोबाईल नंबर प्रविष्ट करा.')); return; }
+
+    setFormLoading(true);
+    try {
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          applicant_name: applicantName.trim(),
+          parent_name: parentName.trim(),
+          parent_mobile: parentMobile.trim(),
+          parent_email: parentEmail.trim() || undefined,
+          standard_applying: standardApplying ? parseInt(standardApplying, 10) : undefined,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.data) {
+        setFormSuccess(t(
+          'Application submitted successfully! Your application ID: ' + data.data.id.slice(0, 8) + '. We will contact you soon.',
+          'अर्ज यशस्वीरित्या सबमिट झाला! तुमचा अर्ज आयडी: ' + data.data.id.slice(0, 8) + '. आम्ही लवकरच तुमच्याशी संपर्क साधू.'
+        ));
+        setApplicantName('');
+        setParentName('');
+        setParentMobile('');
+        setParentEmail('');
+        setStandardApplying('');
+      } else {
+        setFormError(data.error || t('Could not submit application.', 'अर्ज सबमिट करता आला नाही.'));
+      }
+    } catch {
+      setFormError(t('Request failed. Please try again.', 'विनंती अयशस्वी. कृपया पुन्हा प्रयत्न करा.'));
+    } finally {
+      setFormLoading(false);
+    }
+  };
 
   const admissionSteps = [
     {
@@ -322,7 +375,7 @@ export default function AdmissionPage() {
         </div>
       </section>
 
-      {/* ===== APPLY ONLINE ===== */}
+      {/* ===== APPLY ONLINE - APPLICATION FORM ===== */}
       <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
         <div className="mx-auto max-w-3xl">
           <motion.div
@@ -330,39 +383,154 @@ export default function AdmissionPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.7 }}
-            className="text-center rounded-2xl p-8 sm:p-12"
+            className="rounded-2xl p-8 sm:p-12"
             style={{
               background: '#FCFCFB',
               border: '1px solid #E7E7E4',
               boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
             }}
           >
-            <div
-              className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
-            >
-              <ClipboardList className="h-6 w-6" style={{ color: '#059669' }} />
+            <div className="text-center mb-8">
+              <div
+                className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
+              >
+                <ClipboardList className="h-6 w-6" style={{ color: '#059669' }} />
+              </div>
+              <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
+                {t('Apply Online', 'ऑनलाइन अर्ज करा')}
+              </h2>
+              <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
+                {t(
+                  'Fill the form below to submit your admission application',
+                  'प्रवेश अर्ज सबमिट करण्यासाठी खालील फॉर्म भरा'
+                )}
+              </p>
             </div>
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
-              {t('Apply Online', 'ऑनलाइन अर्ज करा')}
-            </h2>
-            <p className="mb-8 text-sm" style={{ color: 'var(--public-text-muted)' }}>
-              {t(
-                'Register on our portal to submit your admission application online. You can track your application status after registration.',
-                'ऑनलाइन प्रवेश अर्ज सबमिट करण्यासाठी आमच्या पोर्टलवर नोंदणी करा. नोंदणीनंतर तुम्ही तुमच्या अर्जाची स्थिती ट्रॅक करू शकता.'
-              )}
-            </p>
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 no-underline"
-              style={{
-                background: '#000000',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
-              }}
-            >
-              {t('Register & Apply', 'नोंदणी करा आणि अर्ज करा')}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+
+            {formSuccess ? (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+                <CheckCircle className="h-10 w-10 text-emerald-600 mx-auto mb-3" />
+                <p className="text-sm font-semibold text-emerald-800">{formSuccess}</p>
+                <button
+                  type="button"
+                  onClick={() => setFormSuccess('')}
+                  className="mt-4 inline-flex items-center gap-2 rounded-full px-6 py-2 text-xs font-semibold text-white"
+                  style={{ background: '#059669' }}
+                >
+                  {t('Submit Another', 'आणखी एक सबमिट करा')}
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleApplicationSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
+                    {t('Student Name *', 'विद्यार्थ्याचे नाव *')}
+                  </label>
+                  <input
+                    type="text"
+                    value={applicantName}
+                    onChange={(e) => setApplicantName(e.target.value)}
+                    placeholder={t('Enter student full name', 'विद्यार्थ्याचे पूर्ण नाव प्रविष्ट करा')}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                    style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
+                    {t('Parent/Guardian Name *', 'पालक/पालकाचे नाव *')}
+                  </label>
+                  <input
+                    type="text"
+                    value={parentName}
+                    onChange={(e) => setParentName(e.target.value)}
+                    placeholder={t('Enter parent or guardian name', 'पालक किंवा पालकाचे नाव प्रविष्ट करा')}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                    style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
+                  />
+                </div>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
+                      {t('Mobile Number *', 'मोबाईल नंबर *')}
+                    </label>
+                    <input
+                      type="tel"
+                      value={parentMobile}
+                      onChange={(e) => setParentMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      placeholder="9876543210"
+                      className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                      style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
+                      {t('Email (optional)', 'ईमेल (पर्यायी)')}
+                    </label>
+                    <input
+                      type="email"
+                      value={parentEmail}
+                      onChange={(e) => setParentEmail(e.target.value)}
+                      placeholder="parent@example.com"
+                      className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                      style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
+                    {t('Standard Applying For', 'अर्ज करत असलेली इयत्ता')}
+                  </label>
+                  <select
+                    value={standardApplying}
+                    onChange={(e) => setStandardApplying(e.target.value)}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none appearance-none"
+                    style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
+                  >
+                    <option value="">{t('Select Standard', 'इयत्ता निवडा')}</option>
+                    {[1,2,3,4,5,6,7,8,9,10,11,12].map((s) => (
+                      <option key={s} value={s}>{t(`Standard ${s}`, `इयत्ता ${s}`)}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {formError && (
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-xs text-red-700">
+                    {formError}
+                  </div>
+                )}
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={formLoading}
+                    className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      background: '#000000',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+                    }}
+                  >
+                    {formLoading ? (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                    {t('Submit Application', 'अर्ज सबमिट करा')}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="mt-6 text-center">
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 text-xs font-medium no-underline transition-colors hover:opacity-80"
+                style={{ color: '#059669' }}
+              >
+                {t('Already have an account? Register & Track', 'आधीच खाते आहे? नोंदणी करा आणि ट्रॅक करा')}
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>

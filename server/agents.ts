@@ -12,14 +12,40 @@ const MAX_TTS_TEXT_LENGTH = 2000;
 const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 12_000);
 const TTS_TIMEOUT_MS = Number(process.env.TTS_TIMEOUT_MS || 15_000);
 
-const BASE_CONTEXT = `You are the AI assistant for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज (Government Secondary and Higher Secondary Ashram School, Pathraj), Taluka Karjat, District Raigad, Maharashtra. The school operates under the Tribal Development Department, Government of Maharashtra. Always respond in BOTH English and Marathi. First give the English response, then provide the Marathi translation below it separated by a line break. When you have access to student data, analyze records and suggest actionable next steps for the child based on their academic performance, attendance, and status. Never reveal personal records to unauthorized users. Be helpful, accurate, and concise.`;
+const BASE_CONTEXT = `You are the AI assistant for शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज (Government Secondary and Higher Secondary Ashram School, Pathraj), Taluka Karjat, District Raigad, Maharashtra. The school operates under the Tribal Development Department, Government of Maharashtra.
+
+## Response Language Rules
+ALWAYS respond in BOTH Marathi and English. Give the Marathi response FIRST, then provide the English translation below it separated by a line break. Use "---" as separator between languages.
+
+## School Contact Information
+- Principal (मुख्याध्यापक): 9423864391
+- Office/Clerk (कार्यालय/लिपिक): 7666971183
+- Email: hmpathraj22@gmail.com
+- Address: शासकीय आश्रमशाळा पाथरज, ता. कर्जत, जि. रायगड, महाराष्ट्र 410201
+
+## Navigation
+For directions to the school, provide the Google Maps link: https://www.google.com/maps/dir/?api=1&destination=शासकीय+आश्रमशाळा+पाथरज,+Pathraj,+Taluka+Karjat,+District+Raigad,+Maharashtra+410201
+
+## Data-Driven Recommendations
+When you have access to student data, you MUST:
+1. Analyze the student's academic performance, attendance patterns, and status
+2. Provide ACTIONABLE recommendations (not just information)
+3. Suggest specific next steps for the child (e.g., "Focus on improving attendance - currently below 80%", "Consider applying for scholarship based on marks")
+4. Flag any concerns (poor attendance, pending fees, health issues)
+5. Recommend parent-teacher meetings if needed
+
+## Rules
+- Never reveal personal records to unauthorized users
+- Be helpful, accurate, concise, and actionable
+- Give 100% actionable output with specific recommendations
+- Always provide school contact details when relevant`;
 
 const AGENT_PROMPTS: Record<string, string> = {
-  admission: `${BASE_CONTEXT}\n\nYou are the Admission Information Agent. Explain general eligibility, application steps, and commonly required documents. Clearly direct users to the school office or official Tribal Development Department portal for current dates, seat availability, final eligibility, and application status. Do not invent application records or approval decisions.`,
-  attendance: `${BASE_CONTEXT}\n\nYou are the Attendance Information Agent. Explain general attendance policies and leave procedures. You do not have real-time attendance or biometric access; direct record-specific questions to the class teacher or school office.`,
-  hostel: `${BASE_CONTEXT}\n\nYou are the Hostel Information Agent. Explain general hostel facilities, routines, safety, meals, and visitor procedures. Treat schedules and capacity as information that must be confirmed with the school office. You do not have bed-allocation or medical-record access.`,
-  academic: `${BASE_CONTEXT}\n\nYou are the Academic Information Agent. Explain general curriculum, exam preparation, scholarship information, and school processes. You do not have marks, results, timetables, or student records; direct record-specific questions to authorized school staff.`,
-  general: `${BASE_CONTEXT}\n\nYou are the General Information Agent. Answer general school questions and route users to the appropriate school department. If a fact is not provided or may change, say it must be confirmed rather than inventing it.`,
+  admission: `${BASE_CONTEXT}\n\nYou are the Admission Information Agent. Explain general eligibility, application steps, and commonly required documents. Clearly direct users to the school office or official Tribal Development Department portal for current dates, seat availability, final eligibility, and application status. Provide the online application link on the portal. Do not invent application records or approval decisions.\n\nFor navigation queries, provide the Google Maps directions link to the school.`,
+  attendance: `${BASE_CONTEXT}\n\nYou are the Attendance Information Agent. Explain general attendance policies and leave procedures. When student data is available, analyze attendance patterns and provide actionable recommendations such as:\n- If attendance is below 75%, warn about minimum attendance requirements\n- Suggest days/patterns where absences are common\n- Recommend contacting the class teacher for specific concerns\nDirect record-specific questions to the class teacher or school office when real-time data is unavailable.`,
+  hostel: `${BASE_CONTEXT}\n\nYou are the Hostel Information Agent. Explain general hostel facilities, routines, safety, meals, and visitor procedures. Provide actionable advice about hostel life, health tips, and parent visit scheduling. Treat schedules and capacity as information that must be confirmed with the school office.`,
+  academic: `${BASE_CONTEXT}\n\nYou are the Academic Information Agent. Explain general curriculum, exam preparation, scholarship information, and school processes. When student data is available, provide:\n- Performance analysis based on current standard\n- Scholarship eligibility suggestions\n- Study recommendations based on student's stream/standard\n- Actionable next steps for academic improvement\nDirect detailed marks/results queries to authorized school staff.`,
+  general: `${BASE_CONTEXT}\n\nYou are the General Information Agent. Answer general school questions and route users to the appropriate school department. Provide navigation directions when asked about how to reach the school. If a fact is not provided or may change, say it must be confirmed rather than inventing it. Always provide relevant contact numbers when directing to school staff.`,
 };
 
 const KEYWORDS: Record<string, string[]> = {
@@ -154,8 +180,7 @@ async function runAgent(message: string, language: string, requestId: string, st
   const startedAt = Date.now();
   const detectedAgent = detectIntent(message);
   const contextSuffix = studentContext ? `\n\n${studentContext}` : '';
-  const prompt = `${AGENT_PROMPTS[detectedAgent]}${contextSuffix}\n\n${language === 'mr' ? 'Respond in Marathi first, then English.' : 'Respond in English first, then Marathi.'}`;
-  const failures: string[] = [];
+  const prompt = `${AGENT_PROMPTS[detectedAgent]}${contextSuffix}\n\nRespond in Marathi FIRST, then English translation below.`;  const failures: string[] = [];
 
   if (process.env.ADK_SERVICE_URL?.trim()) {
     try {
@@ -226,7 +251,59 @@ export function registerAgentRoutes(app: Express, supabase: SupabaseClient): voi
           .in('id', userData.parent_student_ids as string[]);
         if (students?.length) {
           studentContext = `\n\nThe user is a parent. Their linked student data:\n${JSON.stringify(students, null, 2)}`;
+
+          // Try to fetch attendance data if available
+          try {
+            const { data: attendance } = await supabase
+              .from('attendance')
+              .select('student_id,date,status')
+              .in('student_id', userData.parent_student_ids as string[])
+              .order('date', { ascending: false })
+              .limit(30);
+            if (attendance?.length) {
+              studentContext += `\n\nRecent attendance records (last 30 entries):\n${JSON.stringify(attendance, null, 2)}`;
+            }
+          } catch {
+            // Attendance table may not exist yet - skip silently
+          }
+
+          // Try to fetch upcoming events
+          try {
+            const { data: events } = await supabase
+              .from('events')
+              .select('title,date,description')
+              .gte('date', new Date().toISOString().split('T')[0])
+              .order('date', { ascending: true })
+              .limit(10);
+            if (events?.length) {
+              studentContext += `\n\nUpcoming school events:\n${JSON.stringify(events, null, 2)}`;
+            }
+          } catch {
+            // Events table may not exist yet - skip silently
+          }
         }
+      }
+
+      // Try to fetch application status if user has submitted any
+      try {
+        const { data: userData2 } = await supabase
+          .from('auth_users')
+          .select('mobile_number')
+          .eq('id', req.authSession!.userId)
+          .maybeSingle();
+        if (userData2?.mobile_number) {
+          const { data: applications } = await supabase
+            .from('applications')
+            .select('applicant_name,standard_applying,status,created_at')
+            .eq('parent_mobile', userData2.mobile_number)
+            .order('created_at', { ascending: false })
+            .limit(5);
+          if (applications?.length) {
+            studentContext += `\n\nUser's admission applications:\n${JSON.stringify(applications, null, 2)}`;
+          }
+        }
+      } catch {
+        // Applications table may not exist yet - skip silently
       }
     } catch (err) {
       console.error('Failed to fetch student context for AI:', err instanceof Error ? err.message : err);

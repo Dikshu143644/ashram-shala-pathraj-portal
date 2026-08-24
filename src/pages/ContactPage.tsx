@@ -1,6 +1,6 @@
 import { useAppContext } from '../contexts/AppContext';
 import { motion } from 'motion/react';
-import { MapPin, Phone, Mail, MessageCircle, Send, User } from 'lucide-react';
+import { MapPin, Phone, Mail, MessageCircle, Send, User, Navigation2 } from 'lucide-react';
 
 export default function ContactPage() {
   const { language } = useAppContext();
@@ -320,6 +320,23 @@ export default function ContactPage() {
                 referrerPolicy="no-referrer-when-downgrade"
                 className="w-full"
               />
+            </div>
+
+            {/* Navigate to School Button */}
+            <div className="mt-6 text-center">
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination=%E0%A4%B6%E0%A4%BE%E0%A4%B8%E0%A4%A8%E0%A4%BE%E0%A4%B8%E0%A4%A8+%E0%A4%86%E0%A4%B6%E0%A5%8D%E0%A4%B0%E0%A4%AE%E0%A4%B6%E0%A4%BE%E0%A4%B3%E0%A4%BE+%E0%A4%AA%E0%A4%BE%E0%A4%A5%E0%A4%B0%E0%A4%9C,+Pathraj,+Taluka+Karjat,+District+Raigad,+Maharashtra+410201"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white no-underline transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  background: '#059669',
+                  boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)',
+                }}
+              >
+                <Navigation2 className="h-4 w-4" />
+                {t('Navigate to School', 'शाळेकडे नेव्हिगेट करा')}
+              </a>
             </div>
           </motion.div>
         </div>

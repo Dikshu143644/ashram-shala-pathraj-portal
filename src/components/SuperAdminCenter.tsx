@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap, UserPlus, Link } from 'lucide-react';
+import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap, UserPlus, Link, Image, FileText } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
 import AdminCrudPanel from './AdminCrudPanel';
 
-type AdminTab = 'events' | 'audit' | 'students' | 'accounts' | 'linking';
+type AdminTab = 'events' | 'audit' | 'students' | 'accounts' | 'linking' | 'gallery' | 'applications';
 
 interface PendingEvent {
   id: string;
@@ -267,6 +267,214 @@ function LinkParentStudentPanel({ language, t }: { language: string; t: (en: str
   );
 }
 
+function GalleryUploadPanel({ t }: { t: (en: string, mr: string) => string }) {
+  const [caption, setCaption] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [galleryImages, setGalleryImages] = useState<Array<{ id: string; url: string; caption: string | null; created_at: string }>>([]);
+  const [imagesLoading, setImagesLoading] = useState(true);
+
+  const fetchGalleryImages = () => {
+    setImagesLoading(true);
+    fetch('/api/gallery')
+      .then(res => res.json())
+      .then(result => setGalleryImages(result.data || []))
+      .catch(() => {})
+      .finally(() => setImagesLoading(false));
+  };
+
+  useEffect(() => { fetchGalleryImages(); }, []);
+
+  const handleUpload = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!imageFile) { setError(t('Please select an image file.', 'कृपया एक प्रतिमा फाइल निवडा.')); return; }
+    if (imageFile.size > 10 * 1024 * 1024) { setError(t('Image too large (max 10MB).', 'प्रतिमा खूप मोठी आहे (कमाल 10MB).')); return; }
+
+    setIsLoading(true);
+    try {
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+      });
+      reader.readAsDataURL(imageFile);
+      const base64Data = await base64Promise;
+
+      const response = await fetch('/api/gallery/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: base64Data,
+          filename: imageFile.name,
+          caption: caption.trim() || undefined,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.data) {
+        setSuccess(t('Image uploaded successfully!', 'प्रतिमा यशस्वीरित्या अपलोड झाली!'));
+        setCaption('');
+        setImageFile(null);
+        fetchGalleryImages();
+      } else {
+        setError(data.error || t('Upload failed.', 'अपलोड अयशस्वी.'));
+      }
+    } catch {
+      setError(t('Upload request failed.', 'अपलोड विनंती अयशस्वी.'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(t('Delete this image?', 'ही प्रतिमा हटवायची?'))) return;
+    try {
+      const response = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
+      if (response.ok) {
+        setGalleryImages(prev => prev.filter(img => img.id !== id));
+      }
+    } catch { /* ignore */ }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="glass-card-static p-6 max-w-lg">
+        <h3 className="text-lg font-semibold text-black mb-4">{t('Upload School Photos', 'शाळेचे फोटो अपलोड करा')}</h3>
+        <form onSubmit={handleUpload} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-600 mb-1">{t('Select Image', 'प्रतिमा निवडा')}</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              className="w-full h-11 rounded-xl border border-[#E7E7E4] px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-black file:px-3 file:py-1 file:text-xs file:font-medium file:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-600 mb-1">{t('Caption (optional)', 'शीर्षक (पर्यायी)')}</label>
+            <input type="text" value={caption} onChange={(e) => setCaption(e.target.value)} placeholder={t('Enter image caption', 'प्रतिमा शीर्षक प्रविष्ट करा')} className="w-full h-11 rounded-xl border border-[#E7E7E4] px-3 text-sm focus:border-black focus:ring-2 focus:ring-black/10 outline-none" />
+          </div>
+
+          {error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>}
+          {success && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{success}</div>}
+
+          <button type="submit" disabled={isLoading || !imageFile} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-black text-sm font-semibold text-white hover:bg-[#1a1a1a] disabled:opacity-55">
+            {isLoading ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" /> : <Image className="h-4 w-4" />}
+            {t('Upload Image', 'प्रतिमा अपलोड करा')}
+          </button>
+        </form>
+      </div>
+
+      {/* Existing gallery images */}
+      <div className="glass-card-static p-6">
+        <h3 className="text-lg font-semibold text-black mb-4">{t('Gallery Images', 'गॅलरी प्रतिमा')}</h3>
+        {imagesLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-black/20 border-t-black" />
+          </div>
+        ) : galleryImages.length === 0 ? (
+          <p className="text-sm text-slate-500 text-center py-4">{t('No images uploaded yet.', 'अद्याप कोणत्याही प्रतिमा अपलोड केल्या नाहीत.')}</p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {galleryImages.map((img) => (
+              <div key={img.id} className="relative group rounded-xl overflow-hidden border border-[#E7E7E4]">
+                <img src={img.url} alt={img.caption || 'Gallery'} className="w-full h-32 object-cover" />
+                {img.caption && <p className="px-2 py-1 text-xs text-slate-600 truncate">{img.caption}</p>}
+                <button
+                  type="button"
+                  onClick={() => handleDelete(img.id)}
+                  className="absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ApplicationsPanel({ t }: { t: (en: string, mr: string) => string }) {
+  const [applications, setApplications] = useState<Array<{ id: string; applicant_name: string; parent_name: string; parent_mobile: string; parent_email: string | null; standard_applying: number | null; status: string; created_at: string }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/applications')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed');
+        return res.json();
+      })
+      .then(result => setApplications(result.data || []))
+      .catch(() => setError(t('Failed to load applications.', 'अर्ज लोड करता आले नाहीत.')))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <div className="glass-card-static overflow-hidden">
+      <div className="p-4 border-b border-slate-200/50">
+        <h3 className="text-lg font-semibold text-black">{t('Admission Applications', 'प्रवेश अर्ज')}</h3>
+      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <span className="h-6 w-6 animate-spin rounded-full border-2 border-black/20 border-t-black" />
+          <span className="ml-3 text-sm text-[#6B6B6B]">{t('Loading applications...', 'अर्ज लोड होत आहेत...')}</span>
+        </div>
+      ) : error ? (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      ) : applications.length === 0 ? (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-sm text-[#6B6B6B]">{t('No applications submitted yet.', 'अद्याप कोणतेही अर्ज सबमिट केले नाहीत.')}</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="portal-table w-full text-sm">
+            <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Date', 'तारीख')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Student', 'विद्यार्थी')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Parent', 'पालक')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Mobile', 'मोबाईल')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Standard', 'इयत्ता')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Status', 'स्थिती')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {applications.map((app, idx) => (
+                <tr key={app.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
+                  <td className="px-4 py-2.5 text-xs text-slate-500">{new Date(app.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-2.5 text-sm font-medium text-slate-700">{app.applicant_name}</td>
+                  <td className="px-4 py-2.5 text-sm text-slate-600">{app.parent_name}</td>
+                  <td className="px-4 py-2.5 text-xs font-mono text-slate-500">{app.parent_mobile}</td>
+                  <td className="px-4 py-2.5 text-sm text-slate-600">{app.standard_applying || '-'}</td>
+                  <td className="px-4 py-2.5">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                      app.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                      app.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' :
+                      'bg-amber-50 text-amber-700 border-amber-200'
+                    }`}>
+                      {app.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SuperAdminCenter() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
@@ -397,6 +605,22 @@ export default function SuperAdminCenter() {
         >
           <Link className="w-4 h-4" />
           {t('Link Parent', 'पालक जोडा')}
+        </button>
+        <button
+          onClick={() => setActiveTab('gallery')}
+          aria-pressed={activeTab === 'gallery'}
+          className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${activeTab === 'gallery' ? 'segmented-active' : 'text-[#545f73]'}`}
+        >
+          <Image className="w-4 h-4" />
+          {t('Gallery', 'गॅलरी')}
+        </button>
+        <button
+          onClick={() => setActiveTab('applications')}
+          aria-pressed={activeTab === 'applications'}
+          className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${activeTab === 'applications' ? 'segmented-active' : 'text-[#545f73]'}`}
+        >
+          <FileText className="w-4 h-4" />
+          {t('Applications', 'अर्ज')}
         </button>
       </div>
 
@@ -548,6 +772,14 @@ export default function SuperAdminCenter() {
 
       {activeTab === 'linking' && (
         <LinkParentStudentPanel language={language} t={t} />
+      )}
+
+      {activeTab === 'gallery' && (
+        <GalleryUploadPanel t={t} />
+      )}
+
+      {activeTab === 'applications' && (
+        <ApplicationsPanel t={t} />
       )}
     </motion.div>
   );

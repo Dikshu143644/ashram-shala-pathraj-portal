@@ -16,6 +16,7 @@ interface OperationResult {
   success: boolean;
   error?: string;
   retryAfter?: number;
+  aiPin?: string;
 }
 
 interface BeginLoginResult extends OperationResult {
@@ -325,7 +326,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setCurrentUser(updated);
           sessionStorage.setItem('ashram_auth', JSON.stringify(updated));
         }
-        return { success: true };
+        return { success: true, aiPin: data.aiPin as string | undefined };
       }
 
       return {

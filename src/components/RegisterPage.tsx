@@ -49,6 +49,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
   const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [aiPin, setAiPin] = useState('');
   const inFlightRef = useRef(false);
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
@@ -133,6 +134,9 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
       setIsLoading(true);
       const result = await setPassword(newPassword, confirmPassword);
       if (result.success) {
+        if (result.aiPin) {
+          setAiPin(result.aiPin);
+        }
         setStage('done');
       } else {
         setError(result.error || t('Could not set password.', 'पासवर्ड सेट करता आला नाही.'));
@@ -304,6 +308,20 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
               <ShieldCheck className="h-8 w-8 text-emerald-600" />
             </div>
+            {aiPin && (
+              <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-amber-700 mb-2">
+                  {t('Your AI Chatbot PIN', 'तुमचा AI चॅटबॉट PIN')}
+                </p>
+                <p className="text-3xl font-bold tracking-[0.2em] text-amber-800 font-mono">{aiPin}</p>
+                <p className="mt-2 text-xs text-amber-700">
+                  {t(
+                    'Save this PIN! Use it to access the AI chatbot. You can also use it to log in.',
+                    'हा PIN जतन करा! AI चॅटबॉट वापरण्यासाठी याचा वापर करा. तुम्ही लॉगिन करण्यासाठीही याचा वापर करू शकता.'
+                  )}
+                </p>
+              </div>
+            )}
             <p className="text-sm text-[#6B6B6B]">{t('Your account is ready. You will be redirected shortly.', 'तुमचे खाते तयार आहे. तुम्हाला लवकरच पुनर्निर्देशित केले जाईल.')}</p>
           </div>
         )}

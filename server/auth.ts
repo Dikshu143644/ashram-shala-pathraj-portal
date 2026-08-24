@@ -307,6 +307,18 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         }
       }
 
+      // If primary password failed, try AI PIN as fallback
+      if (!passwordValid) {
+        const { data: aiData } = await supabase
+          .from('auth_users')
+          .select('ai_password_hash')
+          .eq('id', user.id)
+          .maybeSingle();
+        if (aiData?.ai_password_hash) {
+          passwordValid = await bcrypt.compare(password, aiData.ai_password_hash);
+        }
+      }
+
       if (!passwordValid) {
         await logSecurity(supabase, {
           action: 'login_failed',
@@ -829,10 +841,16 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
 
     try {
       const hashed = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+
+      // Generate a random 6-digit AI PIN for chatbot access
+      const aiPin = Math.floor(100000 + Math.random() * 900000).toString();
+      const aiPinHash = await bcrypt.hash(aiPin, BCRYPT_SALT_ROUNDS);
+
       const { error } = await supabase
         .from('auth_users')
         .update({
           password_hash: hashed,
+          ai_password_hash: aiPinHash,
           must_change_password: false,
           password_changed_at: new Date().toISOString(),
         })
@@ -854,10 +872,10 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         userId: authReq.authSession!.userId,
         username: authReq.authSession!.username,
         ip,
-        details: 'Password set successfully',
+        details: 'Password and AI PIN set successfully',
       });
 
-      res.json({ success: true });
+      res.json({ success: true, aiPin });
     } catch (error) {
       console.error('Set password failed:', error instanceof Error ? error.message : error);
       res.status(500).json({ success: false, error: 'Unable to set password.' });

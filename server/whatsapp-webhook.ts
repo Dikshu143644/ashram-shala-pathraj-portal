@@ -1,6 +1,30 @@
 import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// WhatsApp Business API Configuration
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// To enable WhatsApp messaging, set the following environment variables:
+//
+//   WHATSAPP_TOKEN            - Your WhatsApp Business API Access Token
+//                               (from Meta Developer Portal > Your App > WhatsApp > API Setup)
+//
+//   WHATSAPP_PHONE_NUMBER_ID  - Your WhatsApp Business Phone Number ID
+//                               (from Meta Developer Portal > Your App > WhatsApp > Phone Numbers)
+//
+//   WHATSAPP_VERIFY_TOKEN     - A custom string you set for webhook verification
+//                               (set this same value in Meta Developer Portal webhook config)
+//
+// These should be set in your .env file or deployment environment:
+//   WHATSAPP_TOKEN=your_access_token_here
+//   WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id_here
+//   WHATSAPP_VERIFY_TOKEN=your_custom_verify_token_here
+//
+// Without these values, WhatsApp messaging will be disabled but the webhook
+// endpoints will still respond (gracefully degrading).
+// ═══════════════════════════════════════════════════════════════════════════════
+
 // Re-use the bot system prompt from whatsapp-bot.ts
 const BOT_NAME = 'आश्रमशाळा पाथरज सहाय्यक';
 

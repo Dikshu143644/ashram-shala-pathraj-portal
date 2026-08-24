@@ -378,17 +378,173 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
       return;
     }
     try {
-      const { data, error } = await supabase.from('gallery_images').delete().eq('id', id).select('id').maybeSingle();
-      if (error) throw error;
-      if (!data) {
+      // Fetch image first to get storage_path for cleanup
+      const { data: imageData } = await supabase.from('gallery_images').select('id,storage_path').eq('id', id).maybeSingle();
+      if (!imageData) {
         res.status(404).json({ error: 'Gallery image not found.' });
         return;
       }
+
+      // Delete from Supabase Storage if storage_path exists
+      if (imageData.storage_path) {
+        await supabase.storage.from('school-gallery').remove([imageData.storage_path]);
+      }
+
+      const { error } = await supabase.from('gallery_images').delete().eq('id', id);
+      if (error) throw error;
       await supabase.from('security_logs').insert({ action: 'gallery_image_deleted', details: `Gallery image deleted (${id})`, ...auditActor(req) });
       res.status(204).send();
     } catch (error) {
       console.error('Gallery delete failed:', error instanceof Error ? error.message : error);
       res.status(500).json({ error: 'Unable to delete gallery image.' });
+    }
+  });
+
+  // POST /api/gallery/upload - Upload image to Supabase Storage (base64 JSON body)
+  app.post('/api/gallery/upload', requireSameOrigin, requireSession(['web_creator', 'principal']), writeLimit, dataGate, async (req: Request, res: Response) => {
+    const session = (req as AuthenticatedRequest).authSession!;
+    const { image, filename, caption } = req.body as { image?: unknown; filename?: unknown; caption?: unknown };
+
+    if (typeof image !== 'string' || !image.trim()) {
+      res.status(400).json({ error: 'Base64 encoded image data is required.' });
+      return;
+    }
+    if (typeof filename !== 'string' || !filename.trim() || filename.length > 255) {
+      res.status(400).json({ error: 'A valid filename is required (max 255 characters).' });
+      return;
+    }
+
+    // Validate base64 and extract content type
+    const base64Match = image.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+    let imageBuffer: Buffer;
+    let contentType: string;
+
+    if (base64Match) {
+      contentType = base64Match[1];
+      imageBuffer = Buffer.from(base64Match[2], 'base64');
+    } else {
+      // Assume raw base64 without data URI prefix
+      contentType = 'image/jpeg';
+      imageBuffer = Buffer.from(image, 'base64');
+    }
+
+    // Validate file size (max 10MB)
+    if (imageBuffer.length > 10 * 1024 * 1024) {
+      res.status(400).json({ error: 'Image too large. Maximum 10MB allowed.' });
+      return;
+    }
+
+    const safeCaption = typeof caption === 'string' && caption.trim().length > 0 ? caption.trim().slice(0, 500) : null;
+    const storagePath = `gallery/${Date.now()}-${filename.trim().replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+
+    try {
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('school-gallery')
+        .upload(storagePath, imageBuffer, {
+          contentType,
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('school-gallery')
+        .getPublicUrl(storagePath);
+
+      const publicUrl = urlData?.publicUrl || '';
+
+      // Insert metadata into gallery_images
+      const { data, error: insertError } = await supabase
+        .from('gallery_images')
+        .insert({
+          url: publicUrl,
+          storage_path: storagePath,
+          caption: safeCaption,
+          uploaded_by: session.userId,
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      await supabase.from('security_logs').insert({
+        action: 'gallery_image_added',
+        details: `Gallery image uploaded via storage (${data.id})`,
+        ...auditActor(req),
+      });
+
+      res.status(201).json({ data });
+    } catch (error) {
+      console.error('Gallery upload failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Unable to upload gallery image.' });
+    }
+  });
+
+  // POST /api/applications - Public endpoint for admission application submission
+  app.post('/api/applications', dataGate, async (req: Request, res: Response) => {
+    const { applicant_name, parent_name, parent_mobile, parent_email, standard_applying } = req.body as {
+      applicant_name?: unknown; parent_name?: unknown; parent_mobile?: unknown; parent_email?: unknown; standard_applying?: unknown;
+    };
+
+    if (typeof applicant_name !== 'string' || !applicant_name.trim() || applicant_name.length > 200) {
+      res.status(400).json({ error: 'Applicant name is required (max 200 characters).' });
+      return;
+    }
+    if (typeof parent_name !== 'string' || !parent_name.trim() || parent_name.length > 200) {
+      res.status(400).json({ error: 'Parent name is required (max 200 characters).' });
+      return;
+    }
+    if (typeof parent_mobile !== 'string' || !/^[6-9]\d{9}$/.test(parent_mobile)) {
+      res.status(400).json({ error: 'A valid 10-digit mobile number is required.' });
+      return;
+    }
+
+    const safeEmail = typeof parent_email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parent_email) ? parent_email.trim() : null;
+    const safeStandard = typeof standard_applying === 'number' && standard_applying >= 1 && standard_applying <= 12 ? standard_applying : null;
+
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .insert({
+          applicant_name: applicant_name.trim(),
+          parent_name: parent_name.trim(),
+          parent_mobile: parent_mobile.trim(),
+          parent_email: safeEmail,
+          standard_applying: safeStandard,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      res.status(201).json({ data });
+    } catch (error) {
+      console.error('Application submission failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Unable to submit application.' });
+    }
+  });
+
+  // GET /api/applications - Admin endpoint to list all applications
+  app.get('/api/applications', requireSession(['web_creator', 'principal', 'clerk']), readLimit, dataGate, async (req: Request, res: Response) => {
+    const { page, perPage, from, to } = pagination(req);
+    try {
+      const { data, error, count } = await supabase
+        .from('applications')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, to);
+      if (error) throw error;
+      res.json({
+        data: data || [],
+        total: count || 0,
+        page,
+        perPage,
+        totalPages: Math.ceil((count || 0) / perPage),
+      });
+    } catch (error) {
+      console.error('Applications fetch failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Unable to load applications.' });
     }
   });
 
