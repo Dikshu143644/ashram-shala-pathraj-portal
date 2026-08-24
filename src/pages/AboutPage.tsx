@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { motion } from 'motion/react';
 import { Building, Users, BookOpen, Home, Award, MapPin, Shield } from 'lucide-react';
@@ -5,6 +6,23 @@ import { Building, Users, BookOpen, Home, Award, MapPin, Shield } from 'lucide-r
 export default function AboutPage() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
+
+  const [schoolStats, setSchoolStats] = useState({ totalStudents: 0, totalStaff: 0 });
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const response = await fetch('/api/school/stats');
+        if (response.ok) {
+          const data = await response.json();
+          setSchoolStats(data);
+        }
+      } catch {
+        // Fall back to defaults silently
+      }
+    }
+    fetchStats();
+  }, []);
 
   return (
     <div className="min-h-screen overflow-hidden">
@@ -272,8 +290,8 @@ export default function AboutPage() {
               {/* Campus stats */}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-8">
                 {[
-                  { label: t('Total Students', 'एकूण विद्यार्थी'), value: '459' },
-                  { label: t('Permanent Staff', 'कायम कर्मचारी'), value: '25' },
+                  { label: t('Total Students', 'एकूण विद्यार्थी'), value: String(schoolStats.totalStudents || '460') },
+                  { label: t('Permanent Staff', 'कायम कर्मचारी'), value: String(schoolStats.totalStaff || '25') },
                   { label: t('Standards Offered', 'उपलब्ध इयत्ता'), value: t('1st to 12th', '१ ली ते १२ वी') },
                   { label: t('Medium', 'माध्यम'), value: t('Marathi', 'मराठी') },
                   { label: t('District', 'जिल्हा'), value: t('Raigad', 'रायगड') },

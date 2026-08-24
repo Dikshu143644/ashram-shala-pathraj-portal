@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Plus, CheckCircle, Loader2, Fingerprint, X, Users, UserCheck, ShieldCheck, GraduationCap } from 'lucide-react';
+import { Search, Plus, CheckCircle, Loader2, Fingerprint, X, Users, UserCheck, ShieldCheck, GraduationCap, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
 import type { Student, Standard } from '../types';
@@ -9,7 +9,7 @@ import { sanitizeInput } from '../utils/sanitize';
 const allStandards: Standard[] = ['1 ली', '2 री', '3 री', '4 थी', '5 वी', '6 वी', '7 वी', '8 वी', '9 वी', '10 वी', '11 वी', '12 वी'];
 
 export default function AdmissionPortal() {
-  const { language } = useAppContext();
+  const { language, currentUser } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
   const [showForm, setShowForm] = useState(false);
@@ -19,6 +19,9 @@ export default function AdmissionPortal() {
   // Students data from API
   const [studentsData, setStudentsData] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // School stats from public endpoint
+  const [schoolStats, setSchoolStats] = useState({ totalStudents: 0, totalStaff: 0, totalStandards: 0, totalVillages: 0, enrolledCount: 0 });
 
   // Form state
   const [formData, setFormData] = useState({
@@ -33,6 +36,24 @@ export default function AdmissionPortal() {
   const [apaarVerified, setApaarVerified] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [applicationId, setApplicationId] = useState('');
+
+  const isParent = currentUser?.role === 'student_parent';
+
+  // Fetch school-wide stats from public endpoint
+  useEffect(() => {
+    async function fetchSchoolStats() {
+      try {
+        const response = await fetch('/api/school/stats');
+        if (response.ok) {
+          const data = await response.json();
+          setSchoolStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch school stats:', err);
+      }
+    }
+    fetchSchoolStats();
+  }, []);
 
   // Fetch students from API with debounce
   const fetchStudents = useCallback(async () => {
@@ -58,11 +79,11 @@ export default function AdmissionPortal() {
     return () => clearTimeout(timer);
   }, [fetchStudents]);
 
-  // Stats
-  const totalStudents = studentsData.length;
-  const enrolledCount = studentsData.filter(s => s.status === 'Enrolled').length;
-  const villageCount = new Set(studentsData.map(s => s.village)).size;
-  const standardCount = new Set(studentsData.map(s => s.standard)).size;
+  // Stats from public school stats endpoint (always shows real school-wide data)
+  const totalStudents = schoolStats.totalStudents;
+  const enrolledCount = schoolStats.enrolledCount;
+  const villageCount = schoolStats.totalVillages;
+  const standardCount = schoolStats.totalStandards;
 
   const handleApaarVerify = () => {
     if (formData.apaar_id.length < 5) return;
@@ -333,6 +354,28 @@ export default function AdmissionPortal() {
             <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
             <span className="ml-3 text-sm text-slate-500">{t('Loading students...', 'विद्यार्थी लोड करत आहे...')}</span>
           </div>
+        ) : isParent && studentsData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+            <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+              <Users className="w-8 h-8 text-amber-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-700 mb-2">
+              {t("Your children haven't been linked to your account yet.", 'तुमच्या मुलांची नोंद अद्याप तुमच्या खात्याशी जोडली गेलेली नाही.')}
+            </h3>
+            <p className="text-sm text-slate-500 mb-4 max-w-md">
+              {t(
+                'Please contact the school office (7666971183) to link your child\'s record.',
+                'कृपया तुमच्या मुलाची नोंद जोडण्यासाठी शाळा कार्यालयाशी संपर्क साधा (7666971183).'
+              )}
+            </p>
+            <a
+              href="tel:7666971183"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm"
+            >
+              <Phone className="w-4 h-4" />
+              {t('Contact Office', 'कार्यालयाशी संपर्क करा')}
+            </a>
+          </div>
         ) : (
         <div className="w-full min-w-0 max-w-full overflow-x-auto overscroll-x-contain touch-pan-x">
           <table className="portal-table w-full min-w-[40rem] text-sm">
@@ -367,8 +410,10 @@ export default function AdmissionPortal() {
         </div>
         )}
         <div className="px-4 py-2.5 border-t border-slate-200/50 text-xs text-slate-500" style={{ background: 'rgba(248, 250, 252, 0.6)' }}>
-          {t(`Showing ${Math.min(50, studentsData.length)} of ${studentsData.length} students`,
-             `${studentsData.length} पैकी ${Math.min(50, studentsData.length)} विद्यार्थी दर्शवित आहे`)}
+          {isParent && studentsData.length === 0
+            ? t(`School has ${schoolStats.totalStudents} students total`, `शाळेत एकूण ${schoolStats.totalStudents} विद्यार्थी आहेत`)
+            : t(`Showing ${Math.min(50, studentsData.length)} of ${studentsData.length} students`,
+               `${studentsData.length} पैकी ${Math.min(50, studentsData.length)} विद्यार्थी दर्शवित आहे`)}
         </div>
       </div>
     </motion.div>

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -6,6 +7,23 @@ import { GraduationCap, Users, Building, Bed, Monitor, Dumbbell, Music, BookOpen
 export default function HomePage() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
+
+  const [schoolStats, setSchoolStats] = useState({ totalStudents: 0, totalStaff: 0, totalStandards: 0 });
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const response = await fetch('/api/school/stats');
+        if (response.ok) {
+          const data = await response.json();
+          setSchoolStats(data);
+        }
+      } catch {
+        // Fall back to defaults silently
+      }
+    }
+    fetchStats();
+  }, []);
 
   return (
     <div className="min-h-screen overflow-hidden" style={{ background: '#F7F7F5' }}>
@@ -101,9 +119,9 @@ export default function HomePage() {
             className="grid grid-cols-2 gap-8 sm:grid-cols-4"
           >
             {[
-              { value: '459', labelEn: 'Students', labelMr: 'विद्यार्थी', icon: GraduationCap },
-              { value: '25', labelEn: 'Staff', labelMr: 'कर्मचारी', icon: Users },
-              { value: '12', labelEn: 'Standards', labelMr: 'इयत्ता', icon: Building },
+              { value: String(schoolStats.totalStudents || '460'), labelEn: 'Students', labelMr: 'विद्यार्थी', icon: GraduationCap },
+              { value: String(schoolStats.totalStaff || '25'), labelEn: 'Staff', labelMr: 'कर्मचारी', icon: Users },
+              { value: String(schoolStats.totalStandards || '12'), labelEn: 'Standards', labelMr: 'इयत्ता', icon: Building },
               { value: '520', labelEn: 'Hostel Beds', labelMr: 'वसतिगृह बेड', icon: Bed },
             ].map((stat, i) => (
               <motion.div

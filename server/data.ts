@@ -49,6 +49,44 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
     key: (req) => req.authSession?.userId || String(req.ip || 'unknown'),
   });
 
+  // GET /api/school/stats - Public endpoint returning school-wide statistics
+  app.get('/api/school/stats', dataGate, async (_req: Request, res: Response) => {
+    try {
+      const [studentsResult, staffResult, standardsResult, villagesResult, enrolledResult] = await Promise.all([
+        supabase.from('students').select('*', { count: 'exact', head: true }),
+        supabase.from('staff').select('*', { count: 'exact', head: true }),
+        supabase.from('students').select('standard'),
+        supabase.from('students').select('village'),
+        supabase.from('students').select('*', { count: 'exact', head: true }).eq('status', 'Active'),
+      ]);
+
+      const totalStudents = studentsResult.count || 0;
+      const totalStaff = staffResult.count || 0;
+
+      // Count distinct standards
+      const standards = new Set((standardsResult.data || []).map((r: { standard: string }) => r.standard).filter(Boolean));
+      const totalStandards = standards.size;
+
+      // Count distinct villages
+      const villages = new Set((villagesResult.data || []).map((r: { village: string }) => r.village).filter(Boolean));
+      const totalVillages = villages.size;
+
+      // Enrolled count: use Active status count, fall back to total if none have Active status
+      const enrolledCount = (enrolledResult.count || 0) > 0 ? (enrolledResult.count || 0) : totalStudents;
+
+      res.json({
+        totalStudents,
+        totalStaff,
+        totalStandards,
+        totalVillages,
+        enrolledCount,
+      });
+    } catch (error) {
+      console.error('School stats fetch failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Unable to load school statistics.' });
+    }
+  });
+
   app.get('/api/students', requireSession(READ_ROLES), readLimit, dataGate, async (req: Request, res: Response) => {
     const { page, perPage, from, to } = pagination(req);
     const session = (req as AuthenticatedRequest).authSession;
