@@ -1,0 +1,25 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Create scripts/seed-real-data.ts with all 460 real student records and 26 staff records. The script clears existing data and inserts all real records. Run against live Supabase to verify.",
+  "status": "in_progress",
+  "steps": [
+    "1. Create scripts/seed-real-data.ts that includes all 460 students and 26 staff from school records",
+    "2. Script clears existing data and inserts fresh",
+    "3. Script verifies counts after insertion",
+    "4. Run script against live Supabase database",
+    "5. Verify 460 students and 26 staff in database"
+  ],
+  "acceptance_criteria": [
+    "scripts/seed-real-data.ts exists with all real data",
+    "Database contains 460 students after running",
+    "Database contains 26 staff after running",
+    "npm run lint passes",
+    "npm run build passes"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run lint",
+    "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run build"
+  ],
+  "blocked_reason": null
+}
