@@ -391,7 +391,7 @@ export default function AdmissionPortal() {
               </tr>
             </thead>
             <tbody>
-              {studentsData.slice(0, 50).map((student, idx) => (
+              {studentsData.map((student, idx) => (
                 <tr key={student.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
                   <td className="px-4 py-2.5 font-mono text-xs text-slate-600">{student.sr_no}</td>
                   <td className="px-4 py-2.5 font-medium text-slate-800">{student.full_name}</td>
