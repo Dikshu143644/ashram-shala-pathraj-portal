@@ -1,7 +1,7 @@
 {
   "task_id": "task-seed-real-data",
   "task_description": "Create scripts/seed-real-data.ts that seeds ALL real student (460) and staff (26) data into the Supabase database, verify counts, commit and push.",
-  "status": "in_progress",
+  "status": "completed",
   "feature_order": ["FEAT-001"],
   "blocked_reason": null
 }

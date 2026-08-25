@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Database migration, Navigate button on ContactPage, AI agent enhancement with real data access and bilingual output, dual-password system, gallery upload with Supabase Storage API, admission application saving, and WhatsApp webhook preparation.",
+  "status": "completed",
+  "steps": [
+    "Create supabase/migrations/202506210001_gallery_ai_passwords_applications.sql with: CREATE TABLE IF NOT EXISTS applications (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), applicant_name TEXT NOT NULL, parent_name TEXT NOT NULL, parent_mobile TEXT NOT NULL, parent_email TEXT, standard_applying INT, documents JSONB DEFAULT '{}', status TEXT NOT NULL DEFAULT 'pending', created_at TIMESTAMPTZ NOT NULL DEFAULT now()); ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS ai_password_hash TEXT; CREATE INDEX IF NOT EXISTS idx_applications_parent_mobile ON applications(parent_mobile);",
+    "Update src/pages/ContactPage.tsx: Add a 'Navigate to School' button below the Google Maps iframe that opens Google Maps directions link: https://www.google.com/maps/dir/?api=1&destination=शासकीय+आश्रमशाळा+पाथरज,+Pathraj,+Taluka+Karjat,+District+Raigad,+Maharashtra+410201 - use the Navigation2 icon from lucide-react",
+    "Update server/agents.ts: Enhance the BASE_CONTEXT and AGENT_PROMPTS to instruct the AI to respond in Marathi FIRST then English. Add a navigation/directions capability in the system prompt. Enhance the studentContext fetching to also query attendance data and events. Add queries for attendance (if table exists) and for applications. Make the AI give actionable recommendations based on student data. Update the prompt to include school contact info (Principal: 9423864391, Office: 7666971183, email: hmpathraj22@gmail.com) and address for navigation queries.",
+    "Update server/auth.ts registration flow: After successfully setting the password (in the set-password endpoint), generate a random 6-digit AI PIN, hash it with bcrypt, store in ai_password_hash column. Return the AI PIN in the response so the frontend can display it. Also update the login endpoint to accept AI PIN as an alternative password (check ai_password_hash if normal password_hash fails).",
+    "Update src/components/RegisterPage.tsx: In the 'done' stage, display the AI PIN that was returned from the set-password API call. Show it prominently with instructions to save it for AI chatbot access.",
+    "Add gallery upload endpoint in server/data.ts: POST /api/gallery/upload that accepts multipart form data (using express built-in or raw body approach), uploads the file to Supabase Storage bucket 'school-gallery', stores metadata in gallery_images table. The upload endpoint should accept base64 encoded image in JSON body (simpler approach without multer): { image: base64string, filename: string, caption: string }. Decode and upload to Supabase Storage, then insert URL into gallery_images.",
+    "Update the existing GET /api/gallery endpoint in server/data.ts to construct full public URLs from Supabase Storage if the url field contains a storage path rather than a full URL.",
+    "Add POST /api/applications endpoint in server/data.ts: accepts { applicant_name, parent_name, parent_mobile, parent_email, standard_applying, documents } and inserts into applications table. No auth required (public admission form). Add GET /api/applications for admin roles to list all applications.",
+    "Update src/pages/AdmissionPage.tsx: Replace the static 'Register & Apply' section with an actual admission application form that POSTs to /api/applications. Form fields: applicant_name, parent_name, parent_mobile, parent_email, standard_applying. Show success message after submission.",
+    "Update src/components/SuperAdminCenter.tsx: Add a new 'gallery' tab with an upload interface - file picker (converts to base64), caption input, upload button. Show existing gallery images with delete option. Also add an 'applications' tab showing submitted applications.",
+    "Update server/whatsapp-webhook.ts: Add clear comments at the top showing where WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_ACCESS_TOKEN (WHATSAPP_TOKEN) env vars should be configured. The existing code already uses these - just ensure comments are clear and the .env.example already documents them (it does).",
+    "Ensure all changes pass npm run lint and npm run build."
+  ],
+  "acceptance_criteria": [
+    "npm run lint passes with zero errors",
+    "npm run build produces dist/ with no errors",
+    "ContactPage has a Navigate to School button with Google Maps directions link",
+    "server/agents.ts AI prompts respond Marathi first then English with actionable recommendations",
+    "Registration flow generates and displays an AI PIN after password is set",
+    "POST /api/gallery/upload endpoint exists and handles base64 image upload to Supabase Storage",
+    "POST /api/applications endpoint exists for admission form submission",
+    "AdmissionPage has a functional application form",
+    "SuperAdminCenter has gallery upload tab and applications tab",
+    "Login accepts either portal password or AI PIN",
+    "Migration file 202506210001_gallery_ai_passwords_applications.sql exists with correct schema"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run lint",
+    "source /root/.nvm/nvm.sh && cd /projects/sandbox/ashram-shala-pathraj-portal && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": "All changes verified: lint (tsc --noEmit) passes with zero errors, build (vite + esbuild) completes successfully. Pushed to main branch. The gallery upload relies on Supabase Storage bucket 'school-gallery' being created in the Supabase dashboard. The applications table and ai_password_hash column require running the migration 202506210001 against the Supabase database."
+}

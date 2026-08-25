@@ -1,0 +1,27 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Redesign HomePage.tsx and AboutPage.tsx with full cinematic glassmorphic UI - full-screen background photos, dark overlays, and glassmorphic content panels.",
+  "status": "completed",
+  "steps": [
+    "Rewrite src/pages/HomePage.tsx with: (a) Full-screen hero with fixed background image https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80, dark overlay gradient from rgba(0,0,0,0.7) to rgba(0,0,0,0.5), school name in large white text, tagline 'Nurturing Tribal Youth Through Quality Education'. (b) Stats strip in glass cards (fetch from /api/school/stats, fallback: 460 Students, 26 Staff, 12 Standards, 520 Hostel Beds). (c) Feature cards (Admission, AI Assistant, Parent Portal, WhatsApp Bot) in dark glass. (d) All text white/slate-300 with emerald-400 accents. (e) Entrance animations (fade in + slide up) using motion.",
+    "Rewrite src/pages/AboutPage.tsx with: (a) Fixed full-screen background https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=80 with dark overlay. (b) School history, vision, mission in glass panels. (c) Principal info, staff count, department info in glass cards. (d) White headings, slate-300 body, emerald-400 accents. (e) Entrance animations on scroll.",
+    "Both pages must preserve the bilingual t(en, mr) pattern and use useAppContext for language.",
+    "Both pages must fetch /api/school/stats where applicable."
+  ],
+  "acceptance_criteria": [
+    "HomePage has a full-screen hero with mountain background and dark overlay",
+    "HomePage shows stats in glassmorphic cards",
+    "HomePage has feature cards for Admission, AI Assistant, Parent Portal, WhatsApp Bot",
+    "AboutPage has cinematic background with glass panels for content",
+    "Both pages use white/slate-300 text with emerald accents",
+    "Both pages preserve bilingual support",
+    "Project builds and lints successfully"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": "Both pages rewritten successfully. Lint and build pass. Used Bot icon from lucide-react for AI Assistant card. Staff fallback set to 26 as specified. totalVillages added to stats state. The chunk size warning from vite build is pre-existing (>500kB JS bundle) and not caused by these changes."
+}

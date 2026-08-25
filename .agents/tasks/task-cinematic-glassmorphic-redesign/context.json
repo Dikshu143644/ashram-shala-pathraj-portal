@@ -1,0 +1,27 @@
+{
+  "project_type": "React 18 + TypeScript SPA with Express backend",
+  "language": "TypeScript/TSX",
+  "build_system": "Vite for frontend, esbuild for server bundling",
+  "test_framework": "No test framework configured",
+  "build_command": "source /root/.nvm/nvm.sh && npm run build",
+  "test_command": "source /root/.nvm/nvm.sh && npm run lint",
+  "verification_instructions": "1. Run lint (tsc --noEmit). 2. Run build (vite build + esbuild). Both must pass with exit code 0.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "source /root/.nvm/nvm.sh before any npm/node commands. Dependencies already installed in node_modules.",
+  "environment_constraints": "Must run 'source /root/.nvm/nvm.sh' before ANY npm/node commands. Network mode: OPEN_INTERNET.",
+  "contribution_requirements": "Commit with meaningful messages and push to main.",
+  "key_patterns": "Pages use: useAppContext() for language state, t(en, mr) helper for bilingual text, motion from 'motion/react' for animations, lucide-react for icons. Login page uses cinematic pattern: full-screen bg image, dark overlay gradient, glassmorphic card with bg-white/10 backdrop-blur-md border-white/10.",
+  "relevant_files": [
+    "src/pages/HomePage.tsx",
+    "src/pages/AboutPage.tsx",
+    "src/pages/AcademicsPage.tsx",
+    "src/pages/AdmissionPage.tsx",
+    "src/pages/HostelPage.tsx",
+    "src/pages/GalleryPage.tsx",
+    "src/pages/ContactPage.tsx",
+    "src/components/layout/PublicLayout.tsx",
+    "src/index.css",
+    "src/components/LoginPage.tsx"
+  ],
+  "directory_structure": "src/pages/ = public pages, src/components/layout/ = layouts, src/components/ = shared components, src/contexts/ = AppContext"
+}

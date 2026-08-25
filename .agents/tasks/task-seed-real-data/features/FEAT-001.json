@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Create scripts/seed-real-data.ts with all 460 real student records and 26 staff records. The script clears existing data and inserts all real records. Run against live Supabase to verify.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. Create scripts/seed-real-data.ts that includes all 460 students and 26 staff from school records",
     "2. Script clears existing data and inserts fresh",

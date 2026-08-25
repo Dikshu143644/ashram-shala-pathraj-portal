@@ -5,7 +5,7 @@
   "test_framework": "No automated test runner configured; manual lint-only (tsc --noEmit)",
   "build_command": "source /root/.nvm/nvm.sh && npm run build",
   "test_command": "source /root/.nvm/nvm.sh && npm run lint",
-  "verification_instructions": "1. Run lint: source /root/.nvm/nvm.sh && npm run lint  2. Run build: source /root/.nvm/nvm.sh && npm run build  3. Run migration: source /root/.nvm/nvm.sh && export SUPABASE_ACCESS_TOKEN=\"***\" && supabase db push",
+  "verification_instructions": "1. Run lint: source /root/.nvm/nvm.sh && npm run lint  2. Run build: source /root/.nvm/nvm.sh && npm run build  3. Run migration: source /root/.nvm/nvm.sh && export SUPABASE_ACCESS_TOKEN=*** && supabase db push",
   "snapshot_or_generated_files": null,
   "setup_instructions": "source /root/.nvm/nvm.sh - must be run before all npm/node commands. Node v22.23.2, npm 11.4.2 already installed.",
   "environment_constraints": "OPEN_INTERNET network mode. Supabase CLI already linked. Must prefix all commands with 'source /root/.nvm/nvm.sh'.",
