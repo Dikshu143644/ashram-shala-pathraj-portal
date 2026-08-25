@@ -365,12 +365,13 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
     }
   });
 
-  // GET /api/gallery - Public endpoint, returns all gallery images
+  // GET /api/gallery - Public endpoint, returns approved gallery images (excludes flagged)
   app.get('/api/gallery', async (_req: Request, res: Response) => {
     try {
       const { data, error } = await supabase
         .from('gallery_images')
         .select('*')
+        .neq('safety_status', 'flagged')
         .order('created_at', { ascending: false });
       if (error) throw error;
       res.json({ data: data || [] });

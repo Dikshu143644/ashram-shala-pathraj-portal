@@ -142,7 +142,7 @@ export function registerContentSafetyRoutes(app: Express, supabase: SupabaseClie
           const { error: updateError } = await supabase
             .from('gallery_images')
             .update({ safety_status: 'flagged', safety_score: result.score })
-            .eq('image_url', imageUrl.trim());
+            .eq('url', imageUrl.trim());
 
           if (updateError) {
             console.error('Failed to flag gallery image:', updateError.message);
@@ -169,7 +169,7 @@ export function registerContentSafetyRoutes(app: Express, supabase: SupabaseClie
           await supabase
             .from('gallery_images')
             .update({ safety_status: 'approved', safety_score: result.score })
-            .eq('image_url', imageUrl.trim());
+            .eq('url', imageUrl.trim());
         }
 
         res.json({
