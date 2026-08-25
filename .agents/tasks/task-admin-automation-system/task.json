@@ -10,5 +10,10 @@
     "test_quality": "pass",
     "docker_build": "skipped",
     "summary": "Lint (tsc --noEmit) and build (vite + esbuild) both pass. Migration applied to live Supabase. All changes committed and pushed to main."
+  },
+  "review_fixes": {
+    "review_file": "2026-08-25-033119-review.md",
+    "issues_fixed": 5,
+    "summary": "Fixed activity middleware session read (uses readSession instead of req.authSession), Gemini Vision now receives base64 inline_data, content safety changed to fail-closed, gallery images get server-side safety_status enforcement, digest timer handle is managed for graceful shutdown."
   }
 }
