@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Database migration, WhatsApp notification service, content safety agent, and activity monitor - all backend modules",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create supabase/migrations/202508250002_activity_monitor.sql with: activity_logs table (id UUID PK, user_id UUID, username TEXT, role TEXT, action TEXT NOT NULL, details JSONB DEFAULT '{}', ip_address TEXT, created_at TIMESTAMPTZ DEFAULT now()), indexes on created_at and user_id. events table (id UUID PK, title TEXT NOT NULL, description TEXT, event_date TIMESTAMPTZ, created_by UUID, status TEXT DEFAULT 'pending', approved_by UUID, approved_at TIMESTAMPTZ, created_at TIMESTAMPTZ DEFAULT now()). ALTER gallery_images ADD COLUMN IF NOT EXISTS safety_status TEXT DEFAULT 'approved', ADD COLUMN IF NOT EXISTS safety_score FLOAT. ALTER applications ADD COLUMN IF NOT EXISTS reviewed_by UUID, ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ.",
     "Create server/whatsapp-notify.ts: export function sendWhatsAppMessage(phone: string, message: string) using Meta WhatsApp Business API (env vars: WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_ACCESS_TOKEN). If not configured, log to console (dev mode). Export a helper sendAdminNotification(message) that sends to hardcoded admin number 7666971183. Notify for: new registrations, staff logins, content uploads, event approvals, application submissions.",
@@ -26,5 +26,5 @@
     "source /root/.nvm/nvm.sh && npm run build"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All backend modules created successfully. Lint (tsc --noEmit) and build (vite + esbuild) both pass cleanly. The activity middleware is placed before route handlers in app.ts. The whatsapp-notify module uses a dev-mode console fallback when env vars are not set. Content safety uses Gemini 2.0 Flash with fail-open policy."
 }
