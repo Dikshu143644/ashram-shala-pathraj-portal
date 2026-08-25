@@ -227,8 +227,14 @@ export default function AiAssistant() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className="portal-page max-w-5xl!"
+      className="portal-page max-w-5xl! relative"
     >
+      {/* Subtle tech gradient background */}
+      <div
+        className="pointer-events-none absolute inset-0 -m-6 rounded-3xl opacity-[0.04]"
+        style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #312e81 50%, #4c1d95 100%)' }}
+        aria-hidden="true"
+      />
       {/* Header Bar */}
       <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#E7E7E4]">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white">

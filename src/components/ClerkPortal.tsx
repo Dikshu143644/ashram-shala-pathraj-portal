@@ -199,6 +199,8 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
     body: '',
   });
 
+  const todayDate = new Date().toLocaleDateString('mr-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
   const nextStatus = () => {
     if (letterStatus === 'draft') setLetterStatus('sealed');
     else if (letterStatus === 'sealed') setLetterStatus('dispatched');
@@ -213,6 +215,15 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
           {t('PO Letter Generator', 'प्र.अ. पत्र निर्माता')}
         </h4>
         <div className="space-y-4">
+          <div>
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('Date', 'दिनांक')}</label>
+            <input
+              type="text"
+              value={todayDate}
+              readOnly
+              className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm bg-slate-50 text-slate-600 cursor-default"
+            />
+          </div>
           <div>
             <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('To', 'प्रति')}</label>
             <input
@@ -257,12 +268,20 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
             </div>
             {letterStatus !== 'dispatched' && (
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={nextStatus}
-                className="primary-action"
+                className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all"
+                style={{
+                  background: letterStatus === 'draft'
+                    ? 'linear-gradient(135deg, #d4af37, #b8960c)'
+                    : 'linear-gradient(135deg, #059669, #047857)',
+                  boxShadow: letterStatus === 'draft'
+                    ? '0 4px 16px rgba(212, 175, 55, 0.35)'
+                    : '0 4px 16px rgba(5, 150, 105, 0.35)',
+                }}
               >
-                {letterStatus === 'draft' ? t('Seal Letter', 'पत्र शिक्कामोर्तब करा') : t('Dispatch', 'पाठवा')}
+                {letterStatus === 'draft' ? <><Stamp className="w-4 h-4" /> {t('Seal Letter', 'पत्र शिक्कामोर्तब करा')}</> : <><Send className="w-4 h-4" /> {t('Dispatch', 'पाठवा')}</>}
                 <ArrowRight className="w-3.5 h-3.5" />
               </motion.button>
             )}
@@ -270,19 +289,48 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
         </div>
       </div>
 
-      {/* Preview - Glass Card */}
-      <div className="glass-card-static p-5">
-        <h4 className="font-semibold text-slate-700 mb-4">{t('Letter Preview', 'पत्र पूर्वावलोकन')}</h4>
-        <div className="border border-slate-200/50 rounded-xl p-5 min-h-72 text-sm relative" style={{ background: 'rgba(248, 250, 252, 0.5)' }}>
-          <div className="text-center border-b border-slate-300 pb-4 mb-4">
-            <p className="text-xs text-slate-500">आदिवासी विकास विभाग, महाराष्ट्र शासन</p>
-            <p className="font-bold text-slate-800 mt-0.5">शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज</p>
-            <p className="text-xs text-slate-500 mt-0.5">ता. कर्जत, जि. रायगड</p>
+      {/* Preview - Realistic Printed Paper Look */}
+      <div className="flex flex-col">
+        <h4 className="font-semibold text-slate-700 mb-3">{t('Letter Preview', 'पत्र पूर्वावलोकन')}</h4>
+        <div
+          className="relative flex-1 rounded-sm border border-slate-300/80 p-8 sm:p-10 min-h-[28rem]"
+          style={{
+            background: '#fefdfb',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06), inset 0 0 60px rgba(245,240,230,0.3)',
+            fontFamily: "'Noto Serif Devanagari', 'Noto Serif', Georgia, serif",
+          }}
+        >
+          {/* Letterhead */}
+          <div className="text-center border-b-2 border-slate-700 pb-4 mb-5">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-slate-500 font-sans">Tribal Development Department, Govt. of Maharashtra</p>
+            <p className="text-[11px] text-slate-500 mt-0.5 font-sans">आदिवासी विकास विभाग, महाराष्ट्र शासन</p>
+            <h3 className="font-bold text-slate-900 text-base mt-2 tracking-wide" style={{ fontFamily: "'Noto Serif Devanagari', serif" }}>
+              शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज
+            </h3>
+            <p className="text-xs text-slate-600 mt-1">ता. कर्जत, जि. रायगड, पिन - 410201</p>
+            <p className="text-[10px] text-slate-400 mt-0.5 font-sans">Phone: 7666971183 | Email: ashramshala.pathraj@gov.in</p>
           </div>
-          <p className="text-xs text-slate-500 mb-3">{t('Date:', 'दिनांक:')} {new Date().toLocaleDateString()}</p>
-          <p className="mb-1.5"><strong className="text-slate-700">{t('To:', 'प्रति:')}</strong> {form.to || '...'}</p>
-          <p className="mb-4"><strong className="text-slate-700">{t('Subject:', 'विषय:')}</strong> {form.subject || '...'}</p>
-          <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{form.body || t('(Letter body will appear here)', '(पत्राचा मजकूर येथे दिसेल)')}</p>
+
+          {/* Date & Reference */}
+          <div className="flex items-center justify-between mb-4 text-xs text-slate-600">
+            <span>{t('Ref No:', 'संदर्भ क्र:')} ___/2024-25</span>
+            <span>{t('Date:', 'दिनांक:')} {todayDate}</span>
+          </div>
+
+          {/* Letter Content */}
+          <div className="text-sm leading-[1.8] text-slate-800">
+            <p className="mb-2"><strong>{t('To:', 'प्रति:')}</strong> {form.to || '...'}</p>
+            <p className="mb-4"><strong>{t('Subject:', 'विषय:')}</strong> <span className="underline decoration-slate-400">{form.subject || '...'}</span></p>
+            <p className="mb-1">{t('Respected Sir/Madam,', 'महोदय,')}</p>
+            <p className="whitespace-pre-wrap mt-2 min-h-[5rem]">{form.body || t('(Letter body will appear here)', '(पत्राचा मजकूर येथे दिसेल)')}</p>
+          </div>
+
+          {/* Signature block */}
+          <div className="mt-8 text-right text-xs text-slate-600">
+            <p>{t('Yours faithfully,', 'आपला विश्वासू,')}</p>
+            <p className="mt-6 font-semibold text-slate-800">{t('Principal', 'मुख्याध्यापक')}</p>
+            <p className="text-[10px] text-slate-500">{t('Govt. Ashram School, Pathraj', 'शा. आश्रमशाळा, पाथरज')}</p>
+          </div>
 
           {/* Gold Wax Seal */}
           {letterStatus === 'sealed' && (
@@ -290,7 +338,7 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: 'spring', stiffness: 200 }}
-              className="mt-8 flex justify-end"
+              className="absolute bottom-6 right-6"
             >
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#cba72f] to-[#e9c349] shadow-[0_8px_20px_rgba(203,167,47,.28)]">
                 <CheckCircle className="w-8 h-8 text-white" />
@@ -301,7 +349,7 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mt-8 text-center"
+              className="absolute bottom-6 left-1/2 -translate-x-1/2"
             >
               <span className="inline-flex items-center gap-2 px-5 py-2 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold uppercase shadow-sm">
                 <Send className="w-3.5 h-3.5" />

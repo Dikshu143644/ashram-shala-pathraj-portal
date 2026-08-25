@@ -39,17 +39,23 @@ function isPhoneRateLimited(phone: string): boolean {
   return false;
 }
 
-async function sendSmsFast2sms(phone: string, otp: string): Promise<boolean> {
+interface SmsResult {
+  success: boolean;
+  error?: string;
+}
+
+async function sendSmsFast2sms(phone: string, otp: string): Promise<SmsResult> {
   const apiKey = process.env.FAST2SMS_API_KEY?.trim();
 
   if (!apiKey) {
     // Dev mode: log OTP to console
     console.log(`[SMS-OTP DEV MODE] OTP for ${phone}: ${otp}`);
-    return true;
+    return { success: true };
   }
 
+  // Try "otp" route first
   try {
-    const response = await fetch('https://www.fast2sms.com/dev/bulkV2', {
+    const otpResponse = await fetch('https://www.fast2sms.com/dev/bulkV2', {
       method: 'POST',
       headers: {
         'authorization': apiKey,
@@ -64,17 +70,61 @@ async function sendSmsFast2sms(phone: string, otp: string): Promise<boolean> {
       signal: AbortSignal.timeout(10_000),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Fast2SMS error (${response.status}):`, errorText.slice(0, 200));
-      return false;
+    const otpResult = await otpResponse.json().catch(() => null);
+    console.log('[Fast2SMS] OTP route response:', JSON.stringify(otpResult));
+
+    if (otpResult?.return === true) {
+      return { success: true };
     }
 
-    const result = await response.json();
-    return result?.return === true;
+    // Check for status codes 996 (website verification needed) or 999 (insufficient balance)
+    const statusCode = otpResult?.status_code ?? otpResult?.statusCode;
+    if (statusCode === 996 || statusCode === 999) {
+      console.warn(`[Fast2SMS] OTP route failed with status ${statusCode}, trying v3 route...`);
+    } else if (!otpResponse.ok) {
+      console.error(`[Fast2SMS] OTP route HTTP error (${otpResponse.status})`);
+    }
   } catch (error) {
-    console.error('Fast2SMS request failed:', error instanceof Error ? error.message : error);
-    return false;
+    console.error('[Fast2SMS] OTP route request failed:', error instanceof Error ? error.message : error);
+  }
+
+  // Fallback: try "v3" route
+  try {
+    const v3Response = await fetch('https://www.fast2sms.com/dev/bulkV2', {
+      method: 'POST',
+      headers: {
+        'authorization': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        route: 'v3',
+        sender_id: 'ASHRAM',
+        message: `Your OTP for Pathraj Ashram Shala portal is: ${otp}. Valid for 10 minutes.`,
+        numbers: phone,
+        flash: 0,
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+
+    const v3Result = await v3Response.json().catch(() => null);
+    console.log('[Fast2SMS] v3 route response:', JSON.stringify(v3Result));
+
+    if (v3Result?.return === true) {
+      return { success: true };
+    }
+
+    const v3Status = v3Result?.status_code ?? v3Result?.statusCode;
+    const errorDetail = v3Status === 996
+      ? 'SMS service requires website verification. Please verify email instead.'
+      : v3Status === 999
+        ? 'SMS service requires recharge. Please verify email instead.'
+        : 'SMS delivery failed. Please verify email instead.';
+
+    console.error(`[Fast2SMS] v3 route also failed (status: ${v3Status})`);
+    return { success: false, error: errorDetail };
+  } catch (error) {
+    console.error('[Fast2SMS] v3 route request failed:', error instanceof Error ? error.message : error);
+    return { success: false, error: 'SMS service unavailable. Please verify email instead.' };
   }
 }
 
@@ -121,9 +171,13 @@ export function registerSmsOtpRoutes(app: Express, supabase: SupabaseClient): vo
       }
 
       // Send SMS
-      const sent = await sendSmsFast2sms(phone, otp);
-      if (!sent) {
-        res.status(502).json({ success: false, error: 'Failed to send SMS. Please try again.' });
+      const smsResult = await sendSmsFast2sms(phone, otp);
+      if (!smsResult.success) {
+        res.status(502).json({
+          success: false,
+          error: smsResult.error || 'Failed to send SMS. Please try again.',
+          smsUnavailable: true,
+        });
         return;
       }
 

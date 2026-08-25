@@ -54,6 +54,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
   const [phoneVerifying, setPhoneVerifying] = useState(false);
   const [phoneTimer, setPhoneTimer] = useState(0);
   const [phoneError, setPhoneError] = useState('');
+  const [smsUnavailable, setSmsUnavailable] = useState(false);
 
   // Email OTP state
   const [emailOtpSent, setEmailOtpSent] = useState(false);
@@ -133,6 +134,9 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
       if (response.ok && data.success) {
         setPhoneOtpSent(true);
         startPhoneTimer();
+      } else if (data.smsUnavailable) {
+        setSmsUnavailable(true);
+        setPhoneError(t('SMS unavailable. Verify via email instead.', 'SMS उपलब्ध नाही. कृपया ईमेलद्वारे सत्यापित करा.'));
       } else {
         setPhoneError(data.error || t('Failed to send OTP.', 'OTP पाठवण्यात अयशस्वी.'));
       }
@@ -229,10 +233,6 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
       setError(t('Full name is required.', 'पूर्ण नाव आवश्यक आहे.'));
       return;
     }
-    if (!phoneVerified) {
-      setError(t('Please verify your mobile number.', 'कृपया तुमचा मोबाईल नंबर सत्यापित करा.'));
-      return;
-    }
     if (!emailVerified) {
       setError(t('Please verify your email address.', 'कृपया तुमचा ईमेल पत्ता सत्यापित करा.'));
       return;
@@ -282,7 +282,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
 
   const inputClasses = "h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all";
 
-  const bothVerified = phoneVerified && emailVerified;
+  const canProceed = emailVerified;
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden p-4 sm:p-8">
@@ -344,7 +344,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
           <p className="mt-1.5 text-center text-xs text-slate-300">
             {stage === 'done' ? t('You can now use the portal.', 'आता तुम्ही पोर्टल वापरू शकता.')
               : stage === 'password' ? t('Set a secure password for your account', 'तुमच्या खात्यासाठी सुरक्षित पासवर्ड सेट करा')
-              : t('Verify your mobile & email to register', 'नोंदणीसाठी मोबाईल आणि ईमेल सत्यापित करा')}
+              : t('Verify your email to register (phone optional)', 'नोंदणीसाठी ईमेल सत्यापित करा (मोबाईल ऐच्छिक)')}
           </p>
         </div>
 
@@ -365,6 +365,12 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
                 {t('Mobile Number', 'मोबाईल नंबर')}
                 {phoneVerified && <span className="ml-2 inline-flex items-center gap-1 text-emerald-400"><Check className="h-3.5 w-3.5" /> {t('Verified', 'सत्यापित')}</span>}
               </label>
+              {!phoneVerified && !smsUnavailable && (
+                <p className="mb-1.5 text-[10px] text-amber-400/80">{t('SMS verification optional. Email verification required.', 'SMS सत्यापन ऐच्छिक. ईमेल सत्यापन आवश्यक.')}</p>
+              )}
+              {smsUnavailable && (
+                <p className="mb-1.5 text-[10px] text-amber-400/80">{t('SMS unavailable. Verify via email instead.', 'SMS उपलब्ध नाही. कृपया ईमेलद्वारे सत्यापित करा.')}</p>
+              )}
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <div className="absolute left-0 top-0 flex h-12 items-center pl-3 pr-1">
@@ -495,11 +501,11 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             <button
               type="button"
               onClick={handleProceedToPassword}
-              disabled={!bothVerified || !fullName.trim()}
+              disabled={!canProceed || !fullName.trim()}
               className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[14px] text-sm font-medium text-white transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
-                background: bothVerified ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(100, 116, 139, 0.4)',
-                boxShadow: bothVerified ? '0 4px 20px rgba(16, 185, 129, 0.3)' : 'none',
+                background: canProceed ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(100, 116, 139, 0.4)',
+                boxShadow: canProceed ? '0 4px 20px rgba(16, 185, 129, 0.3)' : 'none',
               }}
             >
               <UserPlus className="h-4 w-4" />{t('Continue to Signup', 'साइनअपसाठी पुढे जा')}
@@ -518,10 +524,10 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             <div className="mb-4 rounded-[14px] border border-emerald-500/20 bg-emerald-500/5 p-3">
               <div className="flex items-center gap-2 text-xs text-emerald-300">
                 <Check className="h-4 w-4" />
-                <span>{t('Mobile & Email verified', 'मोबाईल आणि ईमेल सत्यापित')}</span>
+                <span>{phoneVerified ? t('Mobile & Email verified', 'मोबाईल आणि ईमेल सत्यापित') : t('Email verified', 'ईमेल सत्यापित')}</span>
               </div>
               <div className="mt-1 flex items-center gap-3 text-[11px] text-slate-400">
-                <span className="flex items-center gap-1"><Phone className="h-3 w-3" />+91 {mobileNumber}</span>
+                {phoneVerified && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />+91 {mobileNumber}</span>}
                 <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{email}</span>
               </div>
             </div>
