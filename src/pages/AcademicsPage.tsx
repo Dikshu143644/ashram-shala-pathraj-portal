@@ -75,262 +75,227 @@ export default function AcademicsPage() {
   ];
 
   return (
-    <div className="min-h-screen overflow-hidden">
-      {/* ===== HERO SECTION ===== */}
-      <section
-        className="relative flex min-h-[50vh] flex-col items-center justify-center px-4 py-20 text-center"
-        style={{ background: '#F7F7F5' }}
-      >
-        {/* Background glow */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            className="absolute right-1/3 top-1/3 h-[350px] w-[350px] rounded-full opacity-15"
-            style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%)' }}
-          />
-          <div
-            className="absolute left-1/4 bottom-1/4 h-[250px] w-[250px] rounded-full opacity-10"
-            style={{ background: 'radial-gradient(circle, rgba(0, 0, 0, 0.02) 0%, transparent 70%)' }}
-          />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="relative z-10 max-w-4xl"
-        >
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="mb-4 text-[11px] font-medium uppercase tracking-[0.25em] sm:text-xs"
-            style={{ color: 'var(--public-accent-ember)' }}
-          >
-            {t('Education', 'शिक्षण')}
-          </motion.p>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
-            className="mb-5 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
-            style={{ color: '#000000' }}
-          >
-            {t('Academics', 'शैक्षणिक')}
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="text-sm sm:text-base"
-            style={{ color: 'var(--public-text-muted)' }}
-          >
-            {t(
-              'Comprehensive Marathi-medium education from Standard 1st to 12th',
-              'इयत्ता १ ली ते १२ वी पर्यंत सर्वसमावेशक मराठी माध्यमातील शिक्षण'
-            )}
-          </motion.p>
-        </motion.div>
-
-        {/* Bottom fade */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #F7F7F5)' }}
+    <div className="relative min-h-screen">
+      {/* ===== FIXED BACKGROUND ===== */}
+      <div className="fixed inset-0 z-0">
+        <img
+          src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=80"
+          alt=""
+          className="h-full w-full object-cover"
         />
-      </section>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
+      </div>
 
-      {/* ===== OVERVIEW SECTION ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
-        <div className="mx-auto max-w-5xl">
+      {/* ===== CONTENT ===== */}
+      <div className="relative z-10">
+        {/* ===== HERO SECTION ===== */}
+        <section className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-24 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="max-w-4xl"
           >
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
-              {t('Standards & Medium', 'इयत्ता आणि माध्यम')}
-            </h2>
-            <div className="mx-auto mb-6 h-0.5 w-16" style={{ background: '#059669' }} />
-          </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-emerald-400 sm:text-sm"
+            >
+              {t('Education', 'शिक्षण')}
+            </motion.p>
 
-          {/* Quick Info Cards */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-12">
-            {[
-              { icon: GraduationCap, labelEn: 'Standards 1st to 12th', labelMr: 'इयत्ता १ ली ते १२ वी' },
-              { icon: Languages, labelEn: 'Marathi Medium', labelMr: 'मराठी माध्यम' },
-              { icon: Palette, labelEn: 'Arts Stream (11-12)', labelMr: 'कला शाखा (११-१२)' },
-              { icon: Lightbulb, labelEn: 'Science stream coming soon', labelMr: 'विज्ञान शाखा लवकरच' },
-            ].map((item, i) => (
-              <motion.div
-                key={item.labelEn}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="flex flex-col items-center text-center rounded-xl p-5"
-                style={{
-                  background: '#FCFCFB',
-                  border: '1px solid #E7E7E4',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-                }}
-              >
-                <item.icon className="h-6 w-6 mb-3" style={{ color: '#059669' }} />
-                <p className="text-sm font-medium text-black">{t(item.labelEn, item.labelMr)}</p>
-              </motion.div>
-            ))}
-          </div>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.7 }}
+              className="mb-6 text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl"
+            >
+              {t('Academics', 'शैक्षणिक')}
+            </motion.h1>
 
-          {/* Arts stream note */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="rounded-xl p-4 text-center mb-8"
-            style={{ background: 'rgba(230, 126, 34, 0.08)', border: '1px solid rgba(230, 126, 34, 0.2)' }}
-          >
-            <p className="text-sm" style={{ color: 'var(--public-accent-ember)' }}>
-              <Lightbulb className="h-4 w-4 inline-block mr-2 -mt-0.5" />
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="text-base text-slate-300 sm:text-lg"
+            >
               {t(
-                'Currently only Arts stream is available for 11th-12th. Science stream may be added in the future based on government approval.',
-                'सध्या ११ वी-१२ वी साठी फक्त कला शाखा उपलब्ध आहे. शासनाच्या मान्यतेनुसार भविष्यात विज्ञान शाखा सुरू होऊ शकते.'
+                'Comprehensive Marathi-medium education from Standard 1st to 12th',
+                'इयत्ता १ ली ते १२ वी पर्यंत सर्वसमावेशक मराठी माध्यमातील शिक्षण'
               )}
-            </p>
+            </motion.p>
           </motion.div>
-        </div>
-      </section>
+        </section>
 
-      {/* ===== SUBJECTS BY STANDARD ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
-        <div className="mx-auto max-w-5xl">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-12"
-          >
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
-              {t('Subjects by Standard', 'इयत्तेनुसार विषय')}
-            </h2>
-            <div className="mx-auto mb-4 h-0.5 w-16" style={{ background: '#059669' }} />
-            <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
-              {t('Curriculum details for each academic level', 'प्रत्येक शैक्षणिक स्तरासाठी अभ्यासक्रम तपशील')}
-            </p>
-          </motion.div>
+        {/* ===== QUICK INFO CARDS ===== */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7 }}
+              className="text-center mb-12"
+            >
+              <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
+                {t('Standards & Medium', 'इयत्ता आणि माध्यम')}
+              </h2>
+              <div className="mx-auto mb-6 h-0.5 w-16 bg-emerald-400" />
+            </motion.div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            {standardLevels.map((level, i) => (
-              <motion.div
-                key={level.titleEn}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="rounded-2xl p-6 sm:p-8"
-                style={{
-                  background: '#FCFCFB',
-                  border: '1px solid #E7E7E4',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-                }}
-              >
-                {/* Level header */}
-                <div className="flex items-center gap-3 mb-5">
-                  <div
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg"
-                    style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
-                  >
-                    <level.icon className="h-4 w-4" style={{ color: '#059669' }} />
-                  </div>
-                  <h3 className="text-base font-semibold text-black sm:text-lg">
-                    {t(level.titleEn, level.titleMr)}
-                  </h3>
-                </div>
-
-                {/* Subjects list */}
-                <ul className="space-y-2.5">
-                  {level.subjects.map((subject) => (
-                    <li key={subject.en} className="flex items-center gap-2.5">
-                      <div className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#059669' }} />
-                      <span className="text-sm" style={{ color: 'var(--public-text-secondary)' }}>
-                        {t(subject.en, subject.mr)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== STAFF DIRECTORY ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
-        <div className="mx-auto max-w-5xl">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-12"
-          >
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
-              {t('Teaching Staff', 'शिक्षक वर्ग')}
-            </h2>
-            <div className="mx-auto mb-4 h-0.5 w-16" style={{ background: '#059669' }} />
-            <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
-              {t('Our dedicated educators shaping the future', 'भविष्य घडवणारे आमचे समर्पित शिक्षक')}
-            </p>
-          </motion.div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {staffDirectory.map((staff, i) => (
-              <motion.div
-                key={staff.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.5 }}
-                className="rounded-xl p-5 text-center"
-                style={{
-                  background: '#FCFCFB',
-                  border: '1px solid #E7E7E4',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-                }}
-              >
-                {/* Avatar placeholder */}
-                <div
-                  className="mx-auto mb-3 h-12 w-12 rounded-full flex items-center justify-center"
-                  style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-12">
+              {[
+                { icon: GraduationCap, labelEn: 'Standards 1st to 12th', labelMr: 'इयत्ता १ ली ते १२ वी' },
+                { icon: Languages, labelEn: 'Marathi Medium', labelMr: 'मराठी माध्यम' },
+                { icon: Palette, labelEn: 'Arts Stream (11-12)', labelMr: 'कला शाखा (११-१२)' },
+                { icon: Lightbulb, labelEn: 'Science stream coming soon', labelMr: 'विज्ञान शाखा लवकरच' },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.labelEn}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="rounded-xl border border-white/10 bg-slate-900/40 p-6 text-center backdrop-blur-sm"
                 >
-                  <Users className="h-5 w-5" style={{ color: '#059669' }} />
-                </div>
-                <p className="text-sm font-semibold text-black mb-1">{staff.name}</p>
-                <p className="text-xs mb-1" style={{ color: '#059669' }}>{staff.role}</p>
-                <p className="text-xs" style={{ color: 'var(--public-text-muted)' }}>{staff.subject}</p>
-              </motion.div>
-            ))}
-          </div>
+                  <item.icon className="mx-auto h-6 w-6 mb-3 text-emerald-400" />
+                  <p className="text-sm font-medium text-white">{t(item.labelEn, item.labelMr)}</p>
+                </motion.div>
+              ))}
+            </div>
 
-          {/* Total staff note */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="mt-8 text-center text-sm"
-            style={{ color: 'var(--public-text-muted)' }}
-          >
-            {t(
-              'Total permanent staff: 25 members including teaching and non-teaching staff',
-              'एकूण कायम कर्मचारी: शैक्षणिक आणि अशैक्षणिक कर्मचाऱ्यांसह २५ सदस्य'
-            )}
-          </motion.p>
-        </div>
-      </section>
+            {/* Arts stream note */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="rounded-xl border border-emerald-400/20 bg-emerald-900/20 p-4 text-center backdrop-blur-sm"
+            >
+              <p className="text-sm text-emerald-400">
+                <Lightbulb className="h-4 w-4 inline-block mr-2 -mt-0.5" />
+                {t(
+                  'Currently only Arts stream is available for 11th-12th. Science stream may be added in the future based on government approval.',
+                  'सध्या ११ वी-१२ वी साठी फक्त कला शाखा उपलब्ध आहे. शासनाच्या मान्यतेनुसार भविष्यात विज्ञान शाखा सुरू होऊ शकते.'
+                )}
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ===== SUBJECTS BY STANDARD ===== */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7 }}
+              className="text-center mb-12"
+            >
+              <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
+                {t('Subjects by Standard', 'इयत्तेनुसार विषय')}
+              </h2>
+              <div className="mx-auto mb-4 h-0.5 w-16 bg-emerald-400" />
+              <p className="text-sm text-slate-300">
+                {t('Curriculum details for each academic level', 'प्रत्येक शैक्षणिक स्तरासाठी अभ्यासक्रम तपशील')}
+              </p>
+            </motion.div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              {standardLevels.map((level, i) => (
+                <motion.div
+                  key={level.titleEn}
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md"
+                >
+                  {/* Level header */}
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-emerald-500/10">
+                      <level.icon className="h-4 w-4 text-emerald-400" />
+                    </div>
+                    <h3 className="text-base font-semibold text-white sm:text-lg">
+                      {t(level.titleEn, level.titleMr)}
+                    </h3>
+                  </div>
+
+                  {/* Subjects list */}
+                  <ul className="space-y-2.5">
+                    {level.subjects.map((subject) => (
+                      <li key={subject.en} className="flex items-center gap-2.5">
+                        <div className="h-1.5 w-1.5 rounded-full flex-shrink-0 bg-emerald-400" />
+                        <span className="text-sm text-slate-300">
+                          {t(subject.en, subject.mr)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===== STAFF DIRECTORY ===== */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7 }}
+              className="text-center mb-12"
+            >
+              <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
+                {t('Teaching Staff', 'शिक्षक वर्ग')}
+              </h2>
+              <div className="mx-auto mb-4 h-0.5 w-16 bg-emerald-400" />
+              <p className="text-sm text-slate-300">
+                {t('Our dedicated educators shaping the future', 'भविष्य घडवणारे आमचे समर्पित शिक्षक')}
+              </p>
+            </motion.div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {staffDirectory.map((staff, i) => (
+                <motion.div
+                  key={staff.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.5 }}
+                  className="rounded-xl border border-white/10 bg-slate-900/40 p-6 text-center backdrop-blur-sm"
+                >
+                  {/* Avatar placeholder */}
+                  <div className="mx-auto mb-3 h-12 w-12 rounded-full flex items-center justify-center border border-white/10 bg-emerald-500/10">
+                    <Users className="h-5 w-5 text-emerald-400" />
+                  </div>
+                  <p className="text-sm font-semibold text-white mb-1">{staff.name}</p>
+                  <p className="text-xs text-emerald-400 mb-1">{staff.role}</p>
+                  <p className="text-xs text-slate-400">{staff.subject}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Total staff note */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="mt-8 text-center text-sm text-slate-400"
+            >
+              {t(
+                'Total permanent staff: 25 members including teaching and non-teaching staff',
+                'एकूण कायम कर्मचारी: शैक्षणिक आणि अशैक्षणिक कर्मचाऱ्यांसह २५ सदस्य'
+              )}
+            </motion.p>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

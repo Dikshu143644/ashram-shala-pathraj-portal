@@ -102,518 +102,448 @@ export default function AdmissionPage() {
   ];
 
   return (
-    <div className="min-h-screen overflow-hidden">
-      {/* ===== HERO SECTION ===== */}
-      <section
-        className="relative flex min-h-[50vh] flex-col items-center justify-center px-4 py-20 text-center"
-        style={{ background: '#F7F7F5' }}
-      >
-        {/* Background glow */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            className="absolute left-1/3 top-1/3 h-[350px] w-[350px] rounded-full opacity-15"
-            style={{ background: 'radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%)' }}
-          />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="relative z-10 max-w-4xl"
-        >
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="mb-4 text-[11px] font-medium uppercase tracking-[0.25em] sm:text-xs"
-            style={{ color: 'var(--public-accent-ember)' }}
-          >
-            {t('Enrollment', 'नावनोंदणी')}
-          </motion.p>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
-            className="mb-5 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
-            style={{ color: '#000000' }}
-          >
-            {t('Admission', 'प्रवेश')}
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="text-sm sm:text-base"
-            style={{ color: 'var(--public-text-muted)' }}
-          >
-            {t(
-              'Join our residential school for quality tribal education',
-              'दर्जेदार आदिवासी शिक्षणासाठी आमच्या निवासी शाळेत सामील व्हा'
-            )}
-          </motion.p>
-        </motion.div>
-
-        {/* Bottom fade */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #F7F7F5)' }}
+    <div className="relative min-h-screen">
+      {/* ===== FIXED BACKGROUND ===== */}
+      <div className="fixed inset-0 z-0">
+        <img
+          src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920&q=80"
+          alt=""
+          className="h-full w-full object-cover"
         />
-      </section>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
+      </div>
 
-      {/* ===== ADMISSION STATUS BANNER ===== */}
-      <section className="px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
-        <div className="mx-auto max-w-4xl">
+      {/* ===== CONTENT ===== */}
+      <div className="relative z-10">
+        {/* ===== HERO SECTION ===== */}
+        <section className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-24 text-center">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="rounded-2xl p-6 sm:p-8 text-center"
-            style={{
-              background: '#FCFCFB',
-              border: '1px solid rgba(5, 150, 105, 0.04)',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-            }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="max-w-4xl"
           >
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <XCircle className="h-5 w-5" style={{ color: '#059669' }} />
-              <span
-                className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider"
-                style={{ background: 'rgba(196, 40, 71, 0.2)', color: '#059669', border: '1px solid rgba(5, 150, 105, 0.04)' }}
-              >
-                {t('CLOSED', 'बंद')}
-              </span>
-            </div>
-            <p className="text-base font-semibold text-black mb-1">
-              {t('Admissions Currently Closed', 'सध्या प्रवेश बंद आहे')}
-            </p>
-            <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-emerald-400 sm:text-sm"
+            >
+              {t('Enrollment', 'नावनोंदणी')}
+            </motion.p>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.7 }}
+              className="mb-6 text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl"
+            >
+              {t('Admission', 'प्रवेश')}
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="text-base text-slate-300 sm:text-lg"
+            >
               {t(
-                'Admissions for the current academic year are closed. Please check back for the next admission cycle or contact the school office for more information.',
-                'चालू शैक्षणिक वर्षासाठी प्रवेश बंद आहेत. कृपया पुढील प्रवेश चक्रासाठी पुन्हा तपासा किंवा अधिक माहितीसाठी शाळा कार्यालयाशी संपर्क साधा.'
+                'Join our residential school for quality tribal education',
+                'दर्जेदार आदिवासी शिक्षणासाठी आमच्या निवासी शाळेत सामील व्हा'
               )}
-            </p>
+            </motion.p>
           </motion.div>
-        </div>
-      </section>
+        </section>
 
-      {/* ===== ADMISSION PROCESS ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
-        <div className="mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-12"
-          >
-            <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
-              {t('Admission Process', 'प्रवेश प्रक्रिया')}
-            </h2>
-            <div className="mx-auto mb-4 h-0.5 w-16" style={{ background: '#059669' }} />
-            <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
-              {t('Step-by-step guide to admission', 'प्रवेशासाठी टप्प्याटप्प्याने मार्गदर्शन')}
-            </p>
-          </motion.div>
-
-          <div className="space-y-4">
-            {admissionSteps.map((step, i) => (
-              <motion.div
-                key={step.step}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.5 }}
-                className="relative flex gap-5 rounded-2xl p-6 sm:p-8"
-                style={{
-                  background: '#FCFCFB',
-                  border: '1px solid #E7E7E4',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-                }}
-              >
-                {/* Step number */}
-                <div
-                  className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold"
-                  style={{ background: '#000000', color: '#fff' }}
-                >
-                  {step.step}
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-black mb-2 sm:text-lg">
-                    {t(step.titleEn, step.titleMr)}
-                  </h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--public-text-secondary)', lineHeight: '1.7' }}>
-                    {t(step.descEn, step.descMr)}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== REQUIRED DOCUMENTS ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
-        <div className="mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7 }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
-              >
-                <FileText className="h-5 w-5" style={{ color: '#059669' }} />
-              </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
-                {t('Required Documents', 'आवश्यक कागदपत्रे')}
-              </h2>
-            </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
-
-            <div
-              className="rounded-2xl p-6 sm:p-8"
-              style={{
-                background: '#FCFCFB',
-                border: '1px solid #E7E7E4',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-              }}
+        {/* ===== ADMISSION STATUS BANNER ===== */}
+        <section className="px-4 sm:px-6 lg:px-8 pb-10">
+          <div className="mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 text-center backdrop-blur-md"
             >
-              <ul className="space-y-4">
-                {requiredDocuments.map((doc, i) => (
-                  <motion.li
-                    key={doc.en}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08, duration: 0.4 }}
-                    className="flex items-start gap-3"
-                  >
-                    <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#059669' }} />
-                    <span className="text-sm" style={{ color: 'var(--public-text-secondary)' }}>
-                      {t(doc.en, doc.mr)}
-                    </span>
-                  </motion.li>
-                ))}
-              </ul>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ===== ELIGIBILITY ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
-        <div className="mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7 }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
-              >
-                <UserCheck className="h-5 w-5" style={{ color: '#059669' }} />
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <XCircle className="h-5 w-5 text-red-400" />
+                <span className="inline-flex items-center rounded-full border border-red-400/20 bg-red-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-red-400">
+                  {t('CLOSED', 'बंद')}
+                </span>
               </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
-                {t('Eligibility', 'पात्रता')}
-              </h2>
-            </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
-
-            <div
-              className="rounded-2xl p-6 sm:p-8"
-              style={{
-                background: '#FCFCFB',
-                border: '1px solid #E7E7E4',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-              }}
-            >
-              <ul className="space-y-4">
-                {[
-                  { en: 'Tribal students (Scheduled Tribe category) are given priority', mr: 'आदिवासी विद्यार्थ्यांना (अनुसूचित जमाती वर्ग) प्राधान्य दिले जाते' },
-                  { en: 'Students must be residents of Maharashtra state', mr: 'विद्यार्थी महाराष्ट्र राज्यातील रहिवासी असणे आवश्यक' },
-                  { en: 'Valid Caste Certificate (ST) is mandatory', mr: 'वैध जात प्रमाणपत्र (अ.ज.) अनिवार्य आहे' },
-                  { en: 'Age should be appropriate for the standard applied', mr: 'अर्ज केलेल्या इयत्तेसाठी वय योग्य असावे' },
-                  { en: 'Preference given to students from remote tribal areas', mr: 'दुर्गम आदिवासी भागातील विद्यार्थ्यांना प्राधान्य' },
-                ].map((item, i) => (
-                  <motion.li
-                    key={item.en}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08, duration: 0.4 }}
-                    className="flex items-start gap-3"
-                  >
-                    <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#059669' }} />
-                    <span className="text-sm" style={{ color: 'var(--public-text-secondary)' }}>
-                      {t(item.en, item.mr)}
-                    </span>
-                  </motion.li>
-                ))}
-              </ul>
-
-              {/* Important note */}
-              <div className="mt-6 rounded-xl p-4 flex items-start gap-3" style={{ background: 'rgba(230, 126, 34, 0.08)', border: '1px solid rgba(230, 126, 34, 0.2)' }}>
-                <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--public-accent-ember)' }} />
-                <p className="text-xs leading-relaxed" style={{ color: 'var(--public-accent-ember)' }}>
-                  {t(
-                    'Admission is subject to availability of seats and verification of all documents. The school reserves the right to accept or reject applications based on eligibility criteria.',
-                    'प्रवेश जागांच्या उपलब्धतेवर आणि सर्व कागदपत्रांच्या पडताळणीवर अवलंबून आहे. पात्रता निकषांच्या आधारे अर्ज स्वीकारण्याचा किंवा नाकारण्याचा अधिकार शाळेकडे राहील.'
-                  )}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ===== APPLY ONLINE - APPLICATION FORM ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#F7F7F5' }}>
-        <div className="mx-auto max-w-3xl">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7 }}
-            className="rounded-2xl p-8 sm:p-12"
-            style={{
-              background: '#FCFCFB',
-              border: '1px solid #E7E7E4',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-            }}
-          >
-            <div className="text-center mb-8">
-              <div
-                className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
-              >
-                <ClipboardList className="h-6 w-6" style={{ color: '#059669' }} />
-              </div>
-              <h2 className="mb-3 text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
-                {t('Apply Online', 'ऑनलाइन अर्ज करा')}
-              </h2>
-              <p className="text-sm" style={{ color: 'var(--public-text-muted)' }}>
+              <p className="text-base font-semibold text-white mb-1">
+                {t('Admissions Currently Closed', 'सध्या प्रवेश बंद आहे')}
+              </p>
+              <p className="text-sm text-slate-300">
                 {t(
-                  'Fill the form below to submit your admission application',
-                  'प्रवेश अर्ज सबमिट करण्यासाठी खालील फॉर्म भरा'
+                  'Admissions for the current academic year are closed. Please check back for the next admission cycle or contact the school office for more information.',
+                  'चालू शैक्षणिक वर्षासाठी प्रवेश बंद आहेत. कृपया पुढील प्रवेश चक्रासाठी पुन्हा तपासा किंवा अधिक माहितीसाठी शाळा कार्यालयाशी संपर्क साधा.'
                 )}
               </p>
-            </div>
+            </motion.div>
+          </div>
+        </section>
 
-            {formSuccess ? (
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-                <CheckCircle className="h-10 w-10 text-emerald-600 mx-auto mb-3" />
-                <p className="text-sm font-semibold text-emerald-800">{formSuccess}</p>
-                <button
-                  type="button"
-                  onClick={() => setFormSuccess('')}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full px-6 py-2 text-xs font-semibold text-white"
-                  style={{ background: '#059669' }}
-                >
-                  {t('Submit Another', 'आणखी एक सबमिट करा')}
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleApplicationSubmit} className="space-y-5">
-                <div>
-                  <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
-                    {t('Student Name *', 'विद्यार्थ्याचे नाव *')}
-                  </label>
-                  <input
-                    type="text"
-                    value={applicantName}
-                    onChange={(e) => setApplicantName(e.target.value)}
-                    placeholder={t('Enter student full name', 'विद्यार्थ्याचे पूर्ण नाव प्रविष्ट करा')}
-                    className="w-full rounded-xl px-4 py-3 text-sm outline-none"
-                    style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
-                    {t('Parent/Guardian Name *', 'पालक/पालकाचे नाव *')}
-                  </label>
-                  <input
-                    type="text"
-                    value={parentName}
-                    onChange={(e) => setParentName(e.target.value)}
-                    placeholder={t('Enter parent or guardian name', 'पालक किंवा पालकाचे नाव प्रविष्ट करा')}
-                    className="w-full rounded-xl px-4 py-3 text-sm outline-none"
-                    style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
-                  />
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
-                      {t('Mobile Number *', 'मोबाईल नंबर *')}
-                    </label>
-                    <input
-                      type="tel"
-                      value={parentMobile}
-                      onChange={(e) => setParentMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      placeholder="9876543210"
-                      className="w-full rounded-xl px-4 py-3 text-sm outline-none"
-                      style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
-                      {t('Email (optional)', 'ईमेल (पर्यायी)')}
-                    </label>
-                    <input
-                      type="email"
-                      value={parentEmail}
-                      onChange={(e) => setParentEmail(e.target.value)}
-                      placeholder="parent@example.com"
-                      className="w-full rounded-xl px-4 py-3 text-sm outline-none"
-                      style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--public-text-muted)' }}>
-                    {t('Standard Applying For', 'अर्ज करत असलेली इयत्ता')}
-                  </label>
-                  <select
-                    value={standardApplying}
-                    onChange={(e) => setStandardApplying(e.target.value)}
-                    className="w-full rounded-xl px-4 py-3 text-sm outline-none appearance-none"
-                    style={{ background: 'rgba(5, 150, 105, 0.03)', border: '1px solid #E7E7E4', color: '#000' }}
-                  >
-                    <option value="">{t('Select Standard', 'इयत्ता निवडा')}</option>
-                    {[1,2,3,4,5,6,7,8,9,10,11,12].map((s) => (
-                      <option key={s} value={s}>{t(`Standard ${s}`, `इयत्ता ${s}`)}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {formError && (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-xs text-red-700">
-                    {formError}
-                  </div>
-                )}
-
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={formLoading}
-                    className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{
-                      background: '#000000',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
-                    }}
-                  >
-                    {formLoading ? (
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                    {t('Submit Application', 'अर्ज सबमिट करा')}
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="mt-6 text-center">
-              <Link
-                to="/register"
-                className="inline-flex items-center gap-2 text-xs font-medium no-underline transition-colors hover:opacity-80"
-                style={{ color: '#059669' }}
-              >
-                {t('Already have an account? Register & Track', 'आधीच खाते आहे? नोंदणी करा आणि ट्रॅक करा')}
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ===== CONTACT FOR INQUIRIES ===== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: '#FFFFFF' }}>
-        <div className="mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7 }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid #E7E7E4' }}
-              >
-                <Phone className="h-5 w-5" style={{ color: '#059669' }} />
-              </div>
-              <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: '#000000' }}>
-                {t('Contact for Inquiries', 'चौकशीसाठी संपर्क')}
+        {/* ===== ADMISSION PROCESS ===== */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7 }}
+              className="text-center mb-12"
+            >
+              <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
+                {t('Admission Process', 'प्रवेश प्रक्रिया')}
               </h2>
-            </div>
-            <div className="mb-8 h-0.5 w-16" style={{ background: '#059669' }} />
+              <div className="mx-auto mb-4 h-0.5 w-16 bg-emerald-400" />
+              <p className="text-sm text-slate-300">
+                {t('Step-by-step guide to admission', 'प्रवेशासाठी टप्प्याटप्प्याने मार्गदर्शन')}
+              </p>
+            </motion.div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                {
-                  icon: Phone,
-                  titleEn: 'Principal',
-                  titleMr: 'मुख्याध्यापक',
-                  valueEn: '9423864391',
-                  valueMr: '९४२३८६४३९१',
-                  nameEn: 'Shri. Bansode Ajit L.',
-                  nameMr: 'श्री. बनसोडे अजित ल.',
-                },
-                {
-                  icon: Phone,
-                  titleEn: 'Office / Clerk',
-                  titleMr: 'कार्यालय / लिपिक',
-                  valueEn: '7666971183',
-                  valueMr: '७६६६९७११८३',
-                  nameEn: 'Shri. Omkar Supe',
-                  nameMr: 'श्री. ओमकार सुपे',
-                },
-                {
-                  icon: Mail,
-                  titleEn: 'Email',
-                  titleMr: 'ईमेल',
-                  valueEn: 'hmpathraj22@gmail.com',
-                  valueMr: 'hmpathraj22@gmail.com',
-                  nameEn: 'School Office',
-                  nameMr: 'शाळा कार्यालय',
-                },
-              ].map((contact, i) => (
+            <div className="space-y-4">
+              {admissionSteps.map((step, i) => (
                 <motion.div
-                  key={contact.titleEn}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  key={step.step}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1, duration: 0.5 }}
-                  className="rounded-xl p-5"
-                  style={{
-                    background: '#FCFCFB',
-                    border: '1px solid #E7E7E4',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-                  }}
+                  transition={{ delay: i * 0.15, duration: 0.5 }}
+                  className="relative flex gap-5 rounded-2xl border border-white/10 bg-slate-900/50 p-6 backdrop-blur-md sm:p-8"
                 >
-                  <contact.icon className="h-5 w-5 mb-3" style={{ color: '#059669' }} />
-                  <p className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--public-text-muted)' }}>
-                    {t(contact.titleEn, contact.titleMr)}
-                  </p>
-                  <p className="text-base font-semibold text-black mb-1">{t(contact.valueEn, contact.valueMr)}</p>
-                  <p className="text-xs" style={{ color: 'var(--public-text-secondary)' }}>
-                    {t(contact.nameEn, contact.nameMr)}
-                  </p>
+                  {/* Step number */}
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold bg-emerald-500 text-white">
+                    {step.step}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-white mb-2 sm:text-lg">
+                      {t(step.titleEn, step.titleMr)}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-slate-300" style={{ lineHeight: '1.7' }}>
+                      {t(step.descEn, step.descMr)}
+                    </p>
+                  </div>
                 </motion.div>
               ))}
             </div>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </section>
+
+        {/* ===== REQUIRED DOCUMENTS ===== */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7 }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
+                  <FileText className="h-5 w-5 text-emerald-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-white sm:text-3xl">
+                  {t('Required Documents', 'आवश्यक कागदपत्रे')}
+                </h2>
+              </div>
+              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+
+              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md">
+                <ul className="space-y-4">
+                  {requiredDocuments.map((doc, i) => (
+                    <motion.li
+                      key={doc.en}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08, duration: 0.4 }}
+                      className="flex items-start gap-3"
+                    >
+                      <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-400" />
+                      <span className="text-sm text-slate-300">
+                        {t(doc.en, doc.mr)}
+                      </span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ===== ELIGIBILITY ===== */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7 }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
+                  <UserCheck className="h-5 w-5 text-emerald-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-white sm:text-3xl">
+                  {t('Eligibility', 'पात्रता')}
+                </h2>
+              </div>
+              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+
+              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md">
+                <ul className="space-y-4">
+                  {[
+                    { en: 'Tribal students (Scheduled Tribe category) are given priority', mr: 'आदिवासी विद्यार्थ्यांना (अनुसूचित जमाती वर्ग) प्राधान्य दिले जाते' },
+                    { en: 'Students must be residents of Maharashtra state', mr: 'विद्यार्थी महाराष्ट्र राज्यातील रहिवासी असणे आवश्यक' },
+                    { en: 'Valid Caste Certificate (ST) is mandatory', mr: 'वैध जात प्रमाणपत्र (अ.ज.) अनिवार्य आहे' },
+                    { en: 'Age should be appropriate for the standard applied', mr: 'अर्ज केलेल्या इयत्तेसाठी वय योग्य असावे' },
+                    { en: 'Preference given to students from remote tribal areas', mr: 'दुर्गम आदिवासी भागातील विद्यार्थ्यांना प्राधान्य' },
+                  ].map((item, i) => (
+                    <motion.li
+                      key={item.en}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08, duration: 0.4 }}
+                      className="flex items-start gap-3"
+                    >
+                      <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-400" />
+                      <span className="text-sm text-slate-300">
+                        {t(item.en, item.mr)}
+                      </span>
+                    </motion.li>
+                  ))}
+                </ul>
+
+                {/* Important note */}
+                <div className="mt-6 rounded-xl border border-amber-400/20 bg-amber-500/10 p-4 flex items-start gap-3">
+                  <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0 text-amber-400" />
+                  <p className="text-xs leading-relaxed text-amber-300">
+                    {t(
+                      'Admission is subject to availability of seats and verification of all documents. The school reserves the right to accept or reject applications based on eligibility criteria.',
+                      'प्रवेश जागांच्या उपलब्धतेवर आणि सर्व कागदपत्रांच्या पडताळणीवर अवलंबून आहे. पात्रता निकषांच्या आधारे अर्ज स्वीकारण्याचा किंवा नाकारण्याचा अधिकार शाळेकडे राहील.'
+                    )}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ===== APPLY ONLINE - APPLICATION FORM ===== */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7 }}
+              className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-12"
+            >
+              <div className="text-center mb-8">
+                <div className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center border border-white/10 bg-emerald-500/10">
+                  <ClipboardList className="h-6 w-6 text-emerald-400" />
+                </div>
+                <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
+                  {t('Apply Online', 'ऑनलाइन अर्ज करा')}
+                </h2>
+                <p className="text-sm text-slate-300">
+                  {t(
+                    'Fill the form below to submit your admission application',
+                    'प्रवेश अर्ज सबमिट करण्यासाठी खालील फॉर्म भरा'
+                  )}
+                </p>
+              </div>
+
+              {formSuccess ? (
+                <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-6 text-center">
+                  <CheckCircle className="h-10 w-10 text-emerald-400 mx-auto mb-3" />
+                  <p className="text-sm font-semibold text-emerald-300">{formSuccess}</p>
+                  <button
+                    type="button"
+                    onClick={() => setFormSuccess('')}
+                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-2 text-xs font-semibold text-white hover:bg-emerald-600 transition-colors"
+                  >
+                    {t('Submit Another', 'आणखी एक सबमिट करा')}
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleApplicationSubmit} className="space-y-5">
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                      {t('Student Name *', 'विद्यार्थ्याचे नाव *')}
+                    </label>
+                    <input
+                      type="text"
+                      value={applicantName}
+                      onChange={(e) => setApplicantName(e.target.value)}
+                      placeholder={t('Enter student full name', 'विद्यार्थ्याचे पूर्ण नाव प्रविष्ट करा')}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/50 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                      {t('Parent/Guardian Name *', 'पालक/पालकाचे नाव *')}
+                    </label>
+                    <input
+                      type="text"
+                      value={parentName}
+                      onChange={(e) => setParentName(e.target.value)}
+                      placeholder={t('Enter parent or guardian name', 'पालक किंवा पालकाचे नाव प्रविष्ट करा')}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/50 transition-colors"
+                    />
+                  </div>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                        {t('Mobile Number *', 'मोबाईल नंबर *')}
+                      </label>
+                      <input
+                        type="tel"
+                        value={parentMobile}
+                        onChange={(e) => setParentMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        placeholder="9876543210"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/50 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                        {t('Email (optional)', 'ईमेल (पर्यायी)')}
+                      </label>
+                      <input
+                        type="email"
+                        value={parentEmail}
+                        onChange={(e) => setParentEmail(e.target.value)}
+                        placeholder="parent@example.com"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/50 transition-colors"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                      {t('Standard Applying For', 'अर्ज करत असलेली इयत्ता')}
+                    </label>
+                    <select
+                      value={standardApplying}
+                      onChange={(e) => setStandardApplying(e.target.value)}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none appearance-none focus:border-emerald-400/50 transition-colors"
+                    >
+                      <option value="" className="bg-slate-900 text-white">{t('Select Standard', 'इयत्ता निवडा')}</option>
+                      {[1,2,3,4,5,6,7,8,9,10,11,12].map((s) => (
+                        <option key={s} value={s} className="bg-slate-900 text-white">{t(`Standard ${s}`, `इयत्ता ${s}`)}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {formError && (
+                    <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-center text-xs text-red-300">
+                      {formError}
+                    </div>
+                  )}
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={formLoading}
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {formLoading ? (
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
+                      {t('Submit Application', 'अर्ज सबमिट करा')}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              <div className="mt-6 text-center">
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-2 text-xs font-medium text-emerald-400 no-underline transition-colors hover:text-emerald-300"
+                >
+                  {t('Already have an account? Register & Track', 'आधीच खाते आहे? नोंदणी करा आणि ट्रॅक करा')}
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ===== CONTACT FOR INQUIRIES ===== */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7 }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
+                  <Phone className="h-5 w-5 text-emerald-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-white sm:text-3xl">
+                  {t('Contact for Inquiries', 'चौकशीसाठी संपर्क')}
+                </h2>
+              </div>
+              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {[
+                  {
+                    icon: Phone,
+                    titleEn: 'Principal',
+                    titleMr: 'मुख्याध्यापक',
+                    valueEn: '9423864391',
+                    valueMr: '९४२३८६४३९१',
+                    nameEn: 'Shri. Bansode Ajit L.',
+                    nameMr: 'श्री. बनसोडे अजित ल.',
+                  },
+                  {
+                    icon: Phone,
+                    titleEn: 'Office / Clerk',
+                    titleMr: 'कार्यालय / लिपिक',
+                    valueEn: '7666971183',
+                    valueMr: '७६६६९७११८३',
+                    nameEn: 'Shri. Omkar Supe',
+                    nameMr: 'श्री. ओमकार सुपे',
+                  },
+                  {
+                    icon: Mail,
+                    titleEn: 'Email',
+                    titleMr: 'ईमेल',
+                    valueEn: 'hmpathraj22@gmail.com',
+                    valueMr: 'hmpathraj22@gmail.com',
+                    nameEn: 'School Office',
+                    nameMr: 'शाळा कार्यालय',
+                  },
+                ].map((contact, i) => (
+                  <motion.div
+                    key={contact.titleEn}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1, duration: 0.5 }}
+                    className="rounded-xl border border-white/10 bg-slate-900/40 p-5 backdrop-blur-sm"
+                  >
+                    <contact.icon className="h-5 w-5 mb-3 text-emerald-400" />
+                    <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+                      {t(contact.titleEn, contact.titleMr)}
+                    </p>
+                    <p className="text-base font-semibold text-white mb-1">{t(contact.valueEn, contact.valueMr)}</p>
+                    <p className="text-xs text-slate-300">
+                      {t(contact.nameEn, contact.nameMr)}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
