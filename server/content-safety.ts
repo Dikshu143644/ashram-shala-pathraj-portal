@@ -19,11 +19,23 @@ export async function analyzeImageSafety(imageUrl: string): Promise<SafetyResult
   const apiKey = process.env.GEMINI_API_KEY?.trim();
 
   if (!apiKey) {
-    console.log('[CONTENT SAFETY DEV MODE] No GEMINI_API_KEY configured, auto-approving.');
-    return { safe: true, score: 1.0, reasons: [] };
+    console.warn('[CONTENT SAFETY] No GEMINI_API_KEY configured, blocking upload (fail-closed).');
+    return { safe: false, score: 0.0, reasons: ['Content safety not configured - uploads blocked'] };
   }
 
   try {
+    // Fetch the image and base64-encode it for Gemini Vision
+    const imageResponse = await fetch(imageUrl, { signal: AbortSignal.timeout(15_000) });
+    if (!imageResponse.ok) {
+      console.error(`[CONTENT SAFETY] Failed to fetch image (${imageResponse.status}): ${imageUrl}`);
+      return { safe: false, score: 0.0, reasons: ['Unable to fetch image for analysis'] };
+    }
+
+    const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+    const mimeType = contentType.split(';')[0].trim();
+    const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+    const base64Data = imageBuffer.toString('base64');
+
     const prompt = `You are a content safety moderator for a school website (Ashram Shala Pathraj).
 Analyze this image and determine if it is safe to display on a school website.
 
@@ -53,12 +65,10 @@ If unsafe, list the specific concerns found.`;
               parts: [
                 { text: prompt },
                 {
-                  inline_data: undefined,
-                  file_data: undefined,
-                  // Use image URL reference
-                },
-                {
-                  text: `Image URL to analyze: ${imageUrl}`,
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: base64Data,
+                  },
                 },
               ],
             },
@@ -75,8 +85,8 @@ If unsafe, list the specific concerns found.`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Gemini API error (${response.status}):`, errorText.slice(0, 300));
-      // Fail-open: approve if API is unavailable
-      return { safe: true, score: 0.8, reasons: ['API error - auto-approved'] };
+      // Fail-closed: block upload when API is unavailable
+      return { safe: false, score: 0.0, reasons: ['Safety API unavailable - please retry later'] };
     }
 
     const data = await response.json() as {
@@ -95,12 +105,12 @@ If unsafe, list the specific concerns found.`;
       };
     }
 
-    // If parsing fails, default to safe
-    return { safe: true, score: 0.7, reasons: ['Could not parse safety response'] };
+    // If parsing fails, fail-closed
+    return { safe: false, score: 0.0, reasons: ['Could not parse safety response - please retry'] };
   } catch (error) {
     console.error('Content safety analysis failed:', error instanceof Error ? error.message : error);
-    // Fail-open: approve if analysis fails
-    return { safe: true, score: 0.8, reasons: ['Analysis error - auto-approved'] };
+    // Fail-closed: block upload when analysis fails
+    return { safe: false, score: 0.0, reasons: ['Analysis error - please retry later'] };
   }
 }
 
@@ -126,8 +136,18 @@ export function registerContentSafetyRoutes(app: Express, supabase: SupabaseClie
         const result = await analyzeImageSafety(imageUrl.trim());
         const session = (req as AuthenticatedRequest).authSession;
 
-        // Log unsafe content
+        // Log unsafe content and enforce server-side by flagging the gallery image
         if (!result.safe) {
+          // Update gallery_images safety_status to 'flagged'
+          const { error: updateError } = await supabase
+            .from('gallery_images')
+            .update({ safety_status: 'flagged', safety_score: result.score })
+            .eq('image_url', imageUrl.trim());
+
+          if (updateError) {
+            console.error('Failed to flag gallery image:', updateError.message);
+          }
+
           await supabase.from('security_logs').insert({
             action: 'content_blocked',
             user_id: session?.userId,
@@ -144,6 +164,12 @@ export function registerContentSafetyRoutes(app: Express, supabase: SupabaseClie
           await sendAdminNotification(
             `⚠️ Unsafe content blocked!\nUser: ${session?.username || 'Unknown'}\nScore: ${result.score}\nReasons: ${result.reasons.join(', ')}`,
           );
+        } else {
+          // Mark the image as approved
+          await supabase
+            .from('gallery_images')
+            .update({ safety_status: 'approved', safety_score: result.score })
+            .eq('image_url', imageUrl.trim());
         }
 
         res.json({

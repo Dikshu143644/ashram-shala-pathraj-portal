@@ -5,7 +5,7 @@
 
 import type { Express, NextFunction, Request, RequestHandler, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { requireSession, type AuthenticatedRequest } from './security.js';
+import { readSession, requireSession, type AuthenticatedRequest } from './security.js';
 import { sendAdminNotification } from './whatsapp-notify.js';
 
 /**
@@ -14,8 +14,8 @@ import { sendAdminNotification } from './whatsapp-notify.js';
  */
 export function activityLogMiddleware(supabase: SupabaseClient): RequestHandler {
   return (req: Request, _res: Response, next: NextFunction) => {
-    const authReq = req as AuthenticatedRequest;
-    const session = authReq.authSession;
+    // Decode the session cookie directly; authSession is only set later by requireSession()
+    const session = readSession(req);
 
     // Skip if no session or if user is web_creator
     if (!session || session.role === 'web_creator') {
@@ -60,11 +60,12 @@ export function activityLogMiddleware(supabase: SupabaseClient): RequestHandler 
 
 /**
  * Start the 15-minute digest timer that compiles and sends activity summary.
+ * Returns the interval handle for cleanup on shutdown.
  */
-function startDigestTimer(supabase: SupabaseClient): void {
+function startDigestTimer(supabase: SupabaseClient): NodeJS.Timeout {
   const DIGEST_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
 
-  setInterval(() => {
+  return setInterval(() => {
     void sendActivityDigest(supabase);
   }, DIGEST_INTERVAL_MS);
 }
@@ -124,9 +125,20 @@ async function sendActivityDigest(supabase: SupabaseClient): Promise<void> {
   }
 }
 
+/** Handle for the digest interval, exposed for graceful shutdown. */
+let digestTimerHandle: NodeJS.Timeout | null = null;
+
+/** Stop the digest timer (for graceful shutdown or testing). */
+export function stopDigestTimer(): void {
+  if (digestTimerHandle) {
+    clearInterval(digestTimerHandle);
+    digestTimerHandle = null;
+  }
+}
+
 export function registerActivityMonitorRoutes(app: Express, supabase: SupabaseClient): void {
   // Start the 15-minute digest timer
-  startDigestTimer(supabase);
+  digestTimerHandle = startDigestTimer(supabase);
 
   // GET /api/admin/activity-logs - Returns recent activity logs for admins
   app.get(
