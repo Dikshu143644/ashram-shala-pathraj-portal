@@ -11,7 +11,7 @@ export default function ContactPage() {
       {/* Fixed cinematic background */}
       <div className="fixed inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1477346611705-65d1883cee1e?w=1920&q=80"
+          src="/images/contact-road.jpg"
           alt=""
           className="h-full w-full object-cover"
         />

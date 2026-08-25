@@ -139,8 +139,15 @@ export default function AdmissionPortal() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className="portal-page"
+      className="portal-page relative"
     >
+      {/* Subtle background image */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(/images/portal-education.jpg)', opacity: 0.05 }}
+        aria-hidden="true"
+      />
+      <div className="relative z-10">
       <div className="portal-heading flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="portal-kicker">{t('STUDENT INTAKE', 'विद्यार्थी प्रवेश')}</p>
@@ -416,6 +423,7 @@ export default function AdmissionPortal() {
             : t(`Showing ${studentsData.length} of ${studentsData.length} students`,
                `${studentsData.length} पैकी ${studentsData.length} विद्यार्थी दर्शवित आहे`)}
         </div>
+      </div>
       </div>
     </motion.div>
   );

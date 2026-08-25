@@ -35,7 +35,7 @@ export default function HomePage() {
       {/* ===== FIXED BACKGROUND ===== */}
       <div className="fixed inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
+          src="/images/hero-mountains.jpg"
           alt=""
           className="h-full w-full object-cover"
         />

@@ -106,7 +106,7 @@ export default function AdmissionPage() {
       {/* ===== FIXED BACKGROUND ===== */}
       <div className="fixed inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920&q=80"
+          src="/images/admission-writing.jpg"
           alt=""
           className="h-full w-full object-cover"
         />

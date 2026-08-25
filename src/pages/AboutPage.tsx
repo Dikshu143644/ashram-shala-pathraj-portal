@@ -29,7 +29,7 @@ export default function AboutPage() {
       {/* ===== FIXED BACKGROUND ===== */}
       <div className="fixed inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=80"
+          src="/images/about-school.jpg"
           alt=""
           className="h-full w-full object-cover"
         />

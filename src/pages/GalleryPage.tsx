@@ -40,7 +40,7 @@ export default function GalleryPage() {
       {/* Fixed cinematic background */}
       <div className="fixed inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80"
+          src="/images/gallery-nature.jpg"
           alt=""
           className="h-full w-full object-cover"
         />

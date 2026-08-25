@@ -687,8 +687,15 @@ export default function SuperAdminCenter() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className="portal-page"
+      className="portal-page relative"
     >
+      {/* Subtle background image */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(/images/admin-desk.jpg)', opacity: 0.04 }}
+        aria-hidden="true"
+      />
+      <div className="relative z-10">
       <div className="portal-heading">
         <p className="portal-kicker">{t('SYSTEM HEALTH & AUDIT', 'प्रणाली आरोग्य व ऑडिट')}</p>
         <h2 className="portal-title">{t('Security Dashboard', 'सुरक्षा डॅशबोर्ड')}</h2>
@@ -1039,6 +1046,7 @@ export default function SuperAdminCenter() {
       {activeTab === 'applications' && (
         <ApplicationsPanel t={t} />
       )}
+      </div>
     </motion.div>
   );
 }

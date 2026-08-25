@@ -229,10 +229,10 @@ export default function AiAssistant() {
       transition={{ duration: 0.25 }}
       className="portal-page max-w-5xl! relative"
     >
-      {/* Subtle tech gradient background */}
+      {/* Subtle background image */}
       <div
-        className="pointer-events-none absolute inset-0 -m-6 rounded-3xl opacity-[0.04]"
-        style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #312e81 50%, #4c1d95 100%)' }}
+        className="pointer-events-none absolute inset-0 -m-6 rounded-3xl bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(/images/ai-abstract.jpg)', opacity: 0.08 }}
         aria-hidden="true"
       />
       {/* Header Bar */}

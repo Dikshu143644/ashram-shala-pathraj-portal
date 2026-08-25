@@ -24,7 +24,7 @@ export default function HostelPage() {
       {/* ===== FIXED BACKGROUND ===== */}
       <div className="fixed inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=1920&q=80"
+          src="/images/hostel-building.jpg"
           alt=""
           className="h-full w-full object-cover"
         />

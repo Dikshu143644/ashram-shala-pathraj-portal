@@ -17,8 +17,15 @@ export default function ClerkPortal() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className="portal-page"
+      className="portal-page relative"
     >
+      {/* Subtle background image */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(/images/staff-office.jpg)', opacity: 0.05 }}
+        aria-hidden="true"
+      />
+      <div className="relative z-10">
       <div className="portal-heading">
         <p className="portal-kicker">{t('OFFICE OPERATIONS', 'कार्यालयीन कामकाज')}</p>
         <h2 className="portal-title">{t('Staff & Dispatch', 'कर्मचारी व पत्रव्यवहार')}</h2>
@@ -47,6 +54,7 @@ export default function ClerkPortal() {
 
       {activeTab === 'staff' && <StaffDirectory t={t} language={language} />}
       {activeTab === 'dispatch' && <PODispatch t={t} />}
+      </div>
     </motion.div>
   );
 }

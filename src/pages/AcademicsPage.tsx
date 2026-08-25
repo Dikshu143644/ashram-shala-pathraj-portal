@@ -79,7 +79,7 @@ export default function AcademicsPage() {
       {/* ===== FIXED BACKGROUND ===== */}
       <div className="fixed inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=80"
+          src="/images/academics-books.jpg"
           alt=""
           className="h-full w-full object-cover"
         />

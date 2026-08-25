@@ -152,7 +152,7 @@ export default function PortalLayout() {
       <div
         className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=60)',
+          backgroundImage: 'url(/images/academics-books.jpg)',
           opacity: 0.04,
         }}
         aria-hidden="true"

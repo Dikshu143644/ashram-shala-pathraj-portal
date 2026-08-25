@@ -289,7 +289,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
       {/* Cinematic background image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80)' }}
+        style={{ backgroundImage: 'url(/images/auth-mountains.jpg)' }}
       />
       {/* Dark overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" />
