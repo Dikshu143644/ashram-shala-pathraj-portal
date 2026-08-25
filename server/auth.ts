@@ -49,6 +49,8 @@ interface AuthUserRow {
   must_change_password: boolean;
   mobile_number: string | null;
   parent_student_ids: string[];
+  phone_verified?: boolean;
+  email_verified?: boolean;
 }
 
 interface ChallengeRpcRow {
@@ -172,7 +174,7 @@ async function loadChallenge(
 async function loadActiveUser(supabase: SupabaseClient, userId: string): Promise<AuthUserRow | null> {
   const { data, error } = await supabase
     .from('auth_users')
-    .select('id,username,password_hash,role,name_en,name_mr,email,must_change_password,mobile_number,parent_student_ids')
+    .select('id,username,password_hash,role,name_en,name_mr,email,must_change_password,mobile_number,parent_student_ids,phone_verified,email_verified')
     .eq('id', userId)
     .eq('is_active', true)
     .maybeSingle();
@@ -298,17 +300,21 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       return;
     }
 
-    // Look up mustChangePassword from the database
+    // Look up mustChangePassword and phone_verified from the database
     let mustChangePassword = false;
+    let phoneVerified = false;
     try {
       const { data } = await supabase
         .from('auth_users')
-        .select('must_change_password')
+        .select('must_change_password,phone_verified')
         .eq('id', session.userId)
         .eq('is_active', true)
         .maybeSingle();
       if (data && data.must_change_password) {
         mustChangePassword = true;
+      }
+      if (data && data.phone_verified) {
+        phoneVerified = true;
       }
     } catch {
       // If lookup fails, proceed without the flag
@@ -322,6 +328,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         nameEn: session.nameEn,
         nameMr: session.nameMr,
         mustChangePassword,
+        phoneVerified,
       },
       expiresAt: session.expiresAt,
     });
@@ -368,7 +375,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     try {
       const { data, error } = await supabase
         .from('auth_users')
-        .select('id,username,password_hash,role,name_en,name_mr,email,must_change_password,mobile_number,parent_student_ids')
+        .select('id,username,password_hash,role,name_en,name_mr,email,must_change_password,mobile_number,parent_student_ids,phone_verified')
         .eq('username', normalizedUsername)
         .eq('is_active', true)
         .maybeSingle();
@@ -447,6 +454,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
           nameEn: user.name_en,
           nameMr: user.name_mr,
           mustChangePassword: user.must_change_password,
+          phoneVerified: user.phone_verified ?? false,
         },
       });
     } catch (error) {
@@ -712,6 +720,107 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     }
   });
 
+  // In-memory store for registration email OTPs
+  const regEmailOtpStore = new Map<string, { code: string; expiresAt: number }>();
+  const regEmailCleanupTimer = setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of regEmailOtpStore.entries()) {
+      if (value.expiresAt < now) regEmailOtpStore.delete(key);
+    }
+  }, 5 * 60_000);
+  regEmailCleanupTimer.unref();
+
+  // POST /api/auth/email/send-otp - Send email OTP for registration verification
+  app.post('/api/auth/email/send-otp', async (req: Request, res: Response) => {
+    const ip = clientIp(req);
+    res.setHeader('Cache-Control', 'no-store');
+
+    try {
+      const limited = await isRateLimited(supabase, 'email_otp_ip', ip, OTP_ATTEMPTS_PER_WINDOW);
+      if (limited) {
+        rejectRateLimit(res, 'Too many OTP requests. Please try again later.', RATE_LIMIT_WINDOW_SECONDS);
+        return;
+      }
+    } catch {
+      res.status(503).json({ success: false, error: 'Service temporarily unavailable.' });
+      return;
+    }
+
+    const { email } = req.body as { email?: unknown };
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 320) {
+      res.status(400).json({ success: false, error: 'A valid email address is required.' });
+      return;
+    }
+
+    try {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = Date.now() + 10 * 60_000;
+      regEmailOtpStore.set(email.toLowerCase(), { code, expiresAt });
+
+      const emailSubject = 'Email Verification - Ashram Shala Pathraj';
+      const emailText = `Your email verification code is: ${code}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`;
+      const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#171d19"><p style="color:#006948;font-weight:700">ASHRAM SHALA PATHRAJ</p><h1 style="font-size:20px">Email Verification Code</h1><p>Your verification code is:</p><p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#006948">${code}</p><p>This code expires in 10 minutes.</p><p>If you did not request this, please ignore this email.</p></div>`;
+
+      const emailResult = await sendOtpEmail(
+        email.toLowerCase(),
+        code,
+        '10 minutes',
+        `reg-email-otp/${email.toLowerCase()}/${randomUUID()}`,
+        emailSubject,
+        emailText,
+        emailHtml,
+      );
+
+      if (!emailResult.success) {
+        console.error('Registration email OTP send failed:', emailResult.error);
+        res.status(502).json({ success: false, error: 'Could not send verification email. Please try again.' });
+        return;
+      }
+
+      res.json({ success: true, message: 'Verification code sent to email.', expiresInSeconds: 600 });
+    } catch (error) {
+      console.error('Email OTP send error:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to send verification email.' });
+    }
+  });
+
+  // POST /api/auth/email/verify-otp - Verify email OTP for registration
+  app.post('/api/auth/email/verify-otp', async (req: Request, res: Response) => {
+    res.setHeader('Cache-Control', 'no-store');
+
+    const { email, otp } = req.body as { email?: unknown; otp?: unknown };
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      res.status(400).json({ success: false, error: 'A valid email address is required.' });
+      return;
+    }
+    if (typeof otp !== 'string' || !/^\d{6}$/.test(otp)) {
+      res.status(400).json({ success: false, error: 'A valid 6-digit OTP is required.' });
+      return;
+    }
+
+    const stored = regEmailOtpStore.get(email.toLowerCase());
+    if (!stored) {
+      res.status(400).json({ success: false, error: 'OTP is invalid or expired. Please request a new one.' });
+      return;
+    }
+
+    if (Date.now() > stored.expiresAt) {
+      regEmailOtpStore.delete(email.toLowerCase());
+      res.status(400).json({ success: false, error: 'OTP has expired. Please request a new one.' });
+      return;
+    }
+
+    if (stored.code !== otp) {
+      res.status(401).json({ success: false, error: 'Invalid OTP. Please check and try again.' });
+      return;
+    }
+
+    // Mark as verified by removing from store (verified state is transient)
+    regEmailOtpStore.delete(email.toLowerCase());
+
+    res.json({ success: true, message: 'Email verified successfully.', email: email.toLowerCase() });
+  });
+
   // POST /api/auth/register - Parent self-registration (simplified: form + password -> done)
   app.post('/api/auth/register', async (req: Request, res: Response) => {
     const ip = clientIp(req);
@@ -822,6 +931,21 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
         return;
       }
 
+      // Check phone verification in sms_otp_codes table
+      const { data: phoneVerification } = await supabase
+        .from('sms_otp_codes')
+        .select('id,verified')
+        .eq('phone', mobileNumber)
+        .eq('verified', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!phoneVerification) {
+        res.status(400).json({ success: false, error: 'Phone number must be verified before registration. Please verify your mobile number first.' });
+        return;
+      }
+
       // Check username uniqueness (using mobile as username)
       const { data: existingUsername } = await supabase
         .from('auth_users')
@@ -846,6 +970,8 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
           mobile_number: mobileNumber,
           must_change_password: false,
           is_active: true,
+          phone_verified: true,
+          email_verified: true,
         })
         .select('id,username,email')
         .single();
@@ -1574,6 +1700,86 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     } catch (error) {
       console.error('Reset password failed:', error instanceof Error ? error.message : error);
       res.status(500).json({ success: false, error: 'Unable to reset password.' });
+    }
+  });
+
+  // POST /api/auth/verify-phone-after-login - Verify phone number for already logged-in users
+  app.post('/api/auth/verify-phone-after-login', requireSameOrigin, requireSession(), async (req: Request, res: Response) => {
+    const authReq = req as AuthenticatedRequest;
+    const ip = clientIp(req);
+    res.setHeader('Cache-Control', 'no-store');
+
+    const { phone, otp } = req.body as { phone?: unknown; otp?: unknown };
+
+    if (typeof phone !== 'string' || !/^[6-9]\d{9}$/.test(phone)) {
+      res.status(400).json({ success: false, error: 'A valid 10-digit Indian mobile number is required.' });
+      return;
+    }
+
+    if (typeof otp !== 'string' || !/^\d{6}$/.test(otp)) {
+      res.status(400).json({ success: false, error: 'A valid 6-digit OTP is required.' });
+      return;
+    }
+
+    try {
+      // Verify OTP from sms_otp_codes table
+      const otpHashed = createHash('sha256').update(otp).digest('hex');
+      const { data: otpRecord, error: otpError } = await supabase
+        .from('sms_otp_codes')
+        .select('id,otp_hash,expires_at,verified')
+        .eq('phone', phone)
+        .eq('verified', false)
+        .gte('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (otpError) {
+        console.error('Phone verification OTP lookup error:', otpError.message);
+        res.status(500).json({ success: false, error: 'Unable to verify OTP.' });
+        return;
+      }
+
+      if (!otpRecord) {
+        res.status(400).json({ success: false, error: 'OTP is invalid or expired. Please request a new one.' });
+        return;
+      }
+
+      if (otpRecord.otp_hash !== otpHashed) {
+        res.status(401).json({ success: false, error: 'Invalid OTP. Please check and try again.' });
+        return;
+      }
+
+      // Mark OTP as verified
+      await supabase
+        .from('sms_otp_codes')
+        .update({ verified: true })
+        .eq('id', otpRecord.id);
+
+      // Update user's phone_verified status and mobile_number
+      const { error: updateError } = await supabase
+        .from('auth_users')
+        .update({ phone_verified: true, mobile_number: phone })
+        .eq('id', authReq.authSession!.userId);
+
+      if (updateError) {
+        console.error('Phone verification update error:', updateError.message);
+        res.status(500).json({ success: false, error: 'Unable to update verification status.' });
+        return;
+      }
+
+      await logSecurity(supabase, {
+        action: 'phone_verified_after_login',
+        userId: authReq.authSession!.userId,
+        username: authReq.authSession!.username,
+        ip,
+        details: `Phone +91${phone} verified after login`,
+      });
+
+      res.json({ success: true, message: 'Phone number verified successfully.' });
+    } catch (error) {
+      console.error('Phone verification failed:', error instanceof Error ? error.message : error);
+      res.status(500).json({ success: false, error: 'Unable to verify phone number.' });
     }
   });
 

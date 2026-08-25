@@ -10,6 +10,7 @@ export interface AuthUser {
   nameEn: string;
   nameMr: string;
   mustChangePassword?: boolean;
+  phoneVerified?: boolean;
 }
 
 interface OperationResult {
@@ -155,6 +156,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             nameEn: userData.nameEn as string,
             nameMr: userData.nameMr as string,
             mustChangePassword: userData.mustChangePassword === true,
+            phoneVerified: userData.phoneVerified === true,
           };
           setCurrentUser(user);
           setIsAuthenticated(true);
@@ -201,6 +203,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           nameEn: userData.nameEn as string,
           nameMr: userData.nameMr as string,
           mustChangePassword: userData.mustChangePassword === true,
+          phoneVerified: userData.phoneVerified === true,
         };
         setCurrentUser(user);
         setIsAuthenticated(true);
@@ -262,6 +265,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           nameEn: userData.nameEn as string,
           nameMr: userData.nameMr as string,
           mustChangePassword: userData.mustChangePassword === true,
+          phoneVerified: userData.phoneVerified === true,
         };
         setCurrentUser(user);
         setIsAuthenticated(true);
@@ -308,6 +312,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             nameEn: userData.nameEn as string,
             nameMr: userData.nameMr as string,
             mustChangePassword: userData.mustChangePassword === true,
+            phoneVerified: userData.phoneVerified === true,
           };
           setCurrentUser(user);
           setIsAuthenticated(true);

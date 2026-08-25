@@ -13,6 +13,7 @@ import { configureSecurity, durableRateLimit } from './security.js';
 import { activityLogMiddleware, registerActivityMonitorRoutes } from './activity-monitor.js';
 import { registerContentSafetyRoutes } from './content-safety.js';
 import { registerAdminRoutes } from './admin-routes.js';
+import { registerLetterGeneratorRoutes } from './letter-generator.js';
 
 export function createApiApp() {
   const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -68,6 +69,7 @@ export function createApiApp() {
   registerContentSafetyRoutes(app, supabase);
   registerActivityMonitorRoutes(app, supabase);
   registerAdminRoutes(app, supabase);
+  registerLetterGeneratorRoutes(app, supabase);
 
   app.use('/api', (_req: Request, res: Response) => {
     res.status(404).json({ error: 'API endpoint not found.' });

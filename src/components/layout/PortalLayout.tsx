@@ -16,6 +16,7 @@ import {
 import { type AppRole, useAppContext } from '../../contexts/AppContext';
 import Header from '../Header';
 import ChangePasswordPage from '../ChangePasswordPage';
+import PhoneVerificationPopup from '../PhoneVerificationPopup';
 import AdmissionPortal from '../AdmissionPortal';
 import ClassTeacherPortal from '../ClassTeacherPortal';
 import HostelPortal from '../HostelPortal';
@@ -71,10 +72,12 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
 }
 
 export default function PortalLayout() {
-  const { language, role, mustChangePassword } = useAppContext();
+  const { language, role, mustChangePassword, currentUser } = useAppContext();
   const [activeTab, setActiveTab] = useState<TabKey>('admission');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [showPhoneVerification, setShowPhoneVerification] = useState(false);
+  const [phoneVerificationDismissed, setPhoneVerificationDismissed] = useState(false);
   const visibleTabs = tabs.filter((tab) => tab.roles.includes(role));
 
   useEffect(() => {
@@ -83,6 +86,13 @@ export default function PortalLayout() {
       setActiveTab(currentVisible[0].key);
     }
   }, [role, activeTab]);
+
+  // Show phone verification popup if phone is not verified
+  useEffect(() => {
+    if (currentUser && !currentUser.phoneVerified && !phoneVerificationDismissed && !mustChangePassword) {
+      setShowPhoneVerification(true);
+    }
+  }, [currentUser, phoneVerificationDismissed, mustChangePassword]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -100,6 +110,11 @@ export default function PortalLayout() {
 
   if (mustChangePassword) return <ChangePasswordPage />;
   if (showSplash) return <SplashScreen onComplete={() => setShowSplash(false)} />;
+
+  const handlePhoneVerified = () => {
+    setShowPhoneVerification(false);
+    setPhoneVerificationDismissed(true);
+  };
 
   const navigation = (closeAfterSelection = false) => (
     <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Portal navigation">
@@ -133,6 +148,7 @@ export default function PortalLayout() {
   return (
     <div className="bg-app-gradient relative flex h-screen h-[100dvh] flex-col">
       <Header />
+      <PhoneVerificationPopup isOpen={showPhoneVerification} onVerified={handlePhoneVerified} />
 
       <div className="relative z-10 flex min-h-0 min-w-0 flex-1 overflow-hidden">
         <aside className="sidebar-glass hidden w-72 shrink-0 flex-col lg:flex">
