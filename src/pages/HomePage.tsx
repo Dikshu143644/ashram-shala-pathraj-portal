@@ -140,7 +140,7 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, duration: 0.5 }}
-                  className="rounded-xl border border-white/10 bg-slate-900/40 p-6 text-center backdrop-blur-sm"
+                  className="rounded-xl border border-white/[0.12] bg-white/5 p-6 text-center backdrop-blur-sm"
                 >
                   <stat.icon className="mx-auto mb-3 h-6 w-6 text-emerald-400" />
                   <p className="text-3xl font-bold text-white">{stat.value}</p>
@@ -216,9 +216,9 @@ export default function HomePage() {
                 >
                   <Link
                     to={item.to}
-                    className="group block h-full rounded-2xl border border-white/10 bg-slate-900/50 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-slate-900/60"
+                    className="group block h-full rounded-2xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
                   >
-                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
                       <item.icon className="h-5 w-5 text-emerald-400" />
                     </div>
                     <h3 className="mb-2 flex items-center gap-2 text-base font-semibold text-white">

@@ -70,7 +70,7 @@ export default function ContactPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="mb-6 flex items-center gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-slate-900/40">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
                   <MapPin className="h-5 w-5 text-emerald-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
@@ -78,7 +78,7 @@ export default function ContactPage() {
                 </h2>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-10">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 {/* Marathi Address */}
                 <div className="mb-6">
                   <p className="mb-3 text-xs uppercase tracking-wider text-slate-400">
@@ -117,7 +117,7 @@ export default function ContactPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="mb-6 flex items-center gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-slate-900/40">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
                   <Phone className="h-5 w-5 text-emerald-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
@@ -132,9 +132,9 @@ export default function ContactPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.1, duration: 0.5 }}
-                  className="rounded-xl border border-white/10 bg-slate-900/40 p-6 backdrop-blur-sm sm:p-8"
+                  className="rounded-xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-sm sm:p-8"
                 >
-                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-900/40">
+                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
                     <User className="h-4 w-4 text-emerald-400" />
                   </div>
                   <p className="mb-2 text-xs uppercase tracking-wider text-slate-400">
@@ -154,9 +154,9 @@ export default function ContactPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.2, duration: 0.5 }}
-                  className="rounded-xl border border-white/10 bg-slate-900/40 p-6 backdrop-blur-sm sm:p-8"
+                  className="rounded-xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-sm sm:p-8"
                 >
-                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-900/40">
+                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
                     <Phone className="h-4 w-4 text-emerald-400" />
                   </div>
                   <p className="mb-2 text-xs uppercase tracking-wider text-slate-400">
@@ -176,9 +176,9 @@ export default function ContactPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="rounded-xl border border-white/10 bg-slate-900/40 p-6 backdrop-blur-sm sm:p-8"
+                  className="rounded-xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-sm sm:p-8"
                 >
-                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-900/40">
+                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
                     <Mail className="h-4 w-4 text-emerald-400" />
                   </div>
                   <p className="mb-2 text-xs uppercase tracking-wider text-slate-400">
@@ -198,7 +198,7 @@ export default function ContactPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.4, duration: 0.5 }}
-                  className="rounded-xl border border-white/10 bg-slate-900/40 p-6 backdrop-blur-sm sm:p-8"
+                  className="rounded-xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-sm sm:p-8"
                 >
                   <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10">
                     <MessageCircle className="h-4 w-4 text-emerald-400" />
@@ -231,7 +231,7 @@ export default function ContactPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="mb-6 flex items-center gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-slate-900/40">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
                   <MapPin className="h-5 w-5 text-emerald-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
@@ -239,7 +239,7 @@ export default function ContactPage() {
                 </h2>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-md">
+              <div className="overflow-hidden rounded-2xl border border-white/[0.12] bg-white/5 backdrop-blur-md">
                 <iframe
                   title={t('School Location', 'शाळेचे स्थान')}
                   src="https://maps.google.com/maps?q=Pathraj+Karjat+Raigad+Maharashtra+410201&output=embed"
@@ -279,7 +279,7 @@ export default function ContactPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="mb-6 flex items-center gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-slate-900/40">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
                   <Send className="h-5 w-5 text-emerald-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
@@ -287,7 +287,7 @@ export default function ContactPage() {
                 </h2>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-10">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <div className="space-y-5">
                   <div>
                     <label className="mb-2 block text-xs uppercase tracking-wider text-slate-400">
@@ -297,7 +297,7 @@ export default function ContactPage() {
                       type="text"
                       disabled
                       placeholder={t('Enter your name', 'आपले नाव प्रविष्ट करा')}
-                      className="w-full rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-sm text-slate-300 outline-none placeholder:text-slate-500"
+                      className="w-full rounded-xl border border-white/[0.12] bg-white/5 px-4 py-3 text-sm text-slate-300 outline-none placeholder:text-slate-500"
                     />
                   </div>
 
@@ -309,7 +309,7 @@ export default function ContactPage() {
                       type="tel"
                       disabled
                       placeholder={t('Enter your mobile number', 'आपला मोबाईल नंबर प्रविष्ट करा')}
-                      className="w-full rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-sm text-slate-300 outline-none placeholder:text-slate-500"
+                      className="w-full rounded-xl border border-white/[0.12] bg-white/5 px-4 py-3 text-sm text-slate-300 outline-none placeholder:text-slate-500"
                     />
                   </div>
 
@@ -321,7 +321,7 @@ export default function ContactPage() {
                       disabled
                       rows={4}
                       placeholder={t('Write your message here', 'आपला संदेश येथे लिहा')}
-                      className="w-full resize-none rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-sm text-slate-300 outline-none placeholder:text-slate-500"
+                      className="w-full resize-none rounded-xl border border-white/[0.12] bg-white/5 px-4 py-3 text-sm text-slate-300 outline-none placeholder:text-slate-500"
                     />
                   </div>
 

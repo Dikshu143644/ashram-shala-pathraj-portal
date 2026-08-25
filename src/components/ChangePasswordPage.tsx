@@ -4,7 +4,7 @@ import { Eye, EyeOff, Globe, Lock, School, ShieldCheck } from 'lucide-react';
 import { useAppContext } from '../contexts/AppContext';
 
 export default function ChangePasswordPage() {
-  const { language, setLanguage, changePassword, mustChangePassword, logout } = useAppContext();
+  const { language, setLanguage, changePassword, mustChangePassword, logout, skipPasswordChange } = useAppContext();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -106,7 +106,10 @@ export default function ChangePasswordPage() {
             </button>
 
             {mustChangePassword && (
-              <div className="mt-3 text-center">
+              <div className="mt-3 flex flex-col items-center gap-2">
+                <button type="button" onClick={skipPasswordChange} className="text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline">
+                  {t('Skip for now', 'आत्ता वगळा')}
+                </button>
                 <button type="button" onClick={logout} className="text-xs font-medium text-[#6B6B6B] hover:text-black">
                   {t('Sign out instead', 'त्याऐवजी साइन आउट करा')}
                 </button>

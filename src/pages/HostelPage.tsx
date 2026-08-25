@@ -92,7 +92,7 @@ export default function HostelPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <p className="text-sm leading-relaxed text-slate-300 sm:text-base mb-8" style={{ lineHeight: '1.9' }}>
                   {t(
                     'Our school provides a comprehensive government residential facility for all enrolled students. The hostel ensures a safe, secure, and comfortable living environment where students can focus on their academic and personal growth. With a total capacity of 520 beds, the facility is divided into separate wings for boys and girls, each managed by dedicated wardens.',
@@ -107,7 +107,7 @@ export default function HostelPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rounded-xl border border-white/10 bg-slate-900/40 p-5 text-center backdrop-blur-sm"
+                    className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
                     <p className="text-3xl font-bold text-white">520</p>
                     <p className="text-xs mt-1 text-slate-400">{t('Total Beds', 'एकूण बेड')}</p>
@@ -117,7 +117,7 @@ export default function HostelPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2, duration: 0.4 }}
-                    className="rounded-xl border border-white/10 bg-slate-900/40 p-5 text-center backdrop-blur-sm"
+                    className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
                     <Users className="h-5 w-5 mx-auto mb-2 text-emerald-400" />
                     <p className="text-sm font-semibold text-white">{t('Boys Wing', 'मुलांचा विभाग')}</p>
@@ -128,7 +128,7 @@ export default function HostelPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.3, duration: 0.4 }}
-                    className="rounded-xl border border-white/10 bg-slate-900/40 p-5 text-center backdrop-blur-sm"
+                    className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
                     <Users className="h-5 w-5 mx-auto mb-2 text-emerald-400" />
                     <p className="text-sm font-semibold text-white">{t('Girls Wing', 'मुलींचा विभाग')}</p>
@@ -159,7 +159,7 @@ export default function HostelPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <p className="text-sm leading-relaxed text-slate-300 sm:text-base mb-8" style={{ lineHeight: '1.9' }}>
                   {t(
                     'Nutritious meals are provided three times a day to all hostel students. The menu is planned to provide balanced nutrition essential for growing children.',
@@ -179,7 +179,7 @@ export default function HostelPage() {
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.12, duration: 0.5 }}
-                      className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-900/40 p-5 backdrop-blur-sm"
+                      className="flex items-center justify-between rounded-xl border border-white/[0.12] bg-white/5 p-5 backdrop-blur-sm"
                     >
                       <div className="flex items-center gap-3">
                         <item.icon className="h-4 w-4 flex-shrink-0 text-emerald-400" />
@@ -221,9 +221,9 @@ export default function HostelPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.1, duration: 0.5 }}
-                  className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md"
+                  className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md"
                 >
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-emerald-500/10 mb-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-emerald-500/10 mb-4">
                     <Users className="h-5 w-5 text-emerald-400" />
                   </div>
                   <p className="text-xs uppercase tracking-wider text-slate-400 mb-2">
@@ -239,9 +239,9 @@ export default function HostelPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.2, duration: 0.5 }}
-                  className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md"
+                  className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md"
                 >
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-emerald-500/10 mb-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-emerald-500/10 mb-4">
                     <Users className="h-5 w-5 text-emerald-400" />
                   </div>
                   <p className="text-xs uppercase tracking-wider text-slate-400 mb-2">
@@ -275,7 +275,7 @@ export default function HostelPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <div className="space-y-0">
                   {dailyRoutine.map((item, i) => (
                     <motion.div

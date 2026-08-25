@@ -97,7 +97,7 @@ export default function GalleryPage() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 p-16 backdrop-blur-md"
+                className="flex flex-col items-center justify-center rounded-2xl border border-white/[0.12] bg-white/5 p-16 backdrop-blur-md"
               >
                 <Loader className="h-8 w-8 animate-spin text-emerald-400" />
                 <p className="mt-4 text-sm text-slate-300">
@@ -112,9 +112,9 @@ export default function GalleryPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="rounded-2xl border border-white/10 bg-slate-900/50 p-10 text-center backdrop-blur-md sm:p-16"
+                className="rounded-2xl border border-white/[0.12] bg-white/5 p-10 text-center backdrop-blur-md sm:p-16"
               >
-                <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-slate-900/40">
+                <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
                   <ImageOff className="h-7 w-7 text-emerald-400" />
                 </div>
                 <h3 className="mb-3 text-lg font-semibold text-white">
@@ -135,9 +135,9 @@ export default function GalleryPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="rounded-2xl border border-white/10 bg-slate-900/50 p-10 text-center backdrop-blur-md sm:p-16"
+                className="rounded-2xl border border-white/[0.12] bg-white/5 p-10 text-center backdrop-blur-md sm:p-16"
               >
-                <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-slate-900/40">
+                <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
                   <Camera className="h-7 w-7 text-emerald-400" />
                 </div>
                 <h3 className="mb-3 text-lg font-semibold text-white">
@@ -162,7 +162,7 @@ export default function GalleryPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.08, duration: 0.5 }}
-                    className="group relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-sm"
+                    className="group relative aspect-square overflow-hidden rounded-2xl border border-white/[0.12] bg-white/5 backdrop-blur-sm"
                   >
                     <img
                       src={image.url}

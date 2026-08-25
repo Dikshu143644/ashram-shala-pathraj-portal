@@ -44,6 +44,7 @@ interface AppContextType {
   isAuthChecking: boolean;
   currentUser: AuthUser | null;
   mustChangePassword: boolean;
+  skipPasswordChange: () => void;
   isRegistering: boolean;
   setIsRegistering: (v: boolean) => void;
   beginLogin: (username: string, password: string) => Promise<BeginLoginResult>;
@@ -358,6 +359,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [currentUser]);
 
+  const skipPasswordChange = useCallback(() => {
+    setMustChangePassword(false);
+    if (currentUser) {
+      const updated = { ...currentUser, mustChangePassword: false };
+      setCurrentUser(updated);
+      sessionStorage.setItem('ashram_auth', JSON.stringify(updated));
+    }
+  }, [currentUser]);
+
   const changePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<OperationResult> => {
     try {
       const { response, data } = await apiRequest(
@@ -387,7 +397,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [currentUser]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, role, setRole, isAuthenticated, isAuthChecking, currentUser, mustChangePassword, isRegistering, setIsRegistering, beginLogin, sendOtp, verifyOtp, register, setPassword: setPasswordFn, changePassword, logout }}>
+    <AppContext.Provider value={{ language, setLanguage, role, setRole, isAuthenticated, isAuthChecking, currentUser, mustChangePassword, skipPasswordChange, isRegistering, setIsRegistering, beginLogin, sendOtp, verifyOtp, register, setPassword: setPasswordFn, changePassword, logout }}>
       {children}
     </AppContext.Provider>
   );

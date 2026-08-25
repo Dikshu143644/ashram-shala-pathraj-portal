@@ -157,7 +157,7 @@ export default function AcademicsPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, duration: 0.5 }}
-                  className="rounded-xl border border-white/10 bg-slate-900/40 p-6 text-center backdrop-blur-sm"
+                  className="rounded-xl border border-white/[0.12] bg-white/5 p-6 text-center backdrop-blur-sm"
                 >
                   <item.icon className="mx-auto h-6 w-6 mb-3 text-emerald-400" />
                   <p className="text-sm font-medium text-white">{t(item.labelEn, item.labelMr)}</p>
@@ -211,7 +211,7 @@ export default function AcademicsPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ delay: i * 0.1, duration: 0.5 }}
-                  className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md"
+                  className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md"
                 >
                   {/* Level header */}
                   <div className="flex items-center gap-3 mb-5">
@@ -267,10 +267,10 @@ export default function AcademicsPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.08, duration: 0.5 }}
-                  className="rounded-xl border border-white/10 bg-slate-900/40 p-6 text-center backdrop-blur-sm"
+                  className="rounded-xl border border-white/[0.12] bg-white/5 p-6 text-center backdrop-blur-sm"
                 >
                   {/* Avatar placeholder */}
-                  <div className="mx-auto mb-3 h-12 w-12 rounded-full flex items-center justify-center border border-white/10 bg-emerald-500/10">
+                  <div className="mx-auto mb-3 h-12 w-12 rounded-full flex items-center justify-center border border-white/[0.12] bg-emerald-500/10">
                     <Users className="h-5 w-5 text-emerald-400" />
                   </div>
                   <p className="text-sm font-semibold text-white mb-1">{staff.name}</p>

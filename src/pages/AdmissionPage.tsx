@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../contexts/AppContext';
 import { motion } from 'motion/react';
-import { FileText, CheckCircle, Phone, XCircle, ClipboardList, UserCheck, ArrowRight, AlertTriangle, Mail, Send } from 'lucide-react';
+import { FileText, CheckCircle, Phone, ClipboardList, UserCheck, ArrowRight, AlertTriangle, Mail, Send } from 'lucide-react';
 
 export default function AdmissionPage() {
   const { language } = useAppContext();
@@ -162,21 +162,21 @@ export default function AdmissionPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 text-center backdrop-blur-md"
+              className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 text-center backdrop-blur-md"
             >
               <div className="flex items-center justify-center gap-2 mb-3">
-                <XCircle className="h-5 w-5 text-red-400" />
-                <span className="inline-flex items-center rounded-full border border-red-400/20 bg-red-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-red-400">
-                  {t('CLOSED', 'बंद')}
+                <CheckCircle className="h-5 w-5 text-emerald-400" />
+                <span className="inline-flex items-center rounded-full border border-emerald-400/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400">
+                  {t('OPEN', 'सुरू')}
                 </span>
               </div>
               <p className="text-base font-semibold text-white mb-1">
-                {t('Admissions Currently Closed', 'सध्या प्रवेश बंद आहे')}
+                {t('Admissions Open for 2026-27', '२०२६-२७ साठी प्रवेश सुरू')}
               </p>
               <p className="text-sm text-slate-300">
                 {t(
-                  'Admissions for the current academic year are closed. Please check back for the next admission cycle or contact the school office for more information.',
-                  'चालू शैक्षणिक वर्षासाठी प्रवेश बंद आहेत. कृपया पुढील प्रवेश चक्रासाठी पुन्हा तपासा किंवा अधिक माहितीसाठी शाळा कार्यालयाशी संपर्क साधा.'
+                  'Applications are now being accepted for the upcoming academic year. Fill the form below to apply online.',
+                  'आगामी शैक्षणिक वर्षासाठी अर्ज स्वीकारले जात आहेत. ऑनलाइन अर्ज करण्यासाठी खालील फॉर्म भरा.'
                 )}
               </p>
             </motion.div>
@@ -210,7 +210,7 @@ export default function AdmissionPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.15, duration: 0.5 }}
-                  className="relative flex gap-5 rounded-2xl border border-white/10 bg-slate-900/50 p-6 backdrop-blur-md sm:p-8"
+                  className="relative flex gap-5 rounded-2xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-md sm:p-8"
                 >
                   {/* Step number */}
                   <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold bg-emerald-500 text-white">
@@ -249,7 +249,7 @@ export default function AdmissionPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <ul className="space-y-4">
                   {requiredDocuments.map((doc, i) => (
                     <motion.li
@@ -291,7 +291,7 @@ export default function AdmissionPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <ul className="space-y-4">
                   {[
                     { en: 'Tribal students (Scheduled Tribe category) are given priority', mr: 'आदिवासी विद्यार्थ्यांना (अनुसूचित जमाती वर्ग) प्राधान्य दिले जाते' },
@@ -339,7 +339,7 @@ export default function AdmissionPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.7 }}
-              className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-12"
+              className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-12"
             >
               <div className="text-center mb-8">
                 <div className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center border border-white/10 bg-emerald-500/10">
@@ -527,7 +527,7 @@ export default function AdmissionPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1, duration: 0.5 }}
-                    className="rounded-xl border border-white/10 bg-slate-900/40 p-5 backdrop-blur-sm"
+                    className="rounded-xl border border-white/[0.12] bg-white/5 p-5 backdrop-blur-sm"
                   >
                     <contact.icon className="h-5 w-5 mb-3 text-emerald-400" />
                     <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">

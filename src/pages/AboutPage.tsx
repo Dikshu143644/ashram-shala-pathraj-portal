@@ -97,7 +97,7 @@ export default function AboutPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-10">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
                   {t(
                     'Government Secondary and Higher Secondary Ashram School, Pathraj is a residential educational institution established under the Tribal Development Department, Government of Maharashtra. The school was founded with the core mission of bringing quality education to tribal students from remote and underserved areas of the region.',
@@ -135,7 +135,7 @@ export default function AboutPage() {
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
               <div className="grid gap-6 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md">
+                <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                   <h3 className="mb-4 text-lg font-semibold text-emerald-400">
                     {t('Our Vision', 'आमची दृष्टी')}
                   </h3>
@@ -146,7 +146,7 @@ export default function AboutPage() {
                     )}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md">
+                <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                   <h3 className="mb-4 text-lg font-semibold text-emerald-400">
                     {t('Our Mission', 'आमचे ध्येय')}
                   </h3>
@@ -181,7 +181,7 @@ export default function AboutPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-10">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
                   {t(
                     'Ashram Shalas are government residential schools specifically established for tribal students under the Tribal Development Department of Maharashtra. These institutions operate on the philosophy of providing a complete living and learning environment for children from Scheduled Tribe communities who reside in remote, hilly, and forested areas where access to regular schooling is limited.',
@@ -240,7 +240,7 @@ export default function AboutPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-10">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
                   {t(
                     'Our school operates under the Tribal Development Department (Adivasi Vikas Vibhag), Government of Maharashtra. This department is the nodal agency responsible for the comprehensive development of Scheduled Tribe communities across Maharashtra. It administers hundreds of Ashram Shalas and residential schools throughout the state.',
@@ -277,7 +277,7 @@ export default function AboutPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-10">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
                   {t(
                     'Our school campus is located in Pathraj village, Taluka Karjat, District Raigad, Maharashtra 410201. Set amidst the natural beauty of the Sahyadri foothills, the campus provides a peaceful and conducive environment for learning and all-round development of students.',
@@ -301,7 +301,7 @@ export default function AboutPage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.08, duration: 0.4 }}
-                      className="rounded-xl border border-white/10 bg-slate-900/40 p-6 text-center backdrop-blur-sm"
+                      className="rounded-xl border border-white/[0.12] bg-white/5 p-6 text-center backdrop-blur-sm"
                     >
                       <p className="text-lg font-bold text-white">{item.value}</p>
                       <p className="mt-1 text-xs text-slate-400">{item.label}</p>
@@ -332,7 +332,7 @@ export default function AboutPage() {
               </div>
               <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-10">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
                   {t(
                     'Our school features a comprehensive residential facility with a total capacity of 520 beds. The hostel is divided into separate wings for boys and girls, ensuring a safe, secure, and comfortable living environment for all students. The residential facility is managed by dedicated wardens who oversee the well-being of students round the clock.',
@@ -346,7 +346,7 @@ export default function AboutPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rounded-xl border border-white/10 bg-slate-900/40 p-5 text-center backdrop-blur-sm"
+                    className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
                     <p className="text-2xl font-bold text-white">520</p>
                     <p className="mt-1 text-xs text-slate-400">{t('Total Beds', 'एकूण बेड')}</p>
@@ -356,7 +356,7 @@ export default function AboutPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2, duration: 0.4 }}
-                    className="rounded-xl border border-white/10 bg-slate-900/40 p-5 text-center backdrop-blur-sm"
+                    className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
                     <Users className="mx-auto mb-2 h-5 w-5 text-emerald-400" />
                     <p className="text-xs text-slate-400">{t('Boys Wing', 'मुलांचा विभाग')}</p>
@@ -366,7 +366,7 @@ export default function AboutPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.3, duration: 0.4 }}
-                    className="rounded-xl border border-white/10 bg-slate-900/40 p-5 text-center backdrop-blur-sm"
+                    className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
                     <Users className="mx-auto mb-2 h-5 w-5 text-emerald-400" />
                     <p className="text-xs text-slate-400">{t('Girls Wing', 'मुलींचा विभाग')}</p>
@@ -395,7 +395,7 @@ export default function AboutPage() {
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.7 }}
             >
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-md sm:p-10">
+              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <h3 className="mb-2 text-lg font-semibold text-emerald-400">
                   {t("Principal's Office", 'मुख्याध्यापक कार्यालय')}
                 </h3>
