@@ -26,5 +26,5 @@
     "source /root/.nvm/nvm.sh && npm run build"
   ],
   "blocked_reason": null,
-  "findings": "All backend modules created successfully. Lint (tsc --noEmit) and build (vite + esbuild) both pass cleanly. The activity middleware is placed before route handlers in app.ts. The whatsapp-notify module uses a dev-mode console fallback when env vars are not set. Content safety uses Gemini 2.0 Flash with fail-open policy."
+  "findings": "All backend modules created successfully. Lint (tsc --noEmit) and build (vite + esbuild) both pass cleanly. The activity middleware is placed before route handlers in app.ts. The whatsapp-notify module uses a dev-mode console fallback when env vars are not set. Content safety uses Gemini 2.0 Flash with fail-closed policy. v2 review fix: corrected .eq('image_url', ...) to .eq('url', ...) in content-safety.ts and added .neq('safety_status', 'flagged') filter to public gallery endpoint in data.ts."
 }
