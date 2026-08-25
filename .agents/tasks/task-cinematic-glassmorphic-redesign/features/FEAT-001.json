@@ -1,0 +1,27 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Update src/index.css with cinematic glassmorphic utility classes and update PublicLayout.tsx to have a glassmorphic dark navigation bar and footer.",
+  "status": "in_progress",
+  "steps": [
+    "In src/index.css, update the .glass-dark class to: background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(24px) saturate(1.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;",
+    "In src/index.css, update the .glass-card class to: background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;",
+    "In src/index.css, update body background-color to #0F172A (dark navy)",
+    "In src/components/layout/PublicLayout.tsx, redesign the navigation header: change from white/cream to bg-slate-900/70 backdrop-blur-xl, border-bottom white/10, school name in white text, nav links white with hover:text-emerald-400, Login button as glass pill with emerald accent border",
+    "In src/components/layout/PublicLayout.tsx, redesign the mobile menu to match dark glass theme",
+    "In src/components/layout/PublicLayout.tsx, redesign the footer: dark glassmorphic (bg-slate-900/80 backdrop-blur), white/slate-300 text, emerald accents for links"
+  ],
+  "acceptance_criteria": [
+    "The PublicLayout navigation bar uses dark glass styling with backdrop-blur-xl and white text",
+    "Footer uses dark styling consistent with the glassmorphic theme",
+    "CSS utility classes .glass-dark and .glass-card are updated for dark glassmorphic design",
+    "Body background is #0F172A",
+    "Project builds and lints successfully"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

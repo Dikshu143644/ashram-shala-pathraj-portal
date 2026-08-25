@@ -20,16 +20,16 @@ export default function PublicLayout() {
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
   return (
-    <div className="min-h-screen" style={{ background: '#F7F7F5', color: '#000' }}>
+    <div className="min-h-screen bg-[#0F172A]">
       {/* Fixed Navigation */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-[#E7E7E4] bg-white/85 backdrop-blur-xl">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-900/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo / School Name */}
-          <Link to="/" className="flex items-center gap-3 text-black no-underline">
-            <div className="govt-seal h-9 w-9">
-              <School className="h-4 w-4 text-white!" />
+          <Link to="/" className="flex items-center gap-3 text-white no-underline">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30">
+              <School className="h-4 w-4 text-emerald-400" />
             </div>
-            <span className="hidden font-devanagari text-sm font-semibold sm:inline">
+            <span className="hidden font-devanagari text-sm font-semibold text-white sm:inline">
               आश्रमशाळा पाथरज
             </span>
           </Link>
@@ -44,8 +44,8 @@ export default function PublicLayout() {
                 className={({ isActive }) =>
                   `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-[#F3F2EF] text-black'
-                      : 'text-[#6B6B6B] hover:text-black hover:bg-[#F3F2EF]'
+                      ? 'bg-white/10 text-white'
+                      : 'text-white/80 hover:text-emerald-400 hover:bg-white/5'
                   }`
                 }
               >
@@ -59,7 +59,7 @@ export default function PublicLayout() {
             <button
               type="button"
               onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')}
-              className="flex items-center gap-1.5 rounded-full border border-[#E7E7E4] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#D4D4D1] hover:text-black"
+              className="flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
             >
               <Globe className="h-3.5 w-3.5" />
               {language === 'en' ? 'मराठी' : 'EN'}
@@ -67,7 +67,7 @@ export default function PublicLayout() {
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="hidden items-center gap-1.5 rounded-full bg-black px-4 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#1a1a1a] sm:flex"
+              className="hidden items-center gap-1.5 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-400 transition-all hover:bg-emerald-500/20 sm:flex"
             >
               <LogIn className="h-3.5 w-3.5" />
               {t('Login', 'लॉगिन')}
@@ -77,7 +77,7 @@ export default function PublicLayout() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="flex items-center justify-center rounded-lg p-2 text-[#6B6B6B] hover:text-black lg:hidden"
+              className="flex items-center justify-center rounded-lg p-2 text-white/80 hover:text-white lg:hidden"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -87,7 +87,7 @@ export default function PublicLayout() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <nav className="border-t border-[#E7E7E4] bg-white px-4 py-4 lg:hidden" aria-label="Mobile navigation">
+          <nav className="border-t border-white/10 bg-slate-900/95 backdrop-blur-xl px-4 py-4 lg:hidden" aria-label="Mobile navigation">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => (
                 <NavLink
@@ -98,8 +98,8 @@ export default function PublicLayout() {
                   className={({ isActive }) =>
                     `rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-[#F3F2EF] text-black'
-                        : 'text-[#6B6B6B] hover:text-black hover:bg-[#F3F2EF]'
+                        ? 'bg-white/10 text-white'
+                        : 'text-white/80 hover:text-emerald-400 hover:bg-white/5'
                     }`
                   }
                 >
@@ -109,7 +109,7 @@ export default function PublicLayout() {
               <button
                 type="button"
                 onClick={() => { setMobileMenuOpen(false); navigate('/login'); }}
-                className="mt-2 flex items-center gap-2 rounded-full bg-black px-4 py-3 text-sm font-semibold text-white sm:hidden"
+                className="mt-2 flex items-center gap-2 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-400 sm:hidden"
               >
                 <LogIn className="h-4 w-4" />
                 {t('Login', 'लॉगिन')}
@@ -125,21 +125,21 @@ export default function PublicLayout() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#E7E7E4] bg-white">
+      <footer className="border-t border-white/10 bg-slate-900/80 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* School Info */}
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="mb-4 flex items-center gap-3">
-                <div className="govt-seal h-10 w-10">
-                  <School className="h-5 w-5 text-white!" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30">
+                  <School className="h-5 w-5 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="font-devanagari text-sm font-semibold text-black">आश्रमशाळा पाथरज</p>
-                  <p className="text-[10px] uppercase tracking-wider text-[#A3A3A3]">Est. Government School</p>
+                  <p className="font-devanagari text-sm font-semibold text-white">आश्रमशाळा पाथरज</p>
+                  <p className="text-[10px] uppercase tracking-wider text-slate-500">Est. Government School</p>
                 </div>
               </div>
-              <p className="text-xs leading-relaxed text-[#6B6B6B]">
+              <p className="text-xs leading-relaxed text-slate-400">
                 {t(
                   'Government Secondary and Higher Secondary Ashram School, Pathraj. Under Tribal Development Department, Maharashtra.',
                   'शासकीय माध्यमिक व उच्च माध्यमिक आश्रमशाळा पाथरज. आदिवासी विकास विभाग, महाराष्ट्र शासन.'
@@ -149,13 +149,13 @@ export default function PublicLayout() {
 
             {/* Quick Links */}
             <div>
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#6B6B6B]">
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white">
                 {t('Quick Links', 'झटपट लिंक')}
               </h4>
               <ul className="space-y-2">
                 {navLinks.slice(1).map((link) => (
                   <li key={link.to}>
-                    <Link to={link.to} className="text-xs text-[#6B6B6B] transition-colors hover:text-black no-underline">
+                    <Link to={link.to} className="text-xs text-slate-400 transition-colors hover:text-emerald-400 no-underline">
                       {language === 'en' ? link.labelEn : link.labelMr}
                     </Link>
                   </li>
@@ -165,22 +165,22 @@ export default function PublicLayout() {
 
             {/* Contact Info */}
             <div>
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#6B6B6B]">
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white">
                 {t('Contact', 'संपर्क')}
               </h4>
-              <ul className="space-y-2 text-xs text-[#6B6B6B]">
+              <ul className="space-y-2 text-xs text-slate-400">
                 <li>{t('Principal: 9423864391', 'मुख्याध्यापक: ९४२३८६४३९१')}</li>
                 <li>{t('Office: 7666971183', 'कार्यालय: ७६६६९७११८३')}</li>
-                <li>hmpathraj22@gmail.com</li>
+                <li className="text-emerald-400">hmpathraj22@gmail.com</li>
               </ul>
             </div>
 
             {/* Address */}
             <div>
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#6B6B6B]">
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white">
                 {t('Address', 'पत्ता')}
               </h4>
-              <p className="text-xs leading-relaxed text-[#6B6B6B]">
+              <p className="text-xs leading-relaxed text-slate-400">
                 {t(
                   'Pathraj, Tal. Karjat, Dist. Raigad, Maharashtra 410201',
                   'पाथरज, ता. कर्जत, जि. रायगड, महाराष्ट्र ४१०२०१'
@@ -189,8 +189,8 @@ export default function PublicLayout() {
             </div>
           </div>
 
-          <div className="mt-10 border-t border-[#E7E7E4] pt-6 text-center">
-            <p className="text-[11px] text-[#A3A3A3]">
+          <div className="mt-10 border-t border-white/10 pt-6 text-center">
+            <p className="text-[11px] text-slate-500">
               &copy; 2026 {t('Tribal Development Department, Government of Maharashtra', 'आदिवासी विकास विभाग, महाराष्ट्र शासन')}
             </p>
           </div>
