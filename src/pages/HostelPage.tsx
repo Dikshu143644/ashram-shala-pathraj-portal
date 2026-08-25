@@ -45,7 +45,7 @@ export default function HostelPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-emerald-400 sm:text-sm"
+              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-amber-500 sm:text-sm"
             >
               {t('Residential Facility', 'निवासी सुविधा')}
             </motion.p>
@@ -83,14 +83,14 @@ export default function HostelPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
-                  <Home className="h-5 w-5 text-emerald-400" />
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-amber-500/10">
+                  <Home className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Hostel Overview', 'वसतिगृह विहंगावलोकन')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <p className="text-sm leading-relaxed text-slate-300 sm:text-base mb-8" style={{ lineHeight: '1.9' }}>
@@ -119,7 +119,7 @@ export default function HostelPage() {
                     transition={{ delay: 0.2, duration: 0.4 }}
                     className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
-                    <Users className="h-5 w-5 mx-auto mb-2 text-emerald-400" />
+                    <Users className="h-5 w-5 mx-auto mb-2 text-amber-500" />
                     <p className="text-sm font-semibold text-white">{t('Boys Wing', 'मुलांचा विभाग')}</p>
                     <p className="text-xs mt-1 text-slate-400">{t('Separate facility', 'स्वतंत्र सुविधा')}</p>
                   </motion.div>
@@ -130,7 +130,7 @@ export default function HostelPage() {
                     transition={{ delay: 0.3, duration: 0.4 }}
                     className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
-                    <Users className="h-5 w-5 mx-auto mb-2 text-emerald-400" />
+                    <Users className="h-5 w-5 mx-auto mb-2 text-amber-500" />
                     <p className="text-sm font-semibold text-white">{t('Girls Wing', 'मुलींचा विभाग')}</p>
                     <p className="text-xs mt-1 text-slate-400">{t('Separate facility', 'स्वतंत्र सुविधा')}</p>
                   </motion.div>
@@ -150,14 +150,14 @@ export default function HostelPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
-                  <UtensilsCrossed className="h-5 w-5 text-emerald-400" />
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-amber-500/10">
+                  <UtensilsCrossed className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Mess / Dining Timings', 'भोजन वेळ')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <p className="text-sm leading-relaxed text-slate-300 sm:text-base mb-8" style={{ lineHeight: '1.9' }}>
@@ -182,10 +182,10 @@ export default function HostelPage() {
                       className="flex items-center justify-between rounded-xl border border-white/[0.12] bg-white/5 p-5 backdrop-blur-sm"
                     >
                       <div className="flex items-center gap-3">
-                        <item.icon className="h-4 w-4 flex-shrink-0 text-emerald-400" />
+                        <item.icon className="h-4 w-4 flex-shrink-0 text-amber-500" />
                         <span className="text-sm font-medium text-white sm:text-base">{item.meal}</span>
                       </div>
-                      <span className="text-sm font-semibold text-emerald-400 sm:text-base">
+                      <span className="text-sm font-semibold text-amber-500 sm:text-base">
                         {language === 'mr' ? item.mrTime : item.time}
                       </span>
                     </motion.div>
@@ -206,14 +206,14 @@ export default function HostelPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
-                  <UserCheck className="h-5 w-5 text-emerald-400" />
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-amber-500/10">
+                  <UserCheck className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Hostel Wardens', 'वसतिगृह प्रमुख')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <motion.div
@@ -223,8 +223,8 @@ export default function HostelPage() {
                   transition={{ delay: 0.1, duration: 0.5 }}
                   className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md"
                 >
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-emerald-500/10 mb-4">
-                    <Users className="h-5 w-5 text-emerald-400" />
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-amber-500/10 mb-4">
+                    <Users className="h-5 w-5 text-amber-500" />
                   </div>
                   <p className="text-xs uppercase tracking-wider text-slate-400 mb-2">
                     {t('Boys Hostel Warden', 'मुलांचे वसतिगृह प्रमुख')}
@@ -241,8 +241,8 @@ export default function HostelPage() {
                   transition={{ delay: 0.2, duration: 0.5 }}
                   className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md"
                 >
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-emerald-500/10 mb-4">
-                    <Users className="h-5 w-5 text-emerald-400" />
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-amber-500/10 mb-4">
+                    <Users className="h-5 w-5 text-amber-500" />
                   </div>
                   <p className="text-xs uppercase tracking-wider text-slate-400 mb-2">
                     {t('Girls Hostel Warden', 'मुलींचे वसतिगृह प्रमुख')}
@@ -266,14 +266,14 @@ export default function HostelPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
-                  <Clock className="h-5 w-5 text-emerald-400" />
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-amber-500/10">
+                  <Clock className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Daily Routine', 'दैनंदिन वेळापत्रक')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <div className="space-y-0">
@@ -288,8 +288,8 @@ export default function HostelPage() {
                       style={{ borderBottom: i < dailyRoutine.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-2 w-2 rounded-full flex-shrink-0 bg-emerald-400" />
-                        <span className="text-xs font-mono font-medium text-emerald-400 sm:text-sm" style={{ minWidth: '130px' }}>
+                        <div className="h-2 w-2 rounded-full flex-shrink-0 bg-amber-500" />
+                        <span className="text-xs font-mono font-medium text-amber-500 sm:text-sm" style={{ minWidth: '130px' }}>
                           {item.time}
                         </span>
                       </div>

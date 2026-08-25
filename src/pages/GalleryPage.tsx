@@ -61,7 +61,7 @@ export default function GalleryPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-4 text-[11px] font-medium uppercase tracking-[0.25em] text-emerald-400 sm:text-xs"
+              className="mb-4 text-[11px] font-medium uppercase tracking-[0.25em] text-amber-500 sm:text-xs"
             >
               {t('Photos', 'फोटो')}
             </motion.p>
@@ -99,7 +99,7 @@ export default function GalleryPage() {
                 animate={{ opacity: 1 }}
                 className="flex flex-col items-center justify-center rounded-2xl border border-white/[0.12] bg-white/5 p-16 backdrop-blur-md"
               >
-                <Loader className="h-8 w-8 animate-spin text-emerald-400" />
+                <Loader className="h-8 w-8 animate-spin text-amber-500" />
                 <p className="mt-4 text-sm text-slate-300">
                   {t('Loading photos...', 'फोटो लोड होत आहेत...')}
                 </p>
@@ -115,7 +115,7 @@ export default function GalleryPage() {
                 className="rounded-2xl border border-white/[0.12] bg-white/5 p-10 text-center backdrop-blur-md sm:p-16"
               >
                 <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
-                  <ImageOff className="h-7 w-7 text-emerald-400" />
+                  <ImageOff className="h-7 w-7 text-amber-500" />
                 </div>
                 <h3 className="mb-3 text-lg font-semibold text-white">
                   {t('Unable to load photos', 'फोटो लोड करता आले नाहीत')}
@@ -138,7 +138,7 @@ export default function GalleryPage() {
                 className="rounded-2xl border border-white/[0.12] bg-white/5 p-10 text-center backdrop-blur-md sm:p-16"
               >
                 <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
-                  <Camera className="h-7 w-7 text-emerald-400" />
+                  <Camera className="h-7 w-7 text-amber-500" />
                 </div>
                 <h3 className="mb-3 text-lg font-semibold text-white">
                   {t('Gallery Coming Soon', 'गॅलरी लवकरच येत आहे')}

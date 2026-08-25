@@ -153,7 +153,7 @@ export default function ForgotPasswordPage() {
     }
   };
 
-  const inputClasses = "h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all";
+  const inputClasses = "h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all";
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden p-4 sm:p-8">
@@ -202,7 +202,7 @@ export default function ForgotPasswordPage() {
             animate={{ scale: 1 }}
             transition={{ delay: 0.15 }}
             className="mb-5 flex h-16 w-16 items-center justify-center rounded-full"
-            style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+            style={{ background: 'linear-gradient(135deg, #D97706, #B45309)' }}
           >
             <School className="h-7 w-7 text-white" />
           </motion.div>
@@ -238,15 +238,15 @@ export default function ForgotPasswordPage() {
               disabled={isLoading}
               className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[14px] text-sm font-medium text-white transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                background: 'linear-gradient(135deg, #1E293B, #0F172A)',
+                boxShadow: '0 4px 20px rgba(15, 23, 42, 0.4)',
               }}
             >
               {isLoading ? <><span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />{t('Sending...', 'पाठवत आहे...')}</> : <><Mail className="h-4 w-4" />{t('Send Reset Code', 'रीसेट कोड पाठवा')}</>}
             </button>
 
             <div className="mt-3 text-center">
-              <button type="button" onClick={() => navigate('/login')} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-slate-300 hover:text-emerald-400 transition-colors">
+              <button type="button" onClick={() => navigate('/login')} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-slate-300 hover:text-amber-400 transition-colors">
                 <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Login', 'लॉगिनवर परत जा')}
               </button>
             </div>
@@ -259,7 +259,7 @@ export default function ForgotPasswordPage() {
               <label htmlFor="forgot-otp" className="mb-2 block text-center text-xs font-medium text-slate-400">{t('6-digit reset code', '6 अंकी रीसेट कोड')}</label>
               <div className="relative">
                 <KeyRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                <input id="forgot-otp" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" className="h-14 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-12 pr-4 text-center font-mono text-2xl font-bold tracking-[0.35em] text-white placeholder:text-slate-600 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" autoFocus />
+                <input id="forgot-otp" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" className="h-14 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-12 pr-4 text-center font-mono text-2xl font-bold tracking-[0.35em] text-white placeholder:text-slate-600 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all" autoFocus />
               </div>
             </div>
 
@@ -270,15 +270,15 @@ export default function ForgotPasswordPage() {
               disabled={otpCode.length !== 6}
               className="flex h-12 w-full items-center justify-center gap-2 rounded-[14px] text-sm font-medium text-white transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                background: 'linear-gradient(135deg, #1E293B, #0F172A)',
+                boxShadow: '0 4px 20px rgba(15, 23, 42, 0.4)',
               }}
             >
               <ShieldCheck className="h-4 w-4" />{t('Verify Code', 'कोड सत्यापित करा')}
             </button>
 
             <div className="flex items-center justify-center">
-              <button type="button" onClick={() => { setStage('enter-identifier'); setError(''); setOtpCode(''); }} className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-slate-300 hover:text-emerald-400 transition-colors">
+              <button type="button" onClick={() => { setStage('enter-identifier'); setError(''); setOtpCode(''); }} className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-slate-300 hover:text-amber-400 transition-colors">
                 <ArrowLeft className="h-3.5 w-3.5" />{t('Try different identifier', 'वेगळा मोबाईल/ईमेल वापरा')}
               </button>
             </div>
@@ -291,7 +291,7 @@ export default function ForgotPasswordPage() {
               <label htmlFor="forgot-new-password" className="mb-2 block text-xs font-medium text-slate-400">{t('New Password', 'नवीन पासवर्ड')}</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input id="forgot-new-password" type={showPassword ? 'text' : 'password'} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder={t('Min 8 characters', 'किमान 8 अक्षरे')} className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-12 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" autoFocus />
+                <input id="forgot-new-password" type={showPassword ? 'text' : 'password'} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder={t('Min 8 characters', 'किमान 8 अक्षरे')} className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-12 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all" autoFocus />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-slate-400 hover:bg-white/10 hover:text-white transition-colors">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
               </div>
             </div>
@@ -310,8 +310,8 @@ export default function ForgotPasswordPage() {
               disabled={isLoading}
               className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[14px] text-sm font-medium text-white transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                background: 'linear-gradient(135deg, #1E293B, #0F172A)',
+                boxShadow: '0 4px 20px rgba(15, 23, 42, 0.4)',
               }}
             >
               {isLoading ? <><span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />{t('Resetting...', 'रीसेट करत आहे...')}</> : <><Lock className="h-4 w-4" />{t('Reset Password', 'पासवर्ड रीसेट करा')}</>}
@@ -321,15 +321,15 @@ export default function ForgotPasswordPage() {
 
         {stage === 'done' && (
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
-              <ShieldCheck className="h-8 w-8 text-emerald-400" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/20">
+              <ShieldCheck className="h-8 w-8 text-amber-400" />
             </div>
             <p className="text-sm text-slate-300">{t('Your password has been reset successfully. Redirecting to portal...', 'तुमचा पासवर्ड यशस्वीरित्या रीसेट झाला आहे. पोर्टलवर पुनर्निर्देशित करत आहे...')}</p>
           </div>
         )}
 
         <div className="mt-6 flex items-center justify-center gap-2 text-center text-[11px] text-slate-400">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" />
+          <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
           <span>{t('Your data is protected with encryption', 'तुमचा डेटा एन्क्रिप्शनने संरक्षित आहे')}</span>
         </div>
         <p className="font-devanagari mt-5 text-center text-[10px] text-slate-500">&copy; 2026 आदिवासी विकास विभाग, महाराष्ट्र शासन</p>

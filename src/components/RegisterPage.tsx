@@ -280,7 +280,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
     }
   };
 
-  const inputClasses = "h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all";
+  const inputClasses = "h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all";
 
   const canProceed = emailVerified;
 
@@ -331,7 +331,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             animate={{ scale: 1 }}
             transition={{ delay: 0.15 }}
             className="mb-4 flex h-14 w-14 items-center justify-center rounded-full"
-            style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+            style={{ background: 'linear-gradient(135deg, #D97706, #B45309)' }}
           >
             <School className="h-6 w-6 text-white" />
           </motion.div>
@@ -363,7 +363,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             <div>
               <label htmlFor="reg-mobile" className="mb-1.5 block text-xs font-medium text-slate-400">
                 {t('Mobile Number', 'मोबाईल नंबर')}
-                {phoneVerified && <span className="ml-2 inline-flex items-center gap-1 text-emerald-400"><Check className="h-3.5 w-3.5" /> {t('Verified', 'सत्यापित')}</span>}
+                {phoneVerified && <span className="ml-2 inline-flex items-center gap-1 text-green-500"><Check className="h-3.5 w-3.5" /> {t('Verified', 'सत्यापित')}</span>}
               </label>
               {!phoneVerified && !smsUnavailable && (
                 <p className="mb-1.5 text-[10px] text-amber-400/80">{t('SMS verification optional. Email verification required.', 'SMS सत्यापन ऐच्छिक. ईमेल सत्यापन आवश्यक.')}</p>
@@ -386,7 +386,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
                     onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     placeholder="9876543210"
                     disabled={phoneVerified}
-                    className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-[5rem] pr-4 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50"
+                    className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-[5rem] pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all disabled:opacity-50"
                   />
                 </div>
                 {!phoneVerified && (
@@ -395,7 +395,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
                     onClick={handleSendPhoneOtp}
                     disabled={phoneSending || phoneTimer > 0 || mobileNumber.length !== 10}
                     className="h-12 whitespace-nowrap rounded-full px-4 text-xs font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                    style={{ background: 'linear-gradient(135deg, #1E293B, #0F172A)' }}
                   >
                     {phoneSending ? '...' : phoneOtpSent ? t('Resend', 'पुन्हा') : t('Send OTP', 'OTP पाठवा')}
                   </button>
@@ -411,14 +411,14 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
                     value={phoneOtp}
                     onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder={t('Enter 6-digit OTP', '6 अंकी OTP प्रविष्ट करा')}
-                    className="h-10 flex-1 rounded-[12px] border border-slate-400/15 bg-slate-800/50 px-3 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className="h-10 flex-1 rounded-[12px] border border-slate-400/15 bg-slate-800/50 px-3 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                   />
                   <button
                     type="button"
                     onClick={handleVerifyPhoneOtp}
                     disabled={phoneVerifying || phoneOtp.length !== 6}
                     className="h-10 rounded-full px-4 text-xs font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                    style={{ background: 'linear-gradient(135deg, #1E293B, #0F172A)' }}
                   >
                     {phoneVerifying ? '...' : t('Verify', 'सत्यापित')}
                   </button>
@@ -431,7 +431,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             <div>
               <label htmlFor="reg-email" className="mb-1.5 block text-xs font-medium text-slate-400">
                 {t('Email', 'ईमेल')}
-                {emailVerified && <span className="ml-2 inline-flex items-center gap-1 text-emerald-400"><Check className="h-3.5 w-3.5" /> {t('Verified', 'सत्यापित')}</span>}
+                {emailVerified && <span className="ml-2 inline-flex items-center gap-1 text-green-500"><Check className="h-3.5 w-3.5" /> {t('Verified', 'सत्यापित')}</span>}
               </label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
@@ -452,7 +452,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
                     onClick={handleSendEmailOtp}
                     disabled={emailSending || emailTimer > 0 || !email.includes('@')}
                     className="h-12 whitespace-nowrap rounded-full px-4 text-xs font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                    style={{ background: 'linear-gradient(135deg, #1E293B, #0F172A)' }}
                   >
                     {emailSending ? '...' : emailOtpSent ? t('Resend', 'पुन्हा') : t('Send OTP', 'OTP पाठवा')}
                   </button>
@@ -468,14 +468,14 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
                     value={emailOtp}
                     onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder={t('Enter 6-digit OTP', '6 अंकी OTP प्रविष्ट करा')}
-                    className="h-10 flex-1 rounded-[12px] border border-slate-400/15 bg-slate-800/50 px-3 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className="h-10 flex-1 rounded-[12px] border border-slate-400/15 bg-slate-800/50 px-3 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                   />
                   <button
                     type="button"
                     onClick={handleVerifyEmailOtp}
                     disabled={emailVerifying || emailOtp.length !== 6}
                     className="h-10 rounded-full px-4 text-xs font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                    style={{ background: 'linear-gradient(135deg, #1E293B, #0F172A)' }}
                   >
                     {emailVerifying ? '...' : t('Verify', 'सत्यापित')}
                   </button>
@@ -488,7 +488,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             <div>
               <label htmlFor="reg-relationship" className="mb-1.5 block text-xs font-medium text-slate-400">{t('Relationship to Student', 'विद्यार्थ्याशी नाते')}</label>
               <div className="relative">
-                <select id="reg-relationship" value={relationship} onChange={(e) => setRelationship(e.target.value)} className="h-12 w-full appearance-none rounded-[14px] border border-slate-400/15 bg-slate-800/50 px-4 pr-11 text-sm text-white focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                <select id="reg-relationship" value={relationship} onChange={(e) => setRelationship(e.target.value)} className="h-12 w-full appearance-none rounded-[14px] border border-slate-400/15 bg-slate-800/50 px-4 pr-11 text-sm text-white focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all">
                   {relationshipOptions.map((opt) => <option key={opt.value} value={opt.value}>{language === 'en' ? opt.labelEn : opt.labelMr}</option>)}
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -504,15 +504,15 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
               disabled={!canProceed || !fullName.trim()}
               className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[14px] text-sm font-medium text-white transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
-                background: canProceed ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(100, 116, 139, 0.4)',
-                boxShadow: canProceed ? '0 4px 20px rgba(16, 185, 129, 0.3)' : 'none',
+                background: canProceed ? 'linear-gradient(135deg, #1E293B, #0F172A)' : 'rgba(100, 116, 139, 0.4)',
+                boxShadow: canProceed ? '0 4px 20px rgba(15, 23, 42, 0.4)' : 'none',
               }}
             >
               <UserPlus className="h-4 w-4" />{t('Continue to Signup', 'साइनअपसाठी पुढे जा')}
             </button>
 
             <div className="mt-3 text-center">
-              <button type="button" onClick={handleBackToLogin} className="flex items-center justify-center gap-1.5 mx-auto rounded-full px-3 py-2 text-xs font-medium text-slate-300 hover:text-emerald-400 transition-colors">
+              <button type="button" onClick={handleBackToLogin} className="flex items-center justify-center gap-1.5 mx-auto rounded-full px-3 py-2 text-xs font-medium text-slate-300 hover:text-amber-400 transition-colors">
                 <ArrowLeft className="h-3.5 w-3.5" />{t('Back to login', 'लॉगिनवर परत जा')}
               </button>
             </div>
@@ -521,8 +521,8 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
 
         {stage === 'password' && (
           <form onSubmit={handleRegisterSubmit} className="space-y-4">
-            <div className="mb-4 rounded-[14px] border border-emerald-500/20 bg-emerald-500/5 p-3">
-              <div className="flex items-center gap-2 text-xs text-emerald-300">
+            <div className="mb-4 rounded-[14px] border border-green-500/20 bg-green-500/5 p-3">
+              <div className="flex items-center gap-2 text-xs text-green-400">
                 <Check className="h-4 w-4" />
                 <span>{phoneVerified ? t('Mobile & Email verified', 'मोबाईल आणि ईमेल सत्यापित') : t('Email verified', 'ईमेल सत्यापित')}</span>
               </div>
@@ -536,7 +536,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
               <label htmlFor="reg-password" className="mb-1.5 block text-xs font-medium text-slate-400">{t('New Password', 'नवीन पासवर्ड')}</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input id="reg-password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('Min 8 characters', 'किमान 8 अक्षरे')} className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-12 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />
+                <input id="reg-password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('Min 8 characters', 'किमान 8 अक्षरे')} className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-12 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-slate-400 hover:bg-white/10 hover:text-white transition-colors">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
               </div>
             </div>
@@ -555,14 +555,14 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
               disabled={isLoading}
               className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[14px] text-sm font-medium text-white transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                background: 'linear-gradient(135deg, #1E293B, #0F172A)',
+                boxShadow: '0 4px 20px rgba(15, 23, 42, 0.4)',
               }}
             >
               {isLoading ? <><span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />{t('Please wait...', 'कृपया थांबा...')}</> : <><UserPlus className="h-4 w-4" />{t('Create Account', 'खाते तयार करा')}</>}
             </button>
 
-            <button type="button" onClick={() => setStage('verify')} className="flex items-center justify-center gap-1.5 mx-auto rounded-full px-3 py-2 text-xs font-medium text-slate-300 hover:text-emerald-400 transition-colors">
+            <button type="button" onClick={() => setStage('verify')} className="flex items-center justify-center gap-1.5 mx-auto rounded-full px-3 py-2 text-xs font-medium text-slate-300 hover:text-amber-400 transition-colors">
               <ArrowLeft className="h-3.5 w-3.5" />{t('Back', 'मागे')}
             </button>
           </form>
@@ -570,15 +570,15 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
 
         {stage === 'done' && (
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
-              <ShieldCheck className="h-8 w-8 text-emerald-400" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
+              <ShieldCheck className="h-8 w-8 text-amber-400" />
             </div>
             <p className="text-sm text-slate-300">{t('Your account is ready. Redirecting to portal...', 'तुमचे खाते तयार आहे. पोर्टलवर पुनर्निर्देशित करत आहे...')}</p>
           </div>
         )}
 
         <div className="mt-5 flex items-center justify-center gap-2 text-center text-[11px] text-slate-400">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" />
+          <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
           <span>{t('Your data is protected with encryption', 'तुमचा डेटा एन्क्रिप्शनने संरक्षित आहे')}</span>
         </div>
         <p className="font-devanagari mt-4 text-center text-[10px] text-slate-500">&copy; 2026 आदिवासी विकास विभाग, महाराष्ट्र शासन</p>

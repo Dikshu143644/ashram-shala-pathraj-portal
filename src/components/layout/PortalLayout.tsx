@@ -88,11 +88,12 @@ export default function PortalLayout() {
   }, [role, activeTab]);
 
   // Show phone verification popup if phone is not verified
+  // Admin (web_creator) should NEVER see the phone verification popup
   useEffect(() => {
-    if (currentUser && !currentUser.phoneVerified && !phoneVerificationDismissed && !mustChangePassword) {
+    if (currentUser && !currentUser.phoneVerified && !phoneVerificationDismissed && !mustChangePassword && role !== 'web_creator') {
       setShowPhoneVerification(true);
     }
-  }, [currentUser, phoneVerificationDismissed, mustChangePassword]);
+  }, [currentUser, phoneVerificationDismissed, mustChangePassword, role]);
 
   const renderContent = () => {
     switch (activeTab) {

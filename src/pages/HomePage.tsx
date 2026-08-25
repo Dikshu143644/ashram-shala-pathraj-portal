@@ -57,7 +57,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-emerald-400 sm:text-sm"
+              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-amber-500 sm:text-sm"
             >
               {t('Tribal Development Department, Maharashtra', 'आदिवासी विकास विभाग, महाराष्ट्र')}
             </motion.p>
@@ -142,7 +142,7 @@ export default function HomePage() {
                   transition={{ delay: i * 0.1, duration: 0.5 }}
                   className="rounded-xl border border-white/[0.12] bg-white/5 p-6 text-center backdrop-blur-sm"
                 >
-                  <stat.icon className="mx-auto mb-3 h-6 w-6 text-emerald-400" />
+                  <stat.icon className="mx-auto mb-3 h-6 w-6 text-amber-500" />
                   <p className="text-3xl font-bold text-white">{stat.value}</p>
                   <p className="mt-1 text-xs text-slate-400">
                     {t(stat.labelEn, stat.labelMr)}
@@ -166,7 +166,7 @@ export default function HomePage() {
               <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
                 {t('School Services', 'शाळा सेवा')}
               </h2>
-              <div className="mx-auto mb-4 h-0.5 w-16 bg-emerald-400" />
+              <div className="mx-auto mb-4 h-0.5 w-16 bg-amber-500" />
               <p className="text-sm text-slate-300">
                 {t('Access our digital services and portals', 'आमच्या डिजिटल सेवा आणि पोर्टल्स वापरा')}
               </p>
@@ -219,7 +219,7 @@ export default function HomePage() {
                     className="group block h-full rounded-2xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
                   >
                     <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
-                      <item.icon className="h-5 w-5 text-emerald-400" />
+                      <item.icon className="h-5 w-5 text-amber-500" />
                     </div>
                     <h3 className="mb-2 flex items-center gap-2 text-base font-semibold text-white">
                       {t(item.titleEn, item.titleMr)}

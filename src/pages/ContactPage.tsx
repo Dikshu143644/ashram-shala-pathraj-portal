@@ -32,7 +32,7 @@ export default function ContactPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-4 text-[11px] font-medium uppercase tracking-[0.25em] text-emerald-400 sm:text-xs"
+              className="mb-4 text-[11px] font-medium uppercase tracking-[0.25em] text-amber-500 sm:text-xs"
             >
               {t('Get in Touch', 'संपर्क साधा')}
             </motion.p>
@@ -71,7 +71,7 @@ export default function ContactPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
-                  <MapPin className="h-5 w-5 text-emerald-400" />
+                  <MapPin className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('School Address', 'शाळेचा पत्ता')}
@@ -118,7 +118,7 @@ export default function ContactPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
-                  <Phone className="h-5 w-5 text-emerald-400" />
+                  <Phone className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Contact Details', 'संपर्क तपशील')}
@@ -135,14 +135,14 @@ export default function ContactPage() {
                   className="rounded-xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-sm sm:p-8"
                 >
                   <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
-                    <User className="h-4 w-4 text-emerald-400" />
+                    <User className="h-4 w-4 text-amber-500" />
                   </div>
                   <p className="mb-2 text-xs uppercase tracking-wider text-slate-400">
                     {t('Principal', 'मुख्याध्यापक')}
                   </p>
                   <a
                     href="tel:9423864391"
-                    className="text-lg font-semibold text-emerald-400 no-underline transition-colors hover:text-emerald-300"
+                    className="text-lg font-semibold text-amber-500 no-underline transition-colors hover:text-amber-400"
                   >
                     9423864391
                   </a>
@@ -157,14 +157,14 @@ export default function ContactPage() {
                   className="rounded-xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-sm sm:p-8"
                 >
                   <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
-                    <Phone className="h-4 w-4 text-emerald-400" />
+                    <Phone className="h-4 w-4 text-amber-500" />
                   </div>
                   <p className="mb-2 text-xs uppercase tracking-wider text-slate-400">
                     {t('Office / Clerk', 'कार्यालय / लिपिक')}
                   </p>
                   <a
                     href="tel:7666971183"
-                    className="text-lg font-semibold text-emerald-400 no-underline transition-colors hover:text-emerald-300"
+                    className="text-lg font-semibold text-amber-500 no-underline transition-colors hover:text-amber-400"
                   >
                     7666971183
                   </a>
@@ -179,14 +179,14 @@ export default function ContactPage() {
                   className="rounded-xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-sm sm:p-8"
                 >
                   <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.12] bg-white/5">
-                    <Mail className="h-4 w-4 text-emerald-400" />
+                    <Mail className="h-4 w-4 text-amber-500" />
                   </div>
                   <p className="mb-2 text-xs uppercase tracking-wider text-slate-400">
                     {t('Email', 'ईमेल')}
                   </p>
                   <a
                     href="mailto:hmpathraj22@gmail.com"
-                    className="text-sm font-semibold text-emerald-400 no-underline transition-colors hover:text-emerald-300 sm:text-base"
+                    className="text-sm font-semibold text-amber-500 no-underline transition-colors hover:text-amber-400 sm:text-base"
                   >
                     hmpathraj22@gmail.com
                   </a>
@@ -200,8 +200,8 @@ export default function ContactPage() {
                   transition={{ delay: 0.4, duration: 0.5 }}
                   className="rounded-xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-sm sm:p-8"
                 >
-                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10">
-                    <MessageCircle className="h-4 w-4 text-emerald-400" />
+                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10">
+                    <MessageCircle className="h-4 w-4 text-amber-500" />
                   </div>
                   <p className="mb-2 text-xs uppercase tracking-wider text-slate-400">
                     WhatsApp
@@ -210,7 +210,7 @@ export default function ContactPage() {
                     href="https://wa.me/919423864391"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white no-underline transition-opacity hover:opacity-90"
+                    className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white no-underline transition-opacity hover:bg-amber-700"
                   >
                     <MessageCircle className="h-4 w-4" />
                     {t('Chat on WhatsApp', 'WhatsApp वर संपर्क करा')}
@@ -232,7 +232,7 @@ export default function ContactPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
-                  <MapPin className="h-5 w-5 text-emerald-400" />
+                  <MapPin className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Location', 'स्थान')}
@@ -259,7 +259,7 @@ export default function ContactPage() {
                   href="https://www.google.com/maps/dir/?api=1&destination=%E0%A4%B6%E0%A4%BE%E0%A4%B8%E0%A4%A8%E0%A4%BE%E0%A4%B8%E0%A4%A8+%E0%A4%86%E0%A4%B6%E0%A5%8D%E0%A4%B0%E0%A4%AE%E0%A4%B6%E0%A4%BE%E0%A4%B3%E0%A4%BE+%E0%A4%AA%E0%A4%BE%E0%A4%A5%E0%A4%B0%E0%A4%9C,+Pathraj,+Taluka+Karjat,+District+Raigad,+Maharashtra+410201"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white no-underline shadow-lg shadow-emerald-600/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-500"
+                  className="inline-flex items-center gap-2 rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white no-underline shadow-lg shadow-amber-600/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-500"
                 >
                   <Navigation2 className="h-4 w-4" />
                   {t('Navigate to School', 'शाळेकडे नेव्हिगेट करा')}
@@ -280,7 +280,7 @@ export default function ContactPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
-                  <Send className="h-5 w-5 text-emerald-400" />
+                  <Send className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Send a Message', 'संदेश पाठवा')}

@@ -109,7 +109,7 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
             animate={{ scale: 1 }}
             transition={{ delay: 0.15 }}
             className="mb-5 flex h-16 w-16 items-center justify-center rounded-full"
-            style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+            style={{ background: 'linear-gradient(135deg, #D97706, #B45309)' }}
           >
             <School className="h-7 w-7 text-white" />
           </motion.div>
@@ -133,7 +133,7 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 placeholder={t('Enter mobile number', 'मोबाईल नंबर प्रविष्ट करा')}
-                className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                 autoComplete="username"
               />
             </div>
@@ -149,7 +149,7 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder={t('Enter password', 'पासवर्ड प्रविष्ट करा')}
-                className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-12 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-12 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                 autoComplete="current-password"
               />
               <button
@@ -179,8 +179,8 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
             disabled={isLoading}
             className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[14px] text-sm font-medium text-white transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
             style={{
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+              background: 'linear-gradient(135deg, #1E293B, #0F172A)',
+              boxShadow: '0 4px 20px rgba(15, 23, 42, 0.4)',
             }}
           >
             {isLoading ? (
@@ -194,7 +194,7 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
             <button
               type="button"
               onClick={() => navigate('/forgot-password')}
-              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-slate-300 hover:text-emerald-400 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-slate-300 hover:text-amber-400 transition-colors"
             >
               <Lock className="h-3.5 w-3.5" />{t('Forgot Password?', 'पासवर्ड विसरलात?')}
             </button>
@@ -202,7 +202,7 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
               <button
                 type="button"
                 onClick={() => navigate('/register')}
-                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-slate-300 hover:text-emerald-400 transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-slate-300 hover:text-amber-400 transition-colors"
               >
                 <UserPlus className="h-3.5 w-3.5" />{t('Register as Parent', 'पालक म्हणून नोंदणी करा')}
               </button>
@@ -210,7 +210,7 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-slate-300 hover:text-emerald-400 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-slate-300 hover:text-amber-400 transition-colors"
             >
               <ArrowLeft className="h-3.5 w-3.5" />{t('Back to Home', 'मुख्यपृष्ठावर परत जा')}
             </button>
@@ -218,7 +218,7 @@ export default function LoginPage({ onBack, fixedRole }: LoginPageProps) {
         </form>
 
         <div className="mt-6 flex items-center justify-center gap-2 text-center text-[11px] text-slate-400">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" />
+          <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
           <span>{t('Your session is protected with encryption', 'तुमचे सत्र एन्क्रिप्शनने संरक्षित आहे')}</span>
         </div>
         <p className="font-devanagari mt-5 text-center text-[10px] text-slate-500">&copy; 2026 आदिवासी विकास विभाग, महाराष्ट्र शासन</p>

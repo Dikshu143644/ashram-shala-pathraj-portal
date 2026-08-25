@@ -50,7 +50,7 @@ export default function AboutPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-4 text-xs font-medium uppercase tracking-[0.25em] text-emerald-400 sm:text-sm"
+              className="mb-4 text-xs font-medium uppercase tracking-[0.25em] text-amber-500 sm:text-sm"
             >
               {t('About Us', 'आमच्याबद्दल')}
             </motion.p>
@@ -89,13 +89,13 @@ export default function AboutPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                  <BookOpen className="h-5 w-5 text-emerald-400" />
+                  <BookOpen className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('School History & Mission', 'शाळेचा इतिहास आणि ध्येय')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
@@ -126,17 +126,17 @@ export default function AboutPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                  <Award className="h-5 w-5 text-emerald-400" />
+                  <Award className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Vision & Mission', 'दृष्टी आणि ध्येय')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
-                  <h3 className="mb-4 text-lg font-semibold text-emerald-400">
+                  <h3 className="mb-4 text-lg font-semibold text-amber-500">
                     {t('Our Vision', 'आमची दृष्टी')}
                   </h3>
                   <p className="text-sm leading-relaxed text-slate-300" style={{ lineHeight: '1.9' }}>
@@ -147,7 +147,7 @@ export default function AboutPage() {
                   </p>
                 </div>
                 <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
-                  <h3 className="mb-4 text-lg font-semibold text-emerald-400">
+                  <h3 className="mb-4 text-lg font-semibold text-amber-500">
                     {t('Our Mission', 'आमचे ध्येय')}
                   </h3>
                   <p className="text-sm leading-relaxed text-slate-300" style={{ lineHeight: '1.9' }}>
@@ -173,13 +173,13 @@ export default function AboutPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                  <Building className="h-5 w-5 text-emerald-400" />
+                  <Building className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('The Ashram Shala System', 'आश्रमशाळा प्रणाली')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
@@ -211,7 +211,7 @@ export default function AboutPage() {
                       transition={{ delay: i * 0.1, duration: 0.4 }}
                       className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4"
                     >
-                      <item.iconEl className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-400" />
+                      <item.iconEl className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" />
                       <p className="text-sm text-slate-300">{t(item.en, item.mr)}</p>
                     </motion.div>
                   ))}
@@ -232,13 +232,13 @@ export default function AboutPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                  <Shield className="h-5 w-5 text-emerald-400" />
+                  <Shield className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Tribal Development Department', 'आदिवासी विकास विभाग')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
@@ -269,13 +269,13 @@ export default function AboutPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                  <MapPin className="h-5 w-5 text-emerald-400" />
+                  <MapPin className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Campus Information', 'परिसर माहिती')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
@@ -324,13 +324,13 @@ export default function AboutPage() {
             >
               <div className="mb-6 flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                  <Home className="h-5 w-5 text-emerald-400" />
+                  <Home className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Residential Facility', 'निवासी सुविधा')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
                 <p className="mb-6 text-sm leading-relaxed text-slate-300 sm:text-base" style={{ lineHeight: '1.9' }}>
@@ -358,7 +358,7 @@ export default function AboutPage() {
                     transition={{ delay: 0.2, duration: 0.4 }}
                     className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
-                    <Users className="mx-auto mb-2 h-5 w-5 text-emerald-400" />
+                    <Users className="mx-auto mb-2 h-5 w-5 text-amber-500" />
                     <p className="text-xs text-slate-400">{t('Boys Wing', 'मुलांचा विभाग')}</p>
                   </motion.div>
                   <motion.div
@@ -368,7 +368,7 @@ export default function AboutPage() {
                     transition={{ delay: 0.3, duration: 0.4 }}
                     className="rounded-xl border border-white/[0.12] bg-white/5 p-5 text-center backdrop-blur-sm"
                   >
-                    <Users className="mx-auto mb-2 h-5 w-5 text-emerald-400" />
+                    <Users className="mx-auto mb-2 h-5 w-5 text-amber-500" />
                     <p className="text-xs text-slate-400">{t('Girls Wing', 'मुलींचा विभाग')}</p>
                   </motion.div>
                 </div>
@@ -396,7 +396,7 @@ export default function AboutPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
-                <h3 className="mb-2 text-lg font-semibold text-emerald-400">
+                <h3 className="mb-2 text-lg font-semibold text-amber-500">
                   {t("Principal's Office", 'मुख्याध्यापक कार्यालय')}
                 </h3>
                 <p className="mb-6 text-sm leading-relaxed text-slate-300" style={{ lineHeight: '1.9' }}>
@@ -409,7 +409,7 @@ export default function AboutPage() {
                   <p className="text-base font-semibold text-white">
                     {t('Shri. Bansode Ajit Lalasaheb', 'श्री.बनसोडे अजित लालासाहेब')}
                   </p>
-                  <p className="mt-1 text-xs font-medium tracking-wide text-emerald-400">
+                  <p className="mt-1 text-xs font-medium tracking-wide text-amber-500">
                     {t('Acting Principal', 'प्रभारी मुख्याध्यापक')}
                   </p>
                 </div>

@@ -150,8 +150,8 @@ export default function PhoneVerificationPopup({ isOpen, onVerified }: PhoneVeri
 
             {verified ? (
               <div className="flex flex-col items-center py-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
-                  <ShieldCheck className="h-8 w-8 text-emerald-400" />
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/20">
+                  <ShieldCheck className="h-8 w-8 text-amber-400" />
                 </div>
               </div>
             ) : (
@@ -173,7 +173,7 @@ export default function PhoneVerificationPopup({ isOpen, onVerified }: PhoneVeri
                         onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
                         placeholder="9876543210"
                         disabled={otpSent}
-                        className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-[5rem] pr-4 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50"
+                        className="h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-[5rem] pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all disabled:opacity-50"
                       />
                     </div>
                     <button
@@ -181,7 +181,7 @@ export default function PhoneVerificationPopup({ isOpen, onVerified }: PhoneVeri
                       onClick={handleSendOtp}
                       disabled={sending || timer > 0 || mobileNumber.length !== 10}
                       className="h-12 whitespace-nowrap rounded-full px-4 text-xs font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                      style={{ background: 'linear-gradient(135deg, #1E293B, #0F172A)' }}
                     >
                       {sending ? '...' : otpSent ? t('Resend', 'पुन्हा') : t('Send OTP', 'OTP पाठवा')}
                     </button>
@@ -201,14 +201,14 @@ export default function PhoneVerificationPopup({ isOpen, onVerified }: PhoneVeri
                         value={otp}
                         onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         placeholder={t('6-digit OTP', '6 अंकी OTP')}
-                        className="h-12 flex-1 rounded-[14px] border border-slate-400/15 bg-slate-800/50 px-4 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                        className="h-12 flex-1 rounded-[14px] border border-slate-400/15 bg-slate-800/50 px-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                       />
                       <button
                         type="button"
                         onClick={handleVerifyOtp}
                         disabled={verifying || otp.length !== 6}
                         className="h-12 rounded-full px-5 text-xs font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                        style={{ background: 'linear-gradient(135deg, #1E293B, #0F172A)' }}
                       >
                         {verifying ? '...' : t('Verify', 'सत्यापित करा')}
                       </button>

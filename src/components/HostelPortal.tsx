@@ -106,7 +106,7 @@ function RoomAllotment({ t }: { language: string; t: (en: string, mr: string) =>
 
       {/* Stats - Glass Cards */}
       <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="glass-card-static p-4 text-center" style={{ borderLeft: '4px solid #059669' }}>
+        <div className="glass-card-static p-4 text-center" style={{ borderLeft: '4px solid #D97706' }}>
           <p className="text-2xl font-extrabold gradient-text-emerald">{occupiedCount}</p>
           <p className="text-xs text-slate-500 mt-0.5">{t('Occupied', 'व्यापलेले')}</p>
         </div>

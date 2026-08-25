@@ -26,8 +26,8 @@ export default function PublicLayout() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo / School Name */}
           <Link to="/" className="flex items-center gap-3 text-white no-underline">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30">
-              <School className="h-4 w-4 text-emerald-400" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-500/20 border border-amber-500/30">
+              <School className="h-4 w-4 text-amber-500" />
             </div>
             <span className="hidden font-devanagari text-sm font-semibold text-white sm:inline">
               आश्रमशाळा पाथरज
@@ -45,7 +45,7 @@ export default function PublicLayout() {
                   `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-white/10 text-white'
-                      : 'text-white/80 hover:text-emerald-400 hover:bg-white/5'
+                      : 'text-white/80 hover:text-amber-500 hover:bg-white/5'
                   }`
                 }
               >
@@ -67,7 +67,7 @@ export default function PublicLayout() {
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="hidden items-center gap-1.5 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-400 transition-all hover:bg-emerald-500/20 sm:flex"
+              className="hidden items-center gap-1.5 rounded-full border border-amber-600/50 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-500 transition-all hover:bg-amber-500/20 sm:flex"
             >
               <LogIn className="h-3.5 w-3.5" />
               {t('Login', 'लॉगिन')}
@@ -99,7 +99,7 @@ export default function PublicLayout() {
                     `rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                       isActive
                         ? 'bg-white/10 text-white'
-                        : 'text-white/80 hover:text-emerald-400 hover:bg-white/5'
+                        : 'text-white/80 hover:text-amber-500 hover:bg-white/5'
                     }`
                   }
                 >
@@ -109,7 +109,7 @@ export default function PublicLayout() {
               <button
                 type="button"
                 onClick={() => { setMobileMenuOpen(false); navigate('/login'); }}
-                className="mt-2 flex items-center gap-2 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-400 sm:hidden"
+                className="mt-2 flex items-center gap-2 rounded-full border border-amber-600/50 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-500 sm:hidden"
               >
                 <LogIn className="h-4 w-4" />
                 {t('Login', 'लॉगिन')}
@@ -131,8 +131,8 @@ export default function PublicLayout() {
             {/* School Info */}
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30">
-                  <School className="h-5 w-5 text-emerald-400" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/20 border border-amber-500/30">
+                  <School className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
                   <p className="font-devanagari text-sm font-semibold text-white">आश्रमशाळा पाथरज</p>
@@ -155,7 +155,7 @@ export default function PublicLayout() {
               <ul className="space-y-2">
                 {navLinks.slice(1).map((link) => (
                   <li key={link.to}>
-                    <Link to={link.to} className="text-xs text-slate-400 transition-colors hover:text-emerald-400 no-underline">
+                    <Link to={link.to} className="text-xs text-slate-400 transition-colors hover:text-amber-500 no-underline">
                       {language === 'en' ? link.labelEn : link.labelMr}
                     </Link>
                   </li>
@@ -171,7 +171,7 @@ export default function PublicLayout() {
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>{t('Principal: 9423864391', 'मुख्याध्यापक: ९४२३८६४३९१')}</li>
                 <li>{t('Office: 7666971183', 'कार्यालय: ७६६६९७११८३')}</li>
-                <li className="text-emerald-400">hmpathraj22@gmail.com</li>
+                <li className="text-amber-500">hmpathraj22@gmail.com</li>
               </ul>
             </div>
 

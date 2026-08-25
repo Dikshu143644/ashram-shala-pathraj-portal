@@ -371,7 +371,7 @@ export default function AdmissionPortal() {
             </p>
             <a
               href="tel:7666971183"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-900 transition-colors shadow-sm"
             >
               <Phone className="w-4 h-4" />
               {t('Contact Office', 'कार्यालयाशी संपर्क करा')}

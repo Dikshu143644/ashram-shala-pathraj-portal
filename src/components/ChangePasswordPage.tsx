@@ -50,7 +50,7 @@ export default function ChangePasswordPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F7F7F5] p-4 sm:p-8">
-      <div className="pointer-events-none absolute left-[-10%] top-[15%] h-[400px] w-[400px] rounded-full bg-[#059669]/[0.03] blur-[100px]" />
+      <div className="pointer-events-none absolute left-[-10%] top-[15%] h-[400px] w-[400px] rounded-full bg-[#D97706]/[0.03] blur-[100px]" />
       <div className="pointer-events-none absolute bottom-[10%] right-[-5%] h-[300px] w-[300px] rounded-full bg-black/[0.02] blur-[80px]" />
 
       <motion.button initial={false} onClick={() => setLanguage(language === 'en' ? 'mr' : 'en')} type="button" className="absolute right-4 top-4 z-20 flex min-h-10 items-center gap-2 rounded-full border border-[#E7E7E4] bg-white px-4 text-xs font-medium text-black hover:bg-[#F3F2EF] sm:right-7 sm:top-6">
@@ -77,8 +77,8 @@ export default function ChangePasswordPage() {
 
         {success ? (
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
-              <ShieldCheck className="h-8 w-8 text-emerald-600" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
+              <ShieldCheck className="h-8 w-8 text-amber-600" />
             </div>
             <p className="text-sm text-[#6B6B6B]">{t('Redirecting to portal...', 'पोर्टलवर पुनर्निर्देशित करत आहे...')}</p>
           </div>
@@ -107,7 +107,7 @@ export default function ChangePasswordPage() {
 
             {mustChangePassword && (
               <div className="mt-3 flex flex-col items-center gap-2">
-                <button type="button" onClick={skipPasswordChange} className="text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline">
+                <button type="button" onClick={skipPasswordChange} className="text-xs font-medium text-amber-600 hover:text-amber-700 hover:underline">
                   {t('Skip for now', 'आत्ता वगळा')}
                 </button>
                 <button type="button" onClick={logout} className="text-xs font-medium text-[#6B6B6B] hover:text-black">
@@ -118,7 +118,7 @@ export default function ChangePasswordPage() {
           </form>
         )}
 
-        <div className="mt-6 flex items-center justify-center gap-2 text-center text-[11px] text-[#6B6B6B]"><ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" /><span>{t('Your password is hashed and stored securely', 'तुमचा पासवर्ड हॅश करून सुरक्षितपणे संग्रहित केला जातो')}</span></div>
+        <div className="mt-6 flex items-center justify-center gap-2 text-center text-[11px] text-[#6B6B6B]"><ShieldCheck className="h-4 w-4 shrink-0 text-amber-600" /><span>{t('Your password is hashed and stored securely', 'तुमचा पासवर्ड हॅश करून सुरक्षितपणे संग्रहित केला जातो')}</span></div>
         <p className="font-devanagari mt-5 text-center text-[10px] text-[#A3A3A3]">&copy; 2026 आदिवासी विकास विभाग, महाराष्ट्र शासन</p>
       </motion.section>
     </main>

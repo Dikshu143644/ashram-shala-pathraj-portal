@@ -100,7 +100,7 @@ export default function AcademicsPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-emerald-400 sm:text-sm"
+              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-amber-500 sm:text-sm"
             >
               {t('Education', 'शिक्षण')}
             </motion.p>
@@ -141,7 +141,7 @@ export default function AcademicsPage() {
               <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
                 {t('Standards & Medium', 'इयत्ता आणि माध्यम')}
               </h2>
-              <div className="mx-auto mb-6 h-0.5 w-16 bg-emerald-400" />
+              <div className="mx-auto mb-6 h-0.5 w-16 bg-amber-500" />
             </motion.div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-12">
@@ -159,7 +159,7 @@ export default function AcademicsPage() {
                   transition={{ delay: i * 0.1, duration: 0.5 }}
                   className="rounded-xl border border-white/[0.12] bg-white/5 p-6 text-center backdrop-blur-sm"
                 >
-                  <item.icon className="mx-auto h-6 w-6 mb-3 text-emerald-400" />
+                  <item.icon className="mx-auto h-6 w-6 mb-3 text-amber-500" />
                   <p className="text-sm font-medium text-white">{t(item.labelEn, item.labelMr)}</p>
                 </motion.div>
               ))}
@@ -171,9 +171,9 @@ export default function AcademicsPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="rounded-xl border border-emerald-400/20 bg-emerald-900/20 p-4 text-center backdrop-blur-sm"
+              className="rounded-xl border border-amber-500/20 bg-amber-900/20 p-4 text-center backdrop-blur-sm"
             >
-              <p className="text-sm text-emerald-400">
+              <p className="text-sm text-amber-500">
                 <Lightbulb className="h-4 w-4 inline-block mr-2 -mt-0.5" />
                 {t(
                   'Currently only Arts stream is available for 11th-12th. Science stream may be added in the future based on government approval.',
@@ -197,7 +197,7 @@ export default function AcademicsPage() {
               <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
                 {t('Subjects by Standard', 'इयत्तेनुसार विषय')}
               </h2>
-              <div className="mx-auto mb-4 h-0.5 w-16 bg-emerald-400" />
+              <div className="mx-auto mb-4 h-0.5 w-16 bg-amber-500" />
               <p className="text-sm text-slate-300">
                 {t('Curriculum details for each academic level', 'प्रत्येक शैक्षणिक स्तरासाठी अभ्यासक्रम तपशील')}
               </p>
@@ -215,8 +215,8 @@ export default function AcademicsPage() {
                 >
                   {/* Level header */}
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-emerald-500/10">
-                      <level.icon className="h-4 w-4 text-emerald-400" />
+                    <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-amber-500/10">
+                      <level.icon className="h-4 w-4 text-amber-500" />
                     </div>
                     <h3 className="text-base font-semibold text-white sm:text-lg">
                       {t(level.titleEn, level.titleMr)}
@@ -227,7 +227,7 @@ export default function AcademicsPage() {
                   <ul className="space-y-2.5">
                     {level.subjects.map((subject) => (
                       <li key={subject.en} className="flex items-center gap-2.5">
-                        <div className="h-1.5 w-1.5 rounded-full flex-shrink-0 bg-emerald-400" />
+                        <div className="h-1.5 w-1.5 rounded-full flex-shrink-0 bg-amber-500" />
                         <span className="text-sm text-slate-300">
                           {t(subject.en, subject.mr)}
                         </span>
@@ -253,7 +253,7 @@ export default function AcademicsPage() {
               <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
                 {t('Teaching Staff', 'शिक्षक वर्ग')}
               </h2>
-              <div className="mx-auto mb-4 h-0.5 w-16 bg-emerald-400" />
+              <div className="mx-auto mb-4 h-0.5 w-16 bg-amber-500" />
               <p className="text-sm text-slate-300">
                 {t('Our dedicated educators shaping the future', 'भविष्य घडवणारे आमचे समर्पित शिक्षक')}
               </p>
@@ -270,11 +270,11 @@ export default function AcademicsPage() {
                   className="rounded-xl border border-white/[0.12] bg-white/5 p-6 text-center backdrop-blur-sm"
                 >
                   {/* Avatar placeholder */}
-                  <div className="mx-auto mb-3 h-12 w-12 rounded-full flex items-center justify-center border border-white/[0.12] bg-emerald-500/10">
-                    <Users className="h-5 w-5 text-emerald-400" />
+                  <div className="mx-auto mb-3 h-12 w-12 rounded-full flex items-center justify-center border border-white/[0.12] bg-amber-500/10">
+                    <Users className="h-5 w-5 text-amber-500" />
                   </div>
                   <p className="text-sm font-semibold text-white mb-1">{staff.name}</p>
-                  <p className="text-xs text-emerald-400 mb-1">{staff.role}</p>
+                  <p className="text-xs text-amber-500 mb-1">{staff.role}</p>
                   <p className="text-xs text-slate-400">{staff.subject}</p>
                 </motion.div>
               ))}

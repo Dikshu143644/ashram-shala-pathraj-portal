@@ -127,7 +127,7 @@ export default function AdmissionPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-emerald-400 sm:text-sm"
+              className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-amber-500 sm:text-sm"
             >
               {t('Enrollment', 'नावनोंदणी')}
             </motion.p>
@@ -165,8 +165,8 @@ export default function AdmissionPage() {
               className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 text-center backdrop-blur-md"
             >
               <div className="flex items-center justify-center gap-2 mb-3">
-                <CheckCircle className="h-5 w-5 text-emerald-400" />
-                <span className="inline-flex items-center rounded-full border border-emerald-400/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400">
+                <CheckCircle className="h-5 w-5 text-amber-500" />
+                <span className="inline-flex items-center rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-500">
                   {t('OPEN', 'सुरू')}
                 </span>
               </div>
@@ -196,7 +196,7 @@ export default function AdmissionPage() {
               <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
                 {t('Admission Process', 'प्रवेश प्रक्रिया')}
               </h2>
-              <div className="mx-auto mb-4 h-0.5 w-16 bg-emerald-400" />
+              <div className="mx-auto mb-4 h-0.5 w-16 bg-amber-500" />
               <p className="text-sm text-slate-300">
                 {t('Step-by-step guide to admission', 'प्रवेशासाठी टप्प्याटप्प्याने मार्गदर्शन')}
               </p>
@@ -213,7 +213,7 @@ export default function AdmissionPage() {
                   className="relative flex gap-5 rounded-2xl border border-white/[0.12] bg-white/5 p-6 backdrop-blur-md sm:p-8"
                 >
                   {/* Step number */}
-                  <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold bg-emerald-500 text-white">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold bg-amber-600 text-white">
                     {step.step}
                   </div>
                   <div>
@@ -240,14 +240,14 @@ export default function AdmissionPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
-                  <FileText className="h-5 w-5 text-emerald-400" />
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-amber-500/10">
+                  <FileText className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Required Documents', 'आवश्यक कागदपत्रे')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <ul className="space-y-4">
@@ -260,7 +260,7 @@ export default function AdmissionPage() {
                       transition={{ delay: i * 0.08, duration: 0.4 }}
                       className="flex items-start gap-3"
                     >
-                      <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-400" />
+                      <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-amber-500" />
                       <span className="text-sm text-slate-300">
                         {t(doc.en, doc.mr)}
                       </span>
@@ -282,14 +282,14 @@ export default function AdmissionPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
-                  <UserCheck className="h-5 w-5 text-emerald-400" />
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-amber-500/10">
+                  <UserCheck className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Eligibility', 'पात्रता')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md">
                 <ul className="space-y-4">
@@ -308,7 +308,7 @@ export default function AdmissionPage() {
                       transition={{ delay: i * 0.08, duration: 0.4 }}
                       className="flex items-start gap-3"
                     >
-                      <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-400" />
+                      <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-amber-500" />
                       <span className="text-sm text-slate-300">
                         {t(item.en, item.mr)}
                       </span>
@@ -342,8 +342,8 @@ export default function AdmissionPage() {
               className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-12"
             >
               <div className="text-center mb-8">
-                <div className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center border border-white/10 bg-emerald-500/10">
-                  <ClipboardList className="h-6 w-6 text-emerald-400" />
+                <div className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center border border-white/10 bg-amber-500/10">
+                  <ClipboardList className="h-6 w-6 text-amber-500" />
                 </div>
                 <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
                   {t('Apply Online', 'ऑनलाइन अर्ज करा')}
@@ -357,13 +357,13 @@ export default function AdmissionPage() {
               </div>
 
               {formSuccess ? (
-                <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-6 text-center">
-                  <CheckCircle className="h-10 w-10 text-emerald-400 mx-auto mb-3" />
-                  <p className="text-sm font-semibold text-emerald-300">{formSuccess}</p>
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-6 text-center">
+                  <CheckCircle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
+                  <p className="text-sm font-semibold text-amber-400">{formSuccess}</p>
                   <button
                     type="button"
                     onClick={() => setFormSuccess('')}
-                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-2 text-xs font-semibold text-white hover:bg-emerald-600 transition-colors"
+                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-amber-600 px-6 py-2 text-xs font-semibold text-white hover:bg-amber-700 transition-colors"
                   >
                     {t('Submit Another', 'आणखी एक सबमिट करा')}
                   </button>
@@ -379,7 +379,7 @@ export default function AdmissionPage() {
                       value={applicantName}
                       onChange={(e) => setApplicantName(e.target.value)}
                       placeholder={t('Enter student full name', 'विद्यार्थ्याचे पूर्ण नाव प्रविष्ट करा')}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/50 transition-colors"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors"
                     />
                   </div>
                   <div>
@@ -391,7 +391,7 @@ export default function AdmissionPage() {
                       value={parentName}
                       onChange={(e) => setParentName(e.target.value)}
                       placeholder={t('Enter parent or guardian name', 'पालक किंवा पालकाचे नाव प्रविष्ट करा')}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/50 transition-colors"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors"
                     />
                   </div>
                   <div className="grid gap-5 sm:grid-cols-2">
@@ -404,7 +404,7 @@ export default function AdmissionPage() {
                         value={parentMobile}
                         onChange={(e) => setParentMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
                         placeholder="9876543210"
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/50 transition-colors"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors"
                       />
                     </div>
                     <div>
@@ -416,7 +416,7 @@ export default function AdmissionPage() {
                         value={parentEmail}
                         onChange={(e) => setParentEmail(e.target.value)}
                         placeholder="parent@example.com"
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/50 transition-colors"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors"
                       />
                     </div>
                   </div>
@@ -427,7 +427,7 @@ export default function AdmissionPage() {
                     <select
                       value={standardApplying}
                       onChange={(e) => setStandardApplying(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none appearance-none focus:border-emerald-400/50 transition-colors"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none appearance-none focus:border-amber-500/50 transition-colors"
                     >
                       <option value="" className="bg-slate-900 text-white">{t('Select Standard', 'इयत्ता निवडा')}</option>
                       {[1,2,3,4,5,6,7,8,9,10,11,12].map((s) => (
@@ -446,7 +446,7 @@ export default function AdmissionPage() {
                     <button
                       type="submit"
                       disabled={formLoading}
-                      className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex items-center gap-2 rounded-full bg-amber-600 px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-amber-700 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {formLoading ? (
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -462,7 +462,7 @@ export default function AdmissionPage() {
               <div className="mt-6 text-center">
                 <Link
                   to="/register"
-                  className="inline-flex items-center gap-2 text-xs font-medium text-emerald-400 no-underline transition-colors hover:text-emerald-300"
+                  className="inline-flex items-center gap-2 text-xs font-medium text-amber-500 no-underline transition-colors hover:text-amber-400"
                 >
                   {t('Already have an account? Register & Track', 'आधीच खाते आहे? नोंदणी करा आणि ट्रॅक करा')}
                   <ArrowRight className="h-3 w-3" />
@@ -482,14 +482,14 @@ export default function AdmissionPage() {
               transition={{ duration: 0.7 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-emerald-500/10">
-                  <Phone className="h-5 w-5 text-emerald-400" />
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-amber-500/10">
+                  <Phone className="h-5 w-5 text-amber-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {t('Contact for Inquiries', 'चौकशीसाठी संपर्क')}
                 </h2>
               </div>
-              <div className="mb-8 h-0.5 w-16 bg-emerald-400" />
+              <div className="mb-8 h-0.5 w-16 bg-amber-500" />
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {[
@@ -529,7 +529,7 @@ export default function AdmissionPage() {
                     transition={{ delay: i * 0.1, duration: 0.5 }}
                     className="rounded-xl border border-white/[0.12] bg-white/5 p-5 backdrop-blur-sm"
                   >
-                    <contact.icon className="h-5 w-5 mb-3 text-emerald-400" />
+                    <contact.icon className="h-5 w-5 mb-3 text-amber-500" />
                     <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
                       {t(contact.titleEn, contact.titleMr)}
                     </p>

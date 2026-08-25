@@ -70,7 +70,7 @@ function StaffDirectory({ t, language }: { t: (en: string, mr: string) => string
 
   // Generate avatar initials and color
   const getAvatarColor = (name: string) => {
-    const colors = ['#3b82f6', '#8b5cf6', '#059669', '#d4af37', '#ec4899', '#06b6d4', '#f97316', '#6366f1'];
+    const colors = ['#3b82f6', '#8b5cf6', '#D97706', '#d4af37', '#ec4899', '#06b6d4', '#f97316', '#6366f1'];
     const idx = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0) % colors.length;
     return colors[idx];
   };
@@ -275,7 +275,7 @@ function PODispatch({ t }: { t: (en: string, mr: string) => string }) {
                 style={{
                   background: letterStatus === 'draft'
                     ? 'linear-gradient(135deg, #d4af37, #b8960c)'
-                    : 'linear-gradient(135deg, #059669, #047857)',
+                    : 'linear-gradient(135deg, #1E293B, #0F172A)',
                   boxShadow: letterStatus === 'draft'
                     ? '0 4px 16px rgba(212, 175, 55, 0.35)'
                     : '0 4px 16px rgba(5, 150, 105, 0.35)',
