@@ -17,7 +17,7 @@ function pagination(req: Request): { page: number; perPage: number; from: number
   const parsedPage = Number.parseInt(typeof req.query.page === 'string' ? req.query.page : '1', 10);
   const parsedPerPage = Number.parseInt(typeof req.query.perPage === 'string' ? req.query.perPage : '50', 10);
   const page = Number.isFinite(parsedPage) ? Math.min(Math.max(parsedPage, 1), 10_000) : 1;
-  const perPage = Number.isFinite(parsedPerPage) ? Math.min(Math.max(parsedPerPage, 1), 100) : 50;
+  const perPage = Number.isFinite(parsedPerPage) ? Math.min(Math.max(parsedPerPage, 1), 500) : 50;
   const from = (page - 1) * perPage;
   return { page, perPage, from, to: from + perPage - 1 };
 }

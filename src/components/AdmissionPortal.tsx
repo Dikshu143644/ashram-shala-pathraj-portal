@@ -62,6 +62,7 @@ export default function AdmissionPortal() {
       const params = new URLSearchParams();
       if (filterStd) params.set('standard', filterStd);
       if (search) params.set('search', search);
+      params.set('perPage', '500');
       const response = await fetch(`/api/students?${params.toString()}`);
       const result = await response.json();
       setStudentsData(result.data || []);
@@ -412,8 +413,8 @@ export default function AdmissionPortal() {
         <div className="px-4 py-2.5 border-t border-slate-200/50 text-xs text-slate-500" style={{ background: 'rgba(248, 250, 252, 0.6)' }}>
           {isParent && studentsData.length === 0
             ? t(`School has ${schoolStats.totalStudents} students total`, `शाळेत एकूण ${schoolStats.totalStudents} विद्यार्थी आहेत`)
-            : t(`Showing ${Math.min(50, studentsData.length)} of ${studentsData.length} students`,
-               `${studentsData.length} पैकी ${Math.min(50, studentsData.length)} विद्यार्थी दर्शवित आहे`)}
+            : t(`Showing ${studentsData.length} of ${studentsData.length} students`,
+               `${studentsData.length} पैकी ${studentsData.length} विद्यार्थी दर्शवित आहे`)}
         </div>
       </div>
     </motion.div>
