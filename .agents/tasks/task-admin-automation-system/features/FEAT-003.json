@@ -1,0 +1,25 @@
+{
+  "id": "FEAT-003",
+  "type": "chore",
+  "description": "Run database migration against live Supabase, commit all changes, and push to main",
+  "status": "pending",
+  "steps": [
+    "Run the Supabase migration: source /root/.nvm/nvm.sh && export SUPABASE_ACCESS_TOKEN=\"***\" && cd /projects/sandbox/ashram-shala-pathraj-portal && supabase db push",
+    "Run final lint check: source /root/.nvm/nvm.sh && npm run lint",
+    "Run final build: source /root/.nvm/nvm.sh && npm run build",
+    "Git add all changed files, commit with message 'feat: content safety agent, activity monitor, WhatsApp notifications, full admin panel', and push to main"
+  ],
+  "acceptance_criteria": [
+    "Migration runs successfully against live Supabase",
+    "Lint passes cleanly",
+    "Build succeeds",
+    "All changes committed and pushed to main"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build",
+    "git log --oneline -1 shows the correct commit message"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

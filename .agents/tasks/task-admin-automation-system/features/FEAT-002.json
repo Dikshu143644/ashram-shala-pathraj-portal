@@ -1,0 +1,27 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Update SuperAdminCenter.tsx to make all admin tabs fully functional with real API data - Event Approvals (from DB), Audit Logs (with filters), enhanced Gallery (content safety status), and Applications (with approve/reject actions)",
+  "status": "pending",
+  "steps": [
+    "Update Event Approvals tab: Replace hardcoded initialEvents with API fetch from GET /api/admin/events. Add approve/reject handlers that call PATCH /api/admin/events/:id/approve and PATCH /api/admin/events/:id/reject. Show pending/approved/rejected status from DB.",
+    "Update Audit Logs tab: Add filter controls for user (text input), action type (dropdown from actionColors keys), and date range (date pickers). Fetch from GET /api/admin/audit-logs?user=X&action=Y&from=Z&to=W. Keep the existing table rendering style.",
+    "Update Gallery tab: After upload completes, call POST /api/content/analyze with the image URL. Show safety_status badge (approved/pending/rejected) on each gallery image. If content is flagged as unsafe, show a warning and mark it.",
+    "Update Applications tab: Add Approve/Reject/Mark as Reviewed buttons to each application row. Call PATCH /api/admin/applications/:id with { status: 'approved'|'rejected'|'reviewed' }. Show action buttons only for pending applications.",
+    "Ensure all new imports compile (lucide-react icons already imported). Keep bilingual t(en, mr) pattern for all new UI text."
+  ],
+  "acceptance_criteria": [
+    "Event Approvals tab fetches from API and approve/reject calls backend",
+    "Audit Logs tab has working filters for user, action type, and date range",
+    "Gallery tab shows safety_status on images and triggers content analysis on upload",
+    "Applications tab has functional approve/reject/reviewed buttons",
+    "npm run lint passes",
+    "npm run build completes successfully"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

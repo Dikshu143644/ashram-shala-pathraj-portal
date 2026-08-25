@@ -1,0 +1,28 @@
+{
+  "project_type": "Full-stack Express + React SPA (Vite + Tailwind)",
+  "language": "TypeScript",
+  "build_system": "vite (frontend) + esbuild (server bundle), npm scripts",
+  "test_framework": "No automated test runner configured; manual lint-only (tsc --noEmit)",
+  "build_command": "source /root/.nvm/nvm.sh && npm run build",
+  "test_command": "source /root/.nvm/nvm.sh && npm run lint",
+  "verification_instructions": "1. Run lint: source /root/.nvm/nvm.sh && npm run lint  2. Run build: source /root/.nvm/nvm.sh && npm run build  3. Run migration: source /root/.nvm/nvm.sh && export SUPABASE_ACCESS_TOKEN=\"***\" && supabase db push",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "source /root/.nvm/nvm.sh - must be run before all npm/node commands. Node v22.23.2, npm 11.4.2 already installed.",
+  "environment_constraints": "OPEN_INTERNET network mode. Supabase CLI already linked. Must prefix all commands with 'source /root/.nvm/nvm.sh'.",
+  "contribution_requirements": "Commit message format: 'feat: ...' Push directly to main.",
+  "key_patterns": "Server modules export registerXxxRoutes(app, supabase). Security middleware: requireSession(roles[]), durableRateLimit, concurrencyGate, requireSameOrigin. Frontend uses useAppContext() for language, bilingual t(en, mr) helper. Motion/react for animations, glass-card-static CSS class. Supabase service-role client created in app.ts and passed to all route modules.",
+  "relevant_files": [
+    "server/app.ts",
+    "server/data.ts",
+    "server/security.ts",
+    "server/auth.ts",
+    "server/automations.ts",
+    "server/whatsapp-bot.ts",
+    "src/components/SuperAdminCenter.tsx",
+    "src/components/AdminCrudPanel.tsx",
+    "package.json",
+    "tsconfig.json",
+    "supabase/migrations/"
+  ],
+  "directory_structure": "Root: server/ (Express route modules), src/ (React SPA with components, contexts), supabase/migrations/ (SQL migrations), dist/ (build output), public/ (static assets)"
+}

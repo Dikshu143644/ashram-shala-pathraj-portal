@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Database migration, WhatsApp notification service, content safety agent, and activity monitor - all backend modules",
+  "status": "in_progress",
+  "steps": [
+    "Create supabase/migrations/202508250002_activity_monitor.sql with: activity_logs table (id UUID PK, user_id UUID, username TEXT, role TEXT, action TEXT NOT NULL, details JSONB DEFAULT '{}', ip_address TEXT, created_at TIMESTAMPTZ DEFAULT now()), indexes on created_at and user_id. events table (id UUID PK, title TEXT NOT NULL, description TEXT, event_date TIMESTAMPTZ, created_by UUID, status TEXT DEFAULT 'pending', approved_by UUID, approved_at TIMESTAMPTZ, created_at TIMESTAMPTZ DEFAULT now()). ALTER gallery_images ADD COLUMN IF NOT EXISTS safety_status TEXT DEFAULT 'approved', ADD COLUMN IF NOT EXISTS safety_score FLOAT. ALTER applications ADD COLUMN IF NOT EXISTS reviewed_by UUID, ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ.",
+    "Create server/whatsapp-notify.ts: export function sendWhatsAppMessage(phone: string, message: string) using Meta WhatsApp Business API (env vars: WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_ACCESS_TOKEN). If not configured, log to console (dev mode). Export a helper sendAdminNotification(message) that sends to hardcoded admin number 7666971183. Notify for: new registrations, staff logins, content uploads, event approvals, application submissions.",
+    "Create server/content-safety.ts: Use Gemini Vision API (env: GEMINI_API_KEY, model gemini-2.0-flash) to analyze uploaded images. Export function analyzeImageSafety(imageUrl: string) returning { safe: boolean, score: number, reasons: string[] }. Register POST /api/content/analyze endpoint that accepts { imageUrl } and returns safety result. If unsafe: log to security_logs, call sendAdminNotification. Follow the same registerXxxRoutes(app, supabase) pattern.",
+    "Create server/activity-monitor.ts: Export activityLogMiddleware that logs user actions (login, page views, form submissions, uploads, deletions) to activity_logs table. Skip logging for web_creator role. Export registerActivityMonitorRoutes(app, supabase) with a GET /api/admin/activity-logs endpoint for admins. Set up a 15-minute interval that compiles a digest in Marathi format and sends via sendAdminNotification. The digest format: '🏫 आश्रमशाळा पाथरज - Activity Report\\n⏰ [time range]\\n👤 Logins: [count]\\n📝 Actions: [list of key actions]\\n⚠️ Alerts: [any suspicious activity]'",
+    "Register all new modules in server/app.ts: import and register activityLogMiddleware BEFORE route handlers (app.use), then register content-safety routes, activity-monitor routes. Import sendAdminNotification from whatsapp-notify.",
+    "Create server admin API routes for events: GET /api/admin/events (pending events), PATCH /api/admin/events/:id/approve, PATCH /api/admin/events/:id/reject. Also create GET /api/admin/audit-logs with filters for user, action type, date range. Create PATCH /api/admin/applications/:id for approve/reject. Create POST /api/admin/link-parent endpoint if not existing. All these can go in a new server/admin-routes.ts file following the same pattern."
+  ],
+  "acceptance_criteria": [
+    "supabase/migrations/202508250002_activity_monitor.sql exists with correct schema",
+    "server/whatsapp-notify.ts exports sendWhatsAppMessage and sendAdminNotification functions",
+    "server/content-safety.ts exports analyzeImageSafety and registers POST /api/content/analyze",
+    "server/activity-monitor.ts exports activityLogMiddleware and registerActivityMonitorRoutes",
+    "server/admin-routes.ts provides event approval, audit log, and applications admin endpoints",
+    "server/app.ts imports and registers all new modules with activity middleware before routes",
+    "npm run lint passes with no errors",
+    "npm run build completes successfully"
+  ],
+  "verification": [
+    "source /root/.nvm/nvm.sh && npm run lint",
+    "source /root/.nvm/nvm.sh && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

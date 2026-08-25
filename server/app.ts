@@ -10,6 +10,9 @@ import { registerCallingAgentRoutes } from './calling-agent.js';
 import { registerSmsOtpRoutes } from './sms-otp.js';
 import { registerAutomationRoutes } from './automations.js';
 import { configureSecurity, durableRateLimit } from './security.js';
+import { activityLogMiddleware, registerActivityMonitorRoutes } from './activity-monitor.js';
+import { registerContentSafetyRoutes } from './content-safety.js';
+import { registerAdminRoutes } from './admin-routes.js';
 
 export function createApiApp() {
   const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -51,6 +54,9 @@ export function createApiApp() {
     windowSeconds: 60,
   }));
 
+  // Activity logging middleware - BEFORE route handlers
+  app.use('/api', activityLogMiddleware(supabase));
+
   registerAuthRoutes(app, supabase);
   registerDataRoutes(app, supabase);
   registerAgentRoutes(app, supabase);
@@ -59,6 +65,9 @@ export function createApiApp() {
   registerCallingAgentRoutes(app, supabase);
   registerSmsOtpRoutes(app, supabase);
   registerAutomationRoutes(app, supabase);
+  registerContentSafetyRoutes(app, supabase);
+  registerActivityMonitorRoutes(app, supabase);
+  registerAdminRoutes(app, supabase);
 
   app.use('/api', (_req: Request, res: Response) => {
     res.status(404).json({ error: 'API endpoint not found.' });
