@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap, UserPlus, Link, Image, FileText } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { CheckCircle, XCircle, MessageSquare, Shield, Clock, User, Activity, Server, Database, Wifi, GraduationCap, UserPlus, Link, Image, FileText, Filter, Search, AlertTriangle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../contexts/AppContext';
 import AdminCrudPanel from './AdminCrudPanel';
@@ -9,14 +9,16 @@ type AdminTab = 'events' | 'audit' | 'students' | 'accounts' | 'linking' | 'gall
 interface PendingEvent {
   id: string;
   title: string;
-  titleMr: string;
-  date: string;
-  description: string;
+  description: string | null;
+  event_date: string | null;
   status: 'pending' | 'approved' | 'rejected';
-  comment: string;
+  created_by: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  created_at: string;
 }
 
-interface SecurityLogEntry {
+interface AuditLogEntry {
   id: string;
   action: string;
   user_id: string | null;
@@ -25,16 +27,6 @@ interface SecurityLogEntry {
   details: string | null;
   created_at: string;
 }
-
-const initialEvents: PendingEvent[] = [
-  { id: '1', title: 'Republic Day Celebration', titleMr: 'प्रजासत्ताक दिन सोहळा', date: '2025-01-26', description: 'Flag hoisting, march past, cultural programme', status: 'pending', comment: '' },
-  { id: '2', title: 'Annual Sports Day', titleMr: 'वार्षिक क्रीडा दिन', date: '2025-02-15', description: 'Athletic events, team sports, prize distribution', status: 'pending', comment: '' },
-  { id: '3', title: 'Parent-Teacher Meeting', titleMr: 'पालक-शिक्षक बैठक', date: '2025-01-20', description: 'Quarterly progress report discussion', status: 'pending', comment: '' },
-  { id: '4', title: 'Science Exhibition', titleMr: 'विज्ञान प्रदर्शन', date: '2025-03-05', description: 'Student projects display and judging', status: 'pending', comment: '' },
-  { id: '5', title: 'Tribal Culture Day', titleMr: 'आदिवासी संस्कृती दिन', date: '2025-02-20', description: 'Celebration of tribal heritage and customs', status: 'pending', comment: '' },
-  { id: '6', title: 'Tree Plantation Drive', titleMr: 'वृक्षारोपण मोहीम', date: '2025-07-15', description: 'Environmental awareness and planting 100 saplings', status: 'pending', comment: '' },
-  { id: '7', title: 'Independence Day', titleMr: 'स्वातंत्र्य दिन', date: '2025-08-15', description: 'Patriotic programme and flag hoisting ceremony', status: 'pending', comment: '' },
-];
 
 const actionColors: Record<string, string> = {
   login_success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -52,6 +44,10 @@ const actionColors: Record<string, string> = {
   gallery_image_deleted: 'bg-orange-50 text-orange-700 border-orange-200',
   account_created: 'bg-cyan-50 text-cyan-700 border-cyan-200',
   parent_student_linked: 'bg-pink-50 text-pink-700 border-pink-200',
+  event_approved: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  event_rejected: 'bg-red-50 text-red-700 border-red-200',
+  content_flagged: 'bg-orange-50 text-orange-700 border-orange-200',
+  application_reviewed: 'bg-blue-50 text-blue-700 border-blue-200',
 };
 
 const staffRoleOptions = [
@@ -138,6 +134,7 @@ function CreateStaffAccountPanel({ language, t }: { language: string; t: (en: st
 }
 
 function LinkParentStudentPanel({ language, t }: { language: string; t: (en: string, mr: string) => string }) {
+  void language;
   const [parentMobileOrId, setParentMobileOrId] = useState('');
   const [studentIdsText, setStudentIdsText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -267,13 +264,23 @@ function LinkParentStudentPanel({ language, t }: { language: string; t: (en: str
   );
 }
 
+interface GalleryImage {
+  id: string;
+  url: string;
+  caption: string | null;
+  created_at: string;
+  safety_status?: string | null;
+  safety_score?: number | null;
+}
+
 function GalleryUploadPanel({ t }: { t: (en: string, mr: string) => string }) {
   const [caption, setCaption] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [galleryImages, setGalleryImages] = useState<Array<{ id: string; url: string; caption: string | null; created_at: string }>>([]);
+  const [safetyWarning, setSafetyWarning] = useState('');
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [imagesLoading, setImagesLoading] = useState(true);
 
   const fetchGalleryImages = () => {
@@ -291,6 +298,7 @@ function GalleryUploadPanel({ t }: { t: (en: string, mr: string) => string }) {
     event.preventDefault();
     setError('');
     setSuccess('');
+    setSafetyWarning('');
 
     if (!imageFile) { setError(t('Please select an image file.', 'कृपया एक प्रतिमा फाइल निवडा.')); return; }
     if (imageFile.size > 10 * 1024 * 1024) { setError(t('Image too large (max 10MB).', 'प्रतिमा खूप मोठी आहे (कमाल 10MB).')); return; }
@@ -316,6 +324,27 @@ function GalleryUploadPanel({ t }: { t: (en: string, mr: string) => string }) {
       });
       const data = await response.json();
       if (response.ok && data.data) {
+        // Run content safety analysis on the uploaded image
+        const imageUrl = data.data.url || data.data.image_url;
+        if (imageUrl) {
+          try {
+            const safetyRes = await fetch('/api/content/analyze', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ imageUrl }),
+            });
+            const safetyData = await safetyRes.json();
+            if (safetyRes.ok && safetyData.safe === false) {
+              setSafetyWarning(t(
+                `Content flagged as potentially unsafe (score: ${safetyData.score?.toFixed(2)}). Reasons: ${safetyData.reasons?.join(', ') || 'Unknown'}`,
+                `सामग्री संभाव्यतः असुरक्षित म्हणून चिन्हांकित (स्कोअर: ${safetyData.score?.toFixed(2)}). कारणे: ${safetyData.reasons?.join(', ') || 'अज्ञात'}`
+              ));
+            }
+          } catch {
+            // Content safety check failed silently - image still uploaded
+          }
+        }
+
         setSuccess(t('Image uploaded successfully!', 'प्रतिमा यशस्वीरित्या अपलोड झाली!'));
         setCaption('');
         setImageFile(null);
@@ -340,6 +369,19 @@ function GalleryUploadPanel({ t }: { t: (en: string, mr: string) => string }) {
     } catch { /* ignore */ }
   };
 
+  const getSafetyBadge = (status: string | null | undefined) => {
+    if (!status || status === 'approved') {
+      return <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">{t('Safe', 'सुरक्षित')}</span>;
+    }
+    if (status === 'pending') {
+      return <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-amber-50 text-amber-700 border border-amber-200">{t('Pending', 'प्रलंबित')}</span>;
+    }
+    if (status === 'rejected' || status === 'flagged') {
+      return <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-red-50 text-red-700 border border-red-200">{t('Flagged', 'चिन्हांकित')}</span>;
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       <div className="glass-card-static p-6 max-w-lg">
@@ -360,6 +402,12 @@ function GalleryUploadPanel({ t }: { t: (en: string, mr: string) => string }) {
           </div>
 
           {error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>}
+          {safetyWarning && (
+            <div className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-700 flex items-center gap-2">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+              {safetyWarning}
+            </div>
+          )}
           {success && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{success}</div>}
 
           <button type="submit" disabled={isLoading || !imageFile} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-black text-sm font-semibold text-white hover:bg-[#1a1a1a] disabled:opacity-55">
@@ -383,7 +431,10 @@ function GalleryUploadPanel({ t }: { t: (en: string, mr: string) => string }) {
             {galleryImages.map((img) => (
               <div key={img.id} className="relative group rounded-xl overflow-hidden border border-[#E7E7E4]">
                 <img src={img.url} alt={img.caption || 'Gallery'} className="w-full h-32 object-cover" />
-                {img.caption && <p className="px-2 py-1 text-xs text-slate-600 truncate">{img.caption}</p>}
+                <div className="px-2 py-1 flex items-center justify-between gap-1">
+                  {img.caption && <p className="text-xs text-slate-600 truncate flex-1">{img.caption}</p>}
+                  {getSafetyBadge(img.safety_status)}
+                </div>
                 <button
                   type="button"
                   onClick={() => handleDelete(img.id)}
@@ -404,6 +455,7 @@ function ApplicationsPanel({ t }: { t: (en: string, mr: string) => string }) {
   const [applications, setApplications] = useState<Array<{ id: string; applicant_name: string; parent_name: string; parent_mobile: string; parent_email: string | null; standard_applying: number | null; status: string; created_at: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -416,6 +468,24 @@ function ApplicationsPanel({ t }: { t: (en: string, mr: string) => string }) {
       .catch(() => setError(t('Failed to load applications.', 'अर्ज लोड करता आले नाहीत.')))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleStatusChange = async (id: string, newStatus: 'approved' | 'rejected' | 'reviewed') => {
+    setActionLoading(id);
+    try {
+      const response = await fetch(`/api/admin/applications/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (response.ok) {
+        setApplications(prev => prev.map(app => app.id === id ? { ...app, status: newStatus } : app));
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   return (
     <div className="glass-card-static overflow-hidden">
@@ -446,6 +516,7 @@ function ApplicationsPanel({ t }: { t: (en: string, mr: string) => string }) {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Mobile', 'मोबाईल')}</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Standard', 'इयत्ता')}</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Status', 'स्थिती')}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Actions', 'क्रिया')}</th>
               </tr>
             </thead>
             <tbody>
@@ -460,10 +531,45 @@ function ApplicationsPanel({ t }: { t: (en: string, mr: string) => string }) {
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${
                       app.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                       app.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' :
+                      app.status === 'reviewed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
                       'bg-amber-50 text-amber-700 border-amber-200'
                     }`}>
                       {app.status}
                     </span>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    {(app.status === 'pending' || app.status === 'submitted') ? (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleStatusChange(app.id, 'approved')}
+                          disabled={actionLoading === app.id}
+                          className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-medium border border-emerald-200 hover:bg-emerald-100 disabled:opacity-50"
+                          title={t('Approve', 'मंजूर करा')}
+                        >
+                          <CheckCircle className="w-3 h-3 inline mr-0.5" />
+                          {t('Approve', 'मंजूर')}
+                        </button>
+                        <button
+                          onClick={() => handleStatusChange(app.id, 'rejected')}
+                          disabled={actionLoading === app.id}
+                          className="px-2 py-1 rounded-lg bg-red-50 text-red-700 text-[10px] font-medium border border-red-200 hover:bg-red-100 disabled:opacity-50"
+                          title={t('Reject', 'नाकारा')}
+                        >
+                          <XCircle className="w-3 h-3 inline mr-0.5" />
+                          {t('Reject', 'नाकारा')}
+                        </button>
+                        <button
+                          onClick={() => handleStatusChange(app.id, 'reviewed')}
+                          disabled={actionLoading === app.id}
+                          className="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-medium border border-blue-200 hover:bg-blue-100 disabled:opacity-50"
+                          title={t('Mark Reviewed', 'पुनरावलोकन केले')}
+                        >
+                          {t('Review', 'पुनरावलोकन')}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400">-</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -479,36 +585,101 @@ export default function SuperAdminCenter() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
   const [activeTab, setActiveTab] = useState<AdminTab>('events');
-  const [events, setEvents] = useState<PendingEvent[]>(initialEvents);
-  const [securityLogs, setSecurityLogs] = useState<SecurityLogEntry[]>([]);
+
+  // Event Approvals state
+  const [events, setEvents] = useState<PendingEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [eventsError, setEventsError] = useState('');
+  const [eventActionLoading, setEventActionLoading] = useState<string | null>(null);
+
+  // Audit Logs state
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
   const [logsError, setLogsError] = useState('');
+  const [logFilterUser, setLogFilterUser] = useState('');
+  const [logFilterAction, setLogFilterAction] = useState('');
+  const [logFilterFrom, setLogFilterFrom] = useState('');
+  const [logFilterTo, setLogFilterTo] = useState('');
+  const [logPage, setLogPage] = useState(1);
+  const [logTotalPages, setLogTotalPages] = useState(1);
+
+  // Fetch events from API
+  const fetchEvents = useCallback(() => {
+    setEventsLoading(true);
+    setEventsError('');
+    fetch('/api/admin/events?status=all')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch events');
+        return res.json();
+      })
+      .then(result => setEvents(result.data || []))
+      .catch(() => setEventsError(t('Failed to load events.', 'कार्यक्रम लोड करता आले नाहीत.')))
+      .finally(() => setEventsLoading(false));
+  }, [language]);
+
+  // Fetch audit logs with filters
+  const fetchAuditLogs = useCallback(() => {
+    setLogsLoading(true);
+    setLogsError('');
+    const params = new URLSearchParams();
+    if (logFilterUser.trim()) params.set('user', logFilterUser.trim());
+    if (logFilterAction) params.set('action', logFilterAction);
+    if (logFilterFrom) params.set('from', logFilterFrom);
+    if (logFilterTo) params.set('to', logFilterTo);
+    params.set('page', String(logPage));
+    params.set('perPage', '50');
+
+    fetch(`/api/admin/audit-logs?${params.toString()}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
+      .then(result => {
+        setAuditLogs(result.data || []);
+        setLogTotalPages(result.totalPages || 1);
+      })
+      .catch(() => setLogsError(t('Failed to load audit logs.', 'ऑडिट नोंदी लोड करता आल्या नाहीत.')))
+      .finally(() => setLogsLoading(false));
+  }, [logFilterUser, logFilterAction, logFilterFrom, logFilterTo, logPage, language]);
+
+  useEffect(() => {
+    if (activeTab === 'events') {
+      fetchEvents();
+    }
+  }, [activeTab, fetchEvents]);
 
   useEffect(() => {
     if (activeTab === 'audit') {
-      setLogsLoading(true);
-      setLogsError('');
-      fetch('/api/admin/security-logs')
-        .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch');
-          return res.json();
-        })
-        .then(result => setSecurityLogs(result.data || []))
-        .catch(() => setLogsError(t('Failed to load security logs.', 'सुरक्षा नोंदी लोड करता आल्या नाहीत.')))
-        .finally(() => setLogsLoading(false));
+      fetchAuditLogs();
     }
-  }, [activeTab]);
+  }, [activeTab, fetchAuditLogs]);
 
-  const handleApprove = (id: string) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, status: 'approved' as const } : e));
+  const handleApprove = async (id: string) => {
+    setEventActionLoading(id);
+    try {
+      const res = await fetch(`/api/admin/events/${id}/approve`, { method: 'PATCH' });
+      if (res.ok) {
+        setEvents(prev => prev.map(e => e.id === id ? { ...e, status: 'approved' as const } : e));
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setEventActionLoading(null);
+    }
   };
 
-  const handleReject = (id: string) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, status: 'rejected' as const } : e));
-  };
-
-  const handleCommentChange = (id: string, comment: string) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, comment } : e));
+  const handleReject = async (id: string) => {
+    setEventActionLoading(id);
+    try {
+      const res = await fetch(`/api/admin/events/${id}/reject`, { method: 'PATCH' });
+      if (res.ok) {
+        setEvents(prev => prev.map(e => e.id === id ? { ...e, status: 'rejected' as const } : e));
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setEventActionLoading(null);
+    }
   };
 
   return (
@@ -626,139 +797,226 @@ export default function SuperAdminCenter() {
 
       {activeTab === 'events' && (
         <div className="space-y-3">
-          {events.map((event) => (
-            <motion.div
-              key={event.id}
-              layout
-              whileHover={{ scale: 1.01 }}
-              className={`glass-card-static p-5 transition-all ${
-                event.status === 'approved' ? 'border-emerald-200' :
-                event.status === 'rejected' ? 'border-red-200' :
-                ''
-              }`}
-              style={
-                event.status === 'approved' ? { background: 'rgba(236, 253, 245, 0.7)' } :
-                event.status === 'rejected' ? { background: 'rgba(254, 242, 242, 0.7)' } :
-                {}
-              }
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    {/* Timeline dot */}
-                    <div className={`w-3 h-3 rounded-full shrink-0 ${
-                      event.status === 'approved' ? 'bg-emerald-500' :
-                      event.status === 'rejected' ? 'bg-red-500' :
-                      'bg-amber-400'
-                    }`} />
-                    <h4 className="font-semibold text-slate-800">
-                      {language === 'mr' ? event.titleMr : event.title}
-                    </h4>
+          {eventsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <span className="h-6 w-6 animate-spin rounded-full border-2 border-black/20 border-t-black" />
+              <span className="ml-3 text-sm text-[#6B6B6B]">{t('Loading events...', 'कार्यक्रम लोड होत आहेत...')}</span>
+            </div>
+          ) : eventsError ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-sm text-red-600">{eventsError}</p>
+            </div>
+          ) : events.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-sm text-[#6B6B6B]">{t('No events found.', 'कोणतेही कार्यक्रम सापडले नाहीत.')}</p>
+            </div>
+          ) : (
+            events.map((event) => (
+              <motion.div
+                key={event.id}
+                layout
+                whileHover={{ scale: 1.01 }}
+                className={`glass-card-static p-5 transition-all ${
+                  event.status === 'approved' ? 'border-emerald-200' :
+                  event.status === 'rejected' ? 'border-red-200' :
+                  ''
+                }`}
+                style={
+                  event.status === 'approved' ? { background: 'rgba(236, 253, 245, 0.7)' } :
+                  event.status === 'rejected' ? { background: 'rgba(254, 242, 242, 0.7)' } :
+                  {}
+                }
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      {/* Timeline dot */}
+                      <div className={`w-3 h-3 rounded-full shrink-0 ${
+                        event.status === 'approved' ? 'bg-emerald-500' :
+                        event.status === 'rejected' ? 'bg-red-500' :
+                        'bg-amber-400'
+                      }`} />
+                      <h4 className="font-semibold text-slate-800">
+                        {event.title}
+                      </h4>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1 ml-6">
+                      <span className="font-medium">{event.event_date ? new Date(event.event_date).toLocaleDateString() : '-'}</span>
+                      {event.description ? ` - ${event.description}` : ''}
+                    </p>
+                    {event.status !== 'pending' && (
+                      <span className={`inline-block mt-2 ml-6 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        event.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                      }`}>
+                        {event.status === 'approved' ? t('Approved', 'मंजूर') : t('Rejected', 'नाकारले')}
+                      </span>
+                    )}
                   </div>
-                  <p className="text-xs text-slate-500 mt-1 ml-6">
-                    <span className="font-medium">{event.date}</span> - {event.description}
-                  </p>
-                  {event.status !== 'pending' && (
-                    <span className={`inline-block mt-2 ml-6 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      event.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                      {event.status === 'approved' ? t('Approved', 'मंजूर') : t('Rejected', 'नाकारले')}
-                    </span>
+                  {event.status === 'pending' && (
+                    <div className="flex items-center gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleApprove(event.id)}
+                        disabled={eventActionLoading === event.id}
+                        className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors border border-emerald-200 disabled:opacity-50"
+                        title={t('Approve', 'मंजूर करा')}
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleReject(event.id)}
+                        disabled={eventActionLoading === event.id}
+                        className="p-2.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 transition-colors border border-red-200 disabled:opacity-50"
+                        title={t('Reject', 'नाकारा')}
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </motion.button>
+                    </div>
                   )}
                 </div>
-                {event.status === 'pending' && (
-                  <div className="flex items-center gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleApprove(event.id)}
-                      className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors border border-emerald-200"
-                      title="Approve"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleReject(event.id)}
-                      className="p-2.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 transition-colors border border-red-200"
-                      title="Reject"
-                    >
-                      <XCircle className="w-4 h-4" />
-                    </motion.button>
-                  </div>
-                )}
-              </div>
-              {event.status === 'pending' && (
-                <div className="mt-3 ml-6 flex items-center gap-2">
-                  <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
-                  <input
-                    type="text"
-                    value={event.comment}
-                    onChange={(e) => handleCommentChange(event.id, e.target.value)}
-                    placeholder={t('Add comment...', 'टिप्पणी जोडा...')}
-                    className="flex-1 px-3.5 py-2 border-[1.5px] border-slate-200 rounded-xl text-xs outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
-                  />
-                </div>
-              )}
-            </motion.div>
-          ))}
+              </motion.div>
+            ))
+          )}
         </div>
       )}
 
       {activeTab === 'audit' && (
-        <div className="glass-card-static overflow-hidden">
-          {logsLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <span className="h-6 w-6 animate-spin rounded-full border-2 border-black/20 border-t-black" />
-              <span className="ml-3 text-sm text-[#6B6B6B]">{t('Loading security logs...', 'सुरक्षा नोंदी लोड होत आहेत...')}</span>
+        <div className="space-y-4">
+          {/* Filter Controls */}
+          <div className="glass-card-static p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Filter className="w-4 h-4 text-slate-500" />
+              <span className="text-sm font-medium text-slate-700">{t('Filters', 'फिल्टर')}</span>
             </div>
-          ) : logsError ? (
-            <div className="flex items-center justify-center py-12">
-              <p className="text-sm text-red-600">{logsError}</p>
-            </div>
-          ) : securityLogs.length === 0 ? (
-            <div className="flex items-center justify-center py-12">
-              <p className="text-sm text-[#6B6B6B]">{t('No security events recorded.', 'कोणतेही सुरक्षा कार्यक्रम नोंदवलेले नाहीत.')}</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="portal-table w-full text-sm">
-                <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                      <Clock className="w-3 h-3 inline mr-1 relative -top-px" />{t('Timestamp', 'वेळ')}
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                      <User className="w-3 h-3 inline mr-1 relative -top-px" />{t('User', 'वापरकर्ता')}
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                      <Activity className="w-3 h-3 inline mr-1 relative -top-px" />{t('Action', 'कृती')}
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('IP Address', 'IP पत्ता')}</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Details', 'तपशील')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {securityLogs.map((entry, idx) => (
-                    <tr key={entry.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
-                      <td className="px-4 py-2.5 text-xs font-mono text-slate-500">
-                        {new Date(entry.created_at).toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-medium text-slate-700">{entry.username || '-'}</td>
-                      <td className="px-4 py-2.5">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${actionColors[entry.action] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
-                          {entry.action}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 text-xs font-mono text-slate-500">{entry.ip_address || '-'}</td>
-                      <td className="px-4 py-2.5 text-xs text-slate-600 max-w-[200px] truncate">{entry.details || '-'}</td>
-                    </tr>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">{t('User', 'वापरकर्ता')}</label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={logFilterUser}
+                    onChange={(e) => { setLogFilterUser(e.target.value); setLogPage(1); }}
+                    placeholder={t('Search user...', 'वापरकर्ता शोधा...')}
+                    className="w-full h-9 rounded-lg border border-[#E7E7E4] pl-8 pr-3 text-xs focus:border-black focus:ring-2 focus:ring-black/10 outline-none"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">{t('Action Type', 'क्रिया प्रकार')}</label>
+                <select
+                  value={logFilterAction}
+                  onChange={(e) => { setLogFilterAction(e.target.value); setLogPage(1); }}
+                  className="w-full h-9 rounded-lg border border-[#E7E7E4] px-3 text-xs focus:border-black focus:ring-2 focus:ring-black/10 outline-none"
+                >
+                  <option value="">{t('All Actions', 'सर्व क्रिया')}</option>
+                  {Object.keys(actionColors).map(action => (
+                    <option key={action} value={action}>{action}</option>
                   ))}
-                </tbody>
-              </table>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">{t('From Date', 'पासून')}</label>
+                <input
+                  type="date"
+                  value={logFilterFrom}
+                  onChange={(e) => { setLogFilterFrom(e.target.value); setLogPage(1); }}
+                  className="w-full h-9 rounded-lg border border-[#E7E7E4] px-3 text-xs focus:border-black focus:ring-2 focus:ring-black/10 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">{t('To Date', 'पर्यंत')}</label>
+                <input
+                  type="date"
+                  value={logFilterTo}
+                  onChange={(e) => { setLogFilterTo(e.target.value); setLogPage(1); }}
+                  className="w-full h-9 rounded-lg border border-[#E7E7E4] px-3 text-xs focus:border-black focus:ring-2 focus:ring-black/10 outline-none"
+                />
+              </div>
             </div>
-          )}
+          </div>
+
+          {/* Logs Table */}
+          <div className="glass-card-static overflow-hidden">
+            {logsLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <span className="h-6 w-6 animate-spin rounded-full border-2 border-black/20 border-t-black" />
+                <span className="ml-3 text-sm text-[#6B6B6B]">{t('Loading audit logs...', 'ऑडिट नोंदी लोड होत आहेत...')}</span>
+              </div>
+            ) : logsError ? (
+              <div className="flex items-center justify-center py-12">
+                <p className="text-sm text-red-600">{logsError}</p>
+              </div>
+            ) : auditLogs.length === 0 ? (
+              <div className="flex items-center justify-center py-12">
+                <p className="text-sm text-[#6B6B6B]">{t('No audit logs found.', 'कोणत्याही ऑडिट नोंदी सापडल्या नाहीत.')}</p>
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="portal-table w-full text-sm">
+                    <thead style={{ background: 'rgba(248, 250, 252, 0.8)' }} className="border-b border-slate-200/50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                          <Clock className="w-3 h-3 inline mr-1 relative -top-px" />{t('Timestamp', 'वेळ')}
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                          <User className="w-3 h-3 inline mr-1 relative -top-px" />{t('User', 'वापरकर्ता')}
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                          <Activity className="w-3 h-3 inline mr-1 relative -top-px" />{t('Action', 'कृती')}
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('IP Address', 'IP पत्ता')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t('Details', 'तपशील')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {auditLogs.map((entry, idx) => (
+                        <tr key={entry.id} className={`border-b border-slate-100/50 hover:bg-amber-50/30 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/30'}`}>
+                          <td className="px-4 py-2.5 text-xs font-mono text-slate-500">
+                            {new Date(entry.created_at).toLocaleString()}
+                          </td>
+                          <td className="px-4 py-2.5 text-sm font-medium text-slate-700">{entry.username || '-'}</td>
+                          <td className="px-4 py-2.5">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${actionColors[entry.action] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+                              {entry.action}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2.5 text-xs font-mono text-slate-500">{entry.ip_address || '-'}</td>
+                          <td className="px-4 py-2.5 text-xs text-slate-600 max-w-[200px] truncate">{entry.details || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Pagination */}
+                {logTotalPages > 1 && (
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200/50">
+                    <button
+                      onClick={() => setLogPage(p => Math.max(1, p - 1))}
+                      disabled={logPage <= 1}
+                      className="px-3 py-1.5 rounded-lg bg-slate-100 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {t('Previous', 'मागील')}
+                    </button>
+                    <span className="text-xs text-slate-500">
+                      {t('Page', 'पृष्ठ')} {logPage} / {logTotalPages}
+                    </span>
+                    <button
+                      onClick={() => setLogPage(p => Math.min(logTotalPages, p + 1))}
+                      disabled={logPage >= logTotalPages}
+                      className="px-3 py-1.5 rounded-lg bg-slate-100 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {t('Next', 'पुढील')}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       )}
 
