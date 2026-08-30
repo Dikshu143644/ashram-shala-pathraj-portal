@@ -38,14 +38,7 @@ export default function GalleryPage() {
   return (
     <div className="relative min-h-screen">
       {/* Fixed cinematic background */}
-      <div className="fixed inset-0 z-0">
-        <img
-          src="/images/gallery-nature.jpg"
-          alt=""
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
-      </div>
+      {/* Ambient orb environment provided by PublicLayout */}
 
       {/* Content */}
       <div className="relative z-10">

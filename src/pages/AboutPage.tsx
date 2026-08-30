@@ -27,14 +27,7 @@ export default function AboutPage() {
   return (
     <div className="relative min-h-screen">
       {/* ===== FIXED BACKGROUND ===== */}
-      <div className="fixed inset-0 z-0">
-        <img
-          src="/images/about-school.jpg"
-          alt=""
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
-      </div>
+      {/* Ambient orb environment provided by PublicLayout */}
 
       {/* ===== CONTENT ===== */}
       <div className="relative z-10">

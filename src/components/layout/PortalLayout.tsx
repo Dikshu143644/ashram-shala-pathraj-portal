@@ -132,11 +132,11 @@ export default function PortalLayout() {
             }}
             className={`group flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-sm font-medium transition-all ${
               active
-                ? 'bg-black text-white'
-                : 'text-[#6B6B6B] hover:bg-[#F3F2EF] hover:text-black'
+                ? 'bg-gradient-to-br from-[#7C3AED] to-[#6D28D9] text-white shadow-[0_8px_24px_rgba(124,58,237,0.28)]'
+                : 'text-[#6B7280] hover:bg-[#7C3AED]/[0.06] hover:text-[#6D28D9]'
             }`}
           >
-            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${active ? 'bg-white/15' : 'bg-[#F3F2EF] group-hover:bg-white'}`}>
+            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${active ? 'bg-white/20' : 'bg-[#7C3AED]/[0.06] group-hover:bg-[#7C3AED]/12'}`}>
               <tab.icon className="h-4.5 w-4.5" />
             </span>
             <span className="truncate">{language === 'en' ? tab.labelEn : tab.labelMr}</span>
@@ -239,9 +239,9 @@ export default function PortalLayout() {
                   type="button"
                   aria-current={active ? 'page' : undefined}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`relative flex min-w-[5.5rem] shrink-0 flex-col items-center px-2 py-2.5 text-[10px] font-medium ${active ? 'text-black' : 'text-[#A3A3A3]'}`}
+                  className={`relative flex min-w-[5.5rem] shrink-0 flex-col items-center px-2 py-2.5 text-[10px] font-medium ${active ? 'text-[#6D28D9]' : 'text-[#9CA3AF]'}`}
                 >
-                  <span className={`mb-1 rounded-full px-3 py-1 ${active ? 'bg-[#F3F2EF]' : ''}`}><tab.icon className="h-5 w-5" /></span>
+                  <span className={`mb-1 rounded-full px-3 py-1 ${active ? 'bg-[#7C3AED]/10' : ''}`}><tab.icon className="h-5 w-5" /></span>
                   <span className="whitespace-nowrap">{language === 'en' ? tab.labelEn : tab.labelMr}</span>
                 </button>
               );
