@@ -62,7 +62,7 @@ problems are rated High below.
 
 ### H-2. Security-sensitive codes generated with `Math.random()`
 - **Type:** Security
-- **Location:** `server/auth.ts:756`, `server/auth.ts:1049`, `server/auth.ts:1557`, `server/sms-otp.ts:13`
+- **Location:** `server/auth.ts:763`, `server/auth.ts:1056`, `server/auth.ts:1564`, `server/sms-otp.ts:14`
 - **Detail:** OTP codes and the AI PIN are generated with
   `Math.floor(100000 + Math.random() * 900000)`. `Math.random()` is not a
   cryptographically secure random number generator; its output is predictable and unsuitable
@@ -101,7 +101,7 @@ problems are rated High below.
 
 ### M-2. OTP verify response omits `phoneVerified`, causing inconsistent client state
 - **Type:** Type/Logic
-- **Location:** `server/auth.ts:331` (OTP `/api/otp/verify` success payload) vs `server/auth.ts:457` (`/api/auth/login` payload)
+- **Location:** `server/auth.ts:721` (OTP verify success payload) vs `server/auth.ts:463` (`/api/auth/login` payload)
 - **Detail:** The login response includes `phoneVerified: user.phone_verified ?? false`, but
   the OTP verify success response does not include the `phoneVerified` field, even though the
   handler tracks a `phoneVerified` value locally. The client therefore receives an
@@ -130,8 +130,11 @@ problems are rated High below.
   lack `aria-label` fallbacks.
 - **Impact:** Screen-reader users may not hear which label belongs to which field, and
   clicking a label may not focus its control.
-- **Status:** Recommendation, with targeted `aria-label` / association fixes applied where
-  practical in FEAT-002/FEAT-003; a full sweep plus a11y linting is Recommended (not auto-applied).
+- **Status:** Partially Auto-fixed in FEAT-002/FEAT-003: the admission and registration form
+  fields (`AdmissionPortal.tsx`, `AdmissionPage.tsx`, `RegisterPage.tsx`) now carry explicit
+  `htmlFor`/`id` label associations, and the AI Assistant input plus its voice and send
+  controls received `aria-label`s. A full a11y sweep across all remaining `<label>` elements,
+  backed by `eslint-plugin-jsx-a11y`, remains a Recommendation (not auto-applied).
 
 ### M-5. `index.html` hard-codes `lang="en"` on a bilingual app
 - **Type:** Accessibility
@@ -140,7 +143,9 @@ problems are rated High below.
   content. The declared language does not switch with the active UI language.
 - **Impact:** Screen readers may mispronounce Marathi (Devanagari) content because the
   document language is fixed to English.
-- **Status:** Auto-fixed in FEAT-002/FEAT-003 (language handling improved for the bilingual UI).
+- **Status:** Auto-fixed in FEAT-002/FEAT-003: `document.documentElement.lang` is now synced
+  to the active language in `AppContext.tsx` (set to `mr` for Marathi, `en` otherwise) so the
+  document language tracks the UI language instead of being hard-coded to English.
 
 ---
 
@@ -216,8 +221,8 @@ over time.
 | M-1 No ErrorBoundary | Medium | Runtime/UX | Auto-fixed in FEAT-002/FEAT-003 |
 | M-2 OTP verify omits `phoneVerified` | Medium | Type/Logic | Auto-fixed in FEAT-002/FEAT-003 |
 | M-3 npm audit (7 vulns) | Medium | Dependency | Safe fixes auto-fixed; esbuild bump recommended |
-| M-4 Label/input association | Medium | Accessibility | Partial auto-fix; full sweep recommended |
-| M-5 `lang="en"` on bilingual app | Medium | Accessibility | Auto-fixed in FEAT-002/FEAT-003 |
+| M-4 Label/input association | Medium | Accessibility | Form fields + AI input auto-fixed; full sweep recommended |
+| M-5 `lang="en"` on bilingual app | Medium | Accessibility | Auto-fixed (`documentElement.lang` synced to language) |
 | L-1 Single large JS chunk | Low | Performance | Recommended (not auto-applied) |
 | L-2 External font CDNs | Low | Performance/Security | Recommended (not auto-applied) |
 | L-3 AI input has no `maxLength` | Low | UX | Auto-fixed in FEAT-002/FEAT-003 |

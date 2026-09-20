@@ -244,6 +244,9 @@ export function configureSecurity(app: Express): void {
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
           "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
           "img-src 'self' data: https:",
+          // connect-src 'self' assumes all browser data access goes through the same-origin
+          // /api/* routes; a future client-side Supabase client (direct *.supabase.co calls)
+          // would need this directive widened to allow that origin.
           "connect-src 'self'",
           "frame-src https://maps.google.com https://www.google.com https://maps.googleapis.com",
           "frame-ancestors 'none'",
