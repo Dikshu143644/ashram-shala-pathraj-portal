@@ -222,6 +222,37 @@ export function configureSecurity(app: Express): void {
     res.setHeader('Referrer-Policy', 'same-origin');
     res.setHeader('Permissions-Policy', 'camera=(), geolocation=(), microphone=(self)');
     res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+    res.setHeader('X-Frame-Options', 'DENY');
+
+    // Content-Security-Policy: only enforced in production (or on Vercel).
+    // A strict script-src 'self' would break the Vite dev server, which injects
+    // inline scripts and opens a websocket for hot module reloading, so in
+    // development we intentionally omit the CSP and let Vite run unhindered.
+    // The production policy allows exactly the external resources the app uses:
+    // Google Fonts (fonts.googleapis.com CSS + fonts.gstatic.com files), the
+    // jsdelivr-hosted Geist font (cdn.jsdelivr.net), and the Google Maps embed
+    // iframe on the Contact page (maps.google.com / www.google.com).
+    // 'unsafe-inline' is required for style-src because Tailwind, motion/react,
+    // and React itself set inline styles and style attributes.
+    const isProduction = process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
+    if (isProduction) {
+      res.setHeader(
+        'Content-Security-Policy',
+        [
+          "default-src 'self'",
+          "script-src 'self'",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+          "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
+          "img-src 'self' data: https:",
+          "connect-src 'self'",
+          "frame-src https://maps.google.com https://www.google.com https://maps.googleapis.com",
+          "frame-ancestors 'none'",
+          "base-uri 'self'",
+          "object-src 'none'",
+        ].join('; '),
+      );
+      res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    }
     next();
   });
 }

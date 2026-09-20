@@ -1,0 +1,7 @@
+{
+  "task_id": "task-webapp-audit-and-fixes",
+  "task_description": "Analyze the Ashram Shala Pathraj web portal end-to-end, produce a severity-categorized issues-and-recommendations report (ISSUES_REPORT.md) tagging each bug with its error type, and auto-fix the identified errors across backend (security/correctness) and frontend (robustness/accessibility/UX), keeping `npm run lint` and `npm run build` green.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}

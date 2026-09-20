@@ -1,0 +1,29 @@
+{
+  "id": "FEAT-003",
+  "type": "fix",
+  "description": "Apply frontend robustness, accessibility, and UX fixes identified in the audit, plus safe dependency updates. Frontend changes are in src/ and index.html; dependency updates are the safe subset of `npm audit fix`. All changes must keep `npm run lint` and `npm run build` green. Independent of FEAT-002 except both must build cleanly.",
+  "status": "pending",
+  "steps": [
+    "Add a global React ErrorBoundary. Create src/components/ErrorBoundary.tsx as a class component implementing getDerivedStateFromError/componentDidCatch that renders a friendly bilingual fallback UI (English + Marathi) with a 'Reload' button, matching the existing visual style (Tailwind, the app's off-white #F7F7F5 palette used in src/App.tsx ProtectedRoute). Wrap the app: in src/App.tsx wrap <AppProvider>...</AppProvider> (or the <BrowserRouter> tree) with <ErrorBoundary>, so any render error shows the fallback instead of a blank page. Do not swallow errors silently; log to console.error in componentDidCatch.",
+    "Fix bilingual document language: index.html currently hard-codes <html lang=\"en\">. Keep lang=\"en\" as the static default but add a small effect so the app updates document.documentElement.lang when the language toggles. Implement by setting `document.documentElement.lang = language` inside a useEffect in src/contexts/AppContext.tsx (the AppProvider already tracks `language`), using 'mr' for Marathi and 'en' for English. This keeps SSR/static default valid while improving screen-reader pronunciation when users switch to Marathi.",
+    "Improve form accessibility. Audit inputs in src/components/LoginPage.tsx, src/components/RegisterPage.tsx, src/components/ForgotPasswordPage.tsx, src/components/ChangePasswordPage.tsx, and src/components/AdmissionPortal.tsx and src/pages/AdmissionPage.tsx. For each visible <label> that is not programmatically associated with its input, add matching htmlFor/id pairs; for inputs without a visible label (icon-only fields, search boxes, the AiAssistant chat input in src/components/AiAssistant.tsx) add an aria-label with a bilingual-aware value from the existing t() helper. Do not restructure the layout; only add id/htmlFor/aria-label attributes. Prioritize the auth and admission forms.",
+    "Improve AiAssistant input UX: in src/components/AiAssistant.tsx add maxLength={1000} to the chat <input> to match the server MAX_CHAT_MESSAGE_LENGTH cap, and add an aria-label to that input and to the icon-only send/mic buttons (title already exists on mic; add aria-label mirroring it).",
+    "Apply the SAFE subset of dependency fixes only: run `npm audit fix` (NOT `--force`) to patch nodemailer (high), qs/body-parser, and uuid/gaxios without breaking major versions. Do NOT run `npm audit fix --force` and do NOT bump esbuild to a new major (that is a breaking change and is left as a recommendation in ISSUES_REPORT.md). After the fix, run `npm run lint` and `npm run build` to confirm nothing broke. If `npm audit fix` attempts a breaking change or fails the build, revert the lockfile change for that package and note it in findings.",
+    "Run `npm run lint` and `npm run build`; fix any issues introduced. Record changed files and the audit-fix outcome in this feature's findings field."
+  ],
+  "acceptance_criteria": [
+    "src/components/ErrorBoundary.tsx exists and is used to wrap the app in src/App.tsx; a thrown render error shows the fallback UI, not a blank screen.",
+    "document.documentElement.lang updates to 'mr' when the user selects Marathi and 'en' otherwise.",
+    "Auth and admission form inputs have associated labels (htmlFor/id) or aria-labels; the AiAssistant chat input has an aria-label and maxLength=1000.",
+    "`npm audit fix` (non-breaking) has been applied; nodemailer high-severity advisory is resolved and the build still succeeds. esbuild has NOT been force-upgraded.",
+    "`npm run lint` exits 0 and `npm run build` succeeds."
+  ],
+  "verification": [
+    "Run `npm run lint` and confirm exit 0.",
+    "Run `npm run build` and confirm success.",
+    "Run `npm audit` and confirm the nodemailer high advisory is gone (remaining moderate esbuild advisory is acceptable and documented).",
+    "Grep to confirm ErrorBoundary is imported and used in src/App.tsx and that AiAssistant input has maxLength."
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

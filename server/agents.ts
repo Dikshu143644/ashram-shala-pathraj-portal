@@ -96,7 +96,7 @@ function textFromGemini(data: unknown): string | null {
 
 async function callGemini(message: string, prompt: string): Promise<ProviderResult> {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
-  const model = process.env.GEMINI_MODEL?.trim() || 'gemini-3.6-flash';
+  const model = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
   if (!apiKey) throw new ProviderFailure('gemini', 'GEMINI_API_KEY is not configured');
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`, {
     method: 'POST',
