@@ -60,19 +60,19 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
         supabase.from('students').select('*', { count: 'exact', head: true }).eq('status', 'Active'),
       ]);
 
-      const totalStudents = studentsResult.count || 0;
-      const totalStaff = staffResult.count || 0;
+      const failedResult = [studentsResult, staffResult, standardsResult, villagesResult, enrolledResult]
+        .find((result) => result.error);
+      if (failedResult?.error) throw failedResult.error;
 
-      // Count distinct standards
-      const standards = new Set((standardsResult.data || []).map((r: { standard: string }) => r.standard).filter(Boolean));
+      const totalStudents = studentsResult.count ?? 0;
+      const totalStaff = staffResult.count ?? 0;
+
+      const standards = new Set((standardsResult.data ?? []).map((row: { standard: string }) => row.standard).filter(Boolean));
       const totalStandards = standards.size;
 
-      // Count distinct villages
-      const villages = new Set((villagesResult.data || []).map((r: { village: string }) => r.village).filter(Boolean));
+      const villages = new Set((villagesResult.data ?? []).map((row: { village: string }) => row.village).filter(Boolean));
       const totalVillages = villages.size;
-
-      // Enrolled count: use Active status count, fall back to total if none have Active status
-      const enrolledCount = (enrolledResult.count || 0) > 0 ? (enrolledResult.count || 0) : totalStudents;
+      const enrolledCount = enrolledResult.count ?? 0;
 
       res.json({
         totalStudents,
@@ -365,13 +365,13 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
     }
   });
 
-  // GET /api/gallery - Public endpoint, returns approved gallery images (excludes flagged)
+  // GET /api/gallery - Public endpoint, returns only approved gallery images
   app.get('/api/gallery', async (_req: Request, res: Response) => {
     try {
       const { data, error } = await supabase
         .from('gallery_images')
-        .select('*')
-        .neq('safety_status', 'flagged')
+        .select('id,url,caption,created_at')
+        .eq('safety_status', 'approved')
         .order('created_at', { ascending: false });
       if (error) throw error;
       res.json({ data: data || [] });
@@ -559,8 +559,20 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
       return;
     }
 
-    const safeEmail = typeof parent_email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parent_email) ? parent_email.trim() : null;
-    const safeStandard = typeof standard_applying === 'number' && standard_applying >= 1 && standard_applying <= 12 ? standard_applying : null;
+    if (parent_email !== undefined && parent_email !== '' && (
+      typeof parent_email !== 'string'
+      || parent_email.length > 320
+      || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parent_email)
+    )) {
+      res.status(400).json({ error: 'Email address is invalid.' });
+      return;
+    }
+    if (typeof standard_applying !== 'number' || !Number.isInteger(standard_applying) || standard_applying < 1 || standard_applying > 12) {
+      res.status(400).json({ error: 'Standard applying for must be an integer from 1 to 12.' });
+      return;
+    }
+
+    const safeEmail = typeof parent_email === 'string' && parent_email ? parent_email.trim().toLowerCase() : null;
 
     try {
       const { data, error } = await supabase
@@ -570,7 +582,7 @@ export function registerDataRoutes(app: Express, supabase: SupabaseClient): void
           parent_name: parent_name.trim(),
           parent_mobile: parent_mobile.trim(),
           parent_email: safeEmail,
-          standard_applying: safeStandard,
+          standard_applying,
         })
         .select()
         .single();

@@ -7,12 +7,12 @@ export default function AboutPage() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
-  const [schoolStats, setSchoolStats] = useState({ totalStudents: 0, totalStaff: 0 });
+  const [schoolStats, setSchoolStats] = useState<{ totalStudents: number; totalStaff: number } | null>(null);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const response = await fetch('/api/school/stats');
+        const response = await fetch('/api/school/stats', { signal: AbortSignal.timeout(10_000) });
         if (response.ok) {
           const data = await response.json();
           setSchoolStats(data);
@@ -288,8 +288,8 @@ export default function AboutPage() {
                 {/* Campus stats */}
                 <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {[
-                    { label: t('Total Students', 'एकूण विद्यार्थी'), value: String(schoolStats.totalStudents || '460') },
-                    { label: t('Permanent Staff', 'कायम कर्मचारी'), value: String(schoolStats.totalStaff || '26') },
+                    { label: t('Total Students', 'एकूण विद्यार्थी'), value: String(schoolStats?.totalStudents ?? '—') },
+                    { label: t('Permanent Staff', 'कायम कर्मचारी'), value: String(schoolStats?.totalStaff ?? '—') },
                     { label: t('Standards Offered', 'उपलब्ध इयत्ता'), value: t('1st to 12th', '१ ली ते १२ वी') },
                     { label: t('Medium', 'माध्यम'), value: t('Marathi', 'मराठी') },
                     { label: t('District', 'जिल्हा'), value: t('Raigad', 'रायगड') },

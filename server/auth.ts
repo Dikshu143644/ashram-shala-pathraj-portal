@@ -3,7 +3,16 @@ import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
-import { clearSession, issueSession, readSession, requireSameOrigin, requireSession, type AuthenticatedRequest } from './security.js';
+import {
+  clearSession,
+  issueRegistrationProof,
+  issueSession,
+  readSession,
+  requireSameOrigin,
+  requireSession,
+  verifyRegistrationProof,
+  type AuthenticatedRequest,
+} from './security.js';
 
 const RATE_LIMIT_WINDOW_SECONDS = 60;
 const LOGIN_ATTEMPTS_PER_WINDOW = 5;
@@ -721,7 +730,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
   });
 
   // In-memory store for registration email OTPs
-  const regEmailOtpStore = new Map<string, { code: string; expiresAt: number }>();
+  const regEmailOtpStore = new Map<string, { codeHash: string; expiresAt: number }>();
   const regEmailCleanupTimer = setInterval(() => {
     const now = Date.now();
     for (const [key, value] of regEmailOtpStore.entries()) {
@@ -755,7 +764,10 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     try {
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = Date.now() + 10 * 60_000;
-      regEmailOtpStore.set(email.toLowerCase(), { code, expiresAt });
+      regEmailOtpStore.set(email.toLowerCase(), {
+        codeHash: createHash('sha256').update(code).digest('hex'),
+        expiresAt,
+      });
 
       const emailSubject = 'Email Verification - Ashram Shala Pathraj';
       const emailText = `Your email verification code is: ${code}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`;
@@ -786,7 +798,19 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
 
   // POST /api/auth/email/verify-otp - Verify email OTP for registration
   app.post('/api/auth/email/verify-otp', async (req: Request, res: Response) => {
+    const ip = clientIp(req);
     res.setHeader('Cache-Control', 'no-store');
+
+    try {
+      const limited = await isRateLimited(supabase, 'reg_email_otp_verify_ip', ip, OTP_ATTEMPTS_PER_WINDOW);
+      if (limited) {
+        rejectRateLimit(res, 'Too many verification attempts. Please try again later.', RATE_LIMIT_WINDOW_SECONDS);
+        return;
+      }
+    } catch {
+      res.status(503).json({ success: false, error: 'Verification service is temporarily unavailable.' });
+      return;
+    }
 
     const { email, otp } = req.body as { email?: unknown; otp?: unknown };
     if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -810,15 +834,20 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       return;
     }
 
-    if (stored.code !== otp) {
+    if (stored.codeHash !== createHash('sha256').update(otp).digest('hex')) {
       res.status(401).json({ success: false, error: 'Invalid OTP. Please check and try again.' });
       return;
     }
 
-    // Mark as verified by removing from store (verified state is transient)
+    // Consume the OTP and issue a short-lived, signed proof bound to this email.
     regEmailOtpStore.delete(email.toLowerCase());
 
-    res.json({ success: true, message: 'Email verified successfully.', email: email.toLowerCase() });
+    res.json({
+      success: true,
+      message: 'Email verified successfully.',
+      email: email.toLowerCase(),
+      verificationToken: issueRegistrationProof('email', email),
+    });
   });
 
   // POST /api/auth/register - Parent self-registration (simplified: form + password -> done)
@@ -837,8 +866,22 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       return;
     }
 
-    const { fullName, mobileNumber, email, relationship, password } = req.body as {
-      fullName?: unknown; mobileNumber?: unknown; email?: unknown; relationship?: unknown; password?: unknown;
+    const {
+      fullName,
+      mobileNumber,
+      email,
+      relationship,
+      password,
+      phoneVerificationToken,
+      emailVerificationToken,
+    } = req.body as {
+      fullName?: unknown;
+      mobileNumber?: unknown;
+      email?: unknown;
+      relationship?: unknown;
+      password?: unknown;
+      phoneVerificationToken?: unknown;
+      emailVerificationToken?: unknown;
     };
 
     if (typeof fullName !== 'string' || !fullName.trim() || fullName.length > 160) {
@@ -862,102 +905,35 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       res.status(400).json({ success: false, error: 'Password must be between 8 and 100 characters.' });
       return;
     }
+    if (!verifyRegistrationProof(phoneVerificationToken, 'phone', mobileNumber)) {
+      res.status(400).json({ success: false, error: 'Phone verification is invalid or expired. Please verify your mobile number again.' });
+      return;
+    }
+    if (!verifyRegistrationProof(emailVerificationToken, 'email', email)) {
+      res.status(400).json({ success: false, error: 'Email verification is invalid or expired. Please verify your email address again.' });
+      return;
+    }
 
     try {
+      // Registration must never mutate an existing account. Account recovery is a separate,
+      // verified flow and is the only place where an existing password may be replaced.
+      const [{ data: existingByMobile, error: mobileLookupError }, { data: existingByEmail, error: emailLookupError }] = await Promise.all([
+        supabase.from('auth_users').select('id').eq('mobile_number', mobileNumber).maybeSingle(),
+        supabase.from('auth_users').select('id').eq('email', email.toLowerCase()).maybeSingle(),
+      ]);
+      if (mobileLookupError) throw mobileLookupError;
+      if (emailLookupError) throw emailLookupError;
+      if (existingByMobile || existingByEmail) {
+        res.status(409).json({
+          success: false,
+          error: 'An account with this mobile number or email already exists. Log in or use Forgot Password.',
+        });
+        return;
+      }
+
       const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
 
-      // Check if user already exists with this mobile or email (handle stuck users)
-      const { data: existingByMobile } = await supabase
-        .from('auth_users')
-        .select('id,username,password_hash,email,mobile_number')
-        .eq('mobile_number', mobileNumber)
-        .maybeSingle();
-
-      const { data: existingByEmail } = await supabase
-        .from('auth_users')
-        .select('id,username,password_hash,email,mobile_number')
-        .eq('email', email.toLowerCase())
-        .maybeSingle();
-
-      // If user exists (stuck user from failed OTP registration), allow re-registration
-      // by updating their password to the new one they just provided
-      const existingUser = existingByMobile || existingByEmail;
-      if (existingUser) {
-        // Update the existing stuck user with the new password and details
-        const { error: updateError } = await supabase
-          .from('auth_users')
-          .update({
-            password_hash: hashedPassword,
-            name_en: fullName.trim(),
-            name_mr: fullName.trim(),
-            email: email.toLowerCase(),
-            mobile_number: mobileNumber,
-            username: mobileNumber,
-            must_change_password: false,
-            is_active: true,
-          })
-          .eq('id', existingUser.id);
-
-        if (updateError) throw updateError;
-
-        // Issue session directly
-        issueSession(res, {
-          userId: existingUser.id,
-          username: mobileNumber,
-          role: 'student_parent',
-          nameEn: fullName.trim(),
-          nameMr: fullName.trim(),
-        });
-
-        await logSecurity(supabase, {
-          action: 'parent_re_registered',
-          userId: existingUser.id,
-          username: mobileNumber,
-          ip,
-          details: `Parent re-registration (password reset): ${relationship}`,
-        });
-
-        res.status(200).json({
-          success: true,
-          userId: existingUser.id,
-          user: {
-            username: mobileNumber,
-            role: 'student_parent',
-            nameEn: fullName.trim(),
-            nameMr: fullName.trim(),
-            mustChangePassword: false,
-          },
-        });
-        return;
-      }
-
-      // Check phone verification in sms_otp_codes table
-      const { data: phoneVerification } = await supabase
-        .from('sms_otp_codes')
-        .select('id,verified')
-        .eq('phone', mobileNumber)
-        .eq('verified', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (!phoneVerification) {
-        res.status(400).json({ success: false, error: 'Phone number must be verified before registration. Please verify your mobile number first.' });
-        return;
-      }
-
-      // Check username uniqueness (using mobile as username)
-      const { data: existingUsername } = await supabase
-        .from('auth_users')
-        .select('id')
-        .eq('username', mobileNumber)
-        .maybeSingle();
-      if (existingUsername) {
-        res.status(409).json({ success: false, error: 'An account with this mobile number already exists. Try logging in or use Forgot Password.' });
-        return;
-      }
-
-      // Create new user with the password they provided
+      // Create a new parent account only after both signed verification proofs pass.
       const { data: newUser, error: insertError } = await supabase
         .from('auth_users')
         .insert({
@@ -1004,6 +980,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
           nameEn: fullName.trim(),
           nameMr: fullName.trim(),
           mustChangePassword: false,
+          phoneVerified: true,
         },
       });
     } catch (error) {

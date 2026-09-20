@@ -1,13 +1,14 @@
 import { createHash } from 'node:crypto';
 import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { durableRateLimit, issueRegistrationProof } from './security.js';
 
 const OTP_EXPIRY_MS = 10 * 60_000; // 10 minutes
-const SMS_RATE_LIMIT_WINDOW_MS = 15 * 60_000; // 15 minutes
-const SMS_RATE_LIMIT_MAX = 3;
-
-// In-memory rate limiting per phone for SMS sends
-const smsPhoneRateMap = new Map<string, { count: number; windowStart: number }>();
+const SMS_RATE_LIMIT_WINDOW_SECONDS = 15 * 60;
+const SMS_SEND_PHONE_LIMIT = 3;
+const SMS_SEND_IP_LIMIT = 10;
+const SMS_VERIFY_PHONE_LIMIT = 5;
+const SMS_VERIFY_IP_LIMIT = 20;
 
 function generateOtp(): string {
   const digits = Math.floor(100000 + Math.random() * 900000);
@@ -20,23 +21,6 @@ function hashOtp(otp: string): string {
 
 function isValidIndianMobile(phone: unknown): phone is string {
   return typeof phone === 'string' && /^[6-9]\d{9}$/.test(phone);
-}
-
-function isPhoneRateLimited(phone: string): boolean {
-  const now = Date.now();
-  const entry = smsPhoneRateMap.get(phone);
-
-  if (!entry || now - entry.windowStart > SMS_RATE_LIMIT_WINDOW_MS) {
-    smsPhoneRateMap.set(phone, { count: 1, windowStart: now });
-    return false;
-  }
-
-  if (entry.count >= SMS_RATE_LIMIT_MAX) {
-    return true;
-  }
-
-  entry.count += 1;
-  return false;
 }
 
 interface SmsResult {
@@ -115,39 +99,46 @@ async function sendSmsFast2sms(phone: string, otp: string): Promise<SmsResult> {
 
     const v3Status = v3Result?.status_code ?? v3Result?.statusCode;
     const errorDetail = v3Status === 996
-      ? 'SMS service requires website verification. Please verify email instead.'
+      ? 'SMS service configuration is incomplete. Please contact the school office.'
       : v3Status === 999
-        ? 'SMS service requires recharge. Please verify email instead.'
-        : 'SMS delivery failed. Please verify email instead.';
+        ? 'SMS service is temporarily unavailable. Please contact the school office.'
+        : 'SMS delivery failed. Please try again later.';
 
     console.error(`[Fast2SMS] v3 route also failed (status: ${v3Status})`);
     return { success: false, error: errorDetail };
   } catch (error) {
     console.error('[Fast2SMS] v3 route request failed:', error instanceof Error ? error.message : error);
-    return { success: false, error: 'SMS service unavailable. Please verify email instead.' };
+    return { success: false, error: 'SMS service unavailable. Please try again later or contact the school office.' };
   }
 }
 
 export function registerSmsOtpRoutes(app: Express, supabase: SupabaseClient): void {
+  const phoneKey = (req: Request) => {
+    const phone = (req.body as { phone?: unknown })?.phone;
+    return typeof phone === 'string' ? phone : 'invalid-phone';
+  };
+  const ipKey = (req: Request) => String(req.ip || req.socket.remoteAddress || 'unknown');
+  const sendIpLimit = durableRateLimit(supabase, {
+    bucket: 'sms_send_ip', maximum: SMS_SEND_IP_LIMIT, windowSeconds: SMS_RATE_LIMIT_WINDOW_SECONDS, key: ipKey,
+  });
+  const sendPhoneLimit = durableRateLimit(supabase, {
+    bucket: 'sms_send_phone', maximum: SMS_SEND_PHONE_LIMIT, windowSeconds: SMS_RATE_LIMIT_WINDOW_SECONDS, key: phoneKey,
+  });
+  const verifyIpLimit = durableRateLimit(supabase, {
+    bucket: 'sms_verify_ip', maximum: SMS_VERIFY_IP_LIMIT, windowSeconds: SMS_RATE_LIMIT_WINDOW_SECONDS, key: ipKey,
+  });
+  const verifyPhoneLimit = durableRateLimit(supabase, {
+    bucket: 'sms_verify_phone', maximum: SMS_VERIFY_PHONE_LIMIT, windowSeconds: SMS_RATE_LIMIT_WINDOW_SECONDS, key: phoneKey,
+  });
+
   // POST /api/auth/sms/send-otp
-  app.post('/api/auth/sms/send-otp', async (req: Request, res: Response) => {
+  app.post('/api/auth/sms/send-otp', sendIpLimit, sendPhoneLimit, async (req: Request, res: Response) => {
     res.setHeader('Cache-Control', 'no-store');
 
     const { phone } = req.body as { phone?: unknown };
 
     if (!isValidIndianMobile(phone)) {
       res.status(400).json({ success: false, error: 'A valid 10-digit Indian mobile number is required.' });
-      return;
-    }
-
-    // Rate limit check
-    if (isPhoneRateLimited(phone)) {
-      res.setHeader('Retry-After', String(Math.ceil(SMS_RATE_LIMIT_WINDOW_MS / 1000)));
-      res.status(429).json({
-        success: false,
-        error: 'Too many OTP requests for this number. Please try again after 15 minutes.',
-        retryAfter: Math.ceil(SMS_RATE_LIMIT_WINDOW_MS / 1000),
-      });
       return;
     }
 
@@ -193,7 +184,7 @@ export function registerSmsOtpRoutes(app: Express, supabase: SupabaseClient): vo
   });
 
   // POST /api/auth/sms/verify-otp
-  app.post('/api/auth/sms/verify-otp', async (req: Request, res: Response) => {
+  app.post('/api/auth/sms/verify-otp', verifyIpLimit, verifyPhoneLimit, async (req: Request, res: Response) => {
     res.setHeader('Cache-Control', 'no-store');
 
     const { phone, otp } = req.body as { phone?: unknown; otp?: unknown };
@@ -255,21 +246,11 @@ export function registerSmsOtpRoutes(app: Express, supabase: SupabaseClient): vo
         success: true,
         message: 'Phone number verified successfully.',
         phone,
+        verificationToken: issueRegistrationProof('phone', phone),
       });
     } catch (error) {
       console.error('SMS OTP verify error:', error instanceof Error ? error.message : error);
       res.status(500).json({ success: false, error: 'Unable to verify OTP.' });
     }
   });
-
-  // Periodic cleanup of rate limit map
-  const cleanupTimer = setInterval(() => {
-    const now = Date.now();
-    for (const [key, entry] of smsPhoneRateMap.entries()) {
-      if (now - entry.windowStart > SMS_RATE_LIMIT_WINDOW_MS) {
-        smsPhoneRateMap.delete(key);
-      }
-    }
-  }, 5 * 60_000);
-  cleanupTimer.unref();
 }

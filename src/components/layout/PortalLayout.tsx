@@ -147,7 +147,7 @@ export default function PortalLayout() {
   );
 
   return (
-    <div className="bg-app-gradient relative flex h-screen h-[100dvh] flex-col">
+    <div className="portal-shell bg-app-gradient relative flex h-screen h-[100dvh] flex-col">
       {/* Subtle fixed background image */}
       <div
         className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"

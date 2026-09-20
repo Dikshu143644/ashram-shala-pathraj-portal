@@ -20,9 +20,36 @@ if (!isProduction) {
     index: false,
     maxAge: '1h',
   }));
-  app.get('*', (_req: Request, res: Response) => {
+  const spaDocuments = new Map<string, string>([
+    ['/', 'index.html'],
+    ['/about', 'about.html'],
+    ['/academics', 'academics.html'],
+    ['/admission', 'admission.html'],
+    ['/hostel', 'hostel.html'],
+    ['/gallery', 'gallery.html'],
+    ['/contact', 'contact.html'],
+    ['/privacy', 'privacy.html'],
+    ['/login', 'login.html'],
+    ['/clerk/login', 'login.html'],
+    ['/admin/login', 'login.html'],
+    ['/principal/login', 'login.html'],
+    ['/register', 'register.html'],
+    ['/forgot-password', 'forgot-password.html'],
+  ]);
+  app.get('*', (req: Request, res: Response) => {
     res.setHeader('Cache-Control', 'no-cache');
-    res.sendFile(resolve(distPath, 'index.html'));
+
+    const normalizedPath = req.path.length > 1 ? req.path.replace(/\/+$/, '') : req.path;
+    if (normalizedPath !== req.path) {
+      const queryStart = req.originalUrl.indexOf('?');
+      const query = queryStart >= 0 ? req.originalUrl.slice(queryStart) : '';
+      res.redirect(308, `${normalizedPath}${query}`);
+      return;
+    }
+
+    const portalRoute = normalizedPath === '/portal' || normalizedPath.startsWith('/portal/');
+    const documentName = portalRoute ? 'portal.html' : spaDocuments.get(normalizedPath);
+    res.status(documentName ? 200 : 404).sendFile(resolve(distPath, documentName || '404.html'));
   });
 }
 

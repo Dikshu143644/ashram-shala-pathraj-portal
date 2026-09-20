@@ -2,23 +2,23 @@ import { useState, useEffect } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { GraduationCap, Users, Building, Bed, Bot, MessageCircle, ArrowRight } from 'lucide-react';
+import { Bed, BookOpen, Building, Camera, FileText, GraduationCap, Users, ArrowRight } from 'lucide-react';
 
 export default function HomePage() {
   const { language } = useAppContext();
   const t = (en: string, mr: string) => (language === 'en' ? en : mr);
 
-  const [schoolStats, setSchoolStats] = useState({
-    totalStudents: 0,
-    totalStaff: 0,
-    totalStandards: 0,
-    totalVillages: 0,
-  });
+  const [schoolStats, setSchoolStats] = useState<{
+    totalStudents: number;
+    totalStaff: number;
+    totalStandards: number;
+    totalVillages: number;
+  } | null>(null);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const response = await fetch('/api/school/stats');
+        const response = await fetch('/api/school/stats', { signal: AbortSignal.timeout(10_000) });
         if (response.ok) {
           const data = await response.json();
           setSchoolStats(data);
@@ -129,9 +129,9 @@ export default function HomePage() {
               className="grid grid-cols-2 gap-4 sm:grid-cols-4"
             >
               {[
-                { value: String(schoolStats.totalStudents || '460'), labelEn: 'Students', labelMr: 'विद्यार्थी', icon: GraduationCap },
-                { value: String(schoolStats.totalStaff || '26'), labelEn: 'Staff', labelMr: 'कर्मचारी', icon: Users },
-                { value: String(schoolStats.totalStandards || '12'), labelEn: 'Standards', labelMr: 'इयत्ता', icon: Building },
+                { value: String(schoolStats?.totalStudents ?? '—'), labelEn: 'Students', labelMr: 'विद्यार्थी', icon: GraduationCap },
+                { value: String(schoolStats?.totalStaff ?? '—'), labelEn: 'Staff', labelMr: 'कर्मचारी', icon: Users },
+                { value: String(schoolStats?.totalStandards ?? '—'), labelEn: 'Standards', labelMr: 'इयत्ता', icon: Building },
                 { value: '520', labelEn: 'Hostel Beds', labelMr: 'वसतिगृह बेड', icon: Bed },
               ].map((stat, i) => (
                 <motion.div
@@ -164,47 +164,47 @@ export default function HomePage() {
               className="mb-12 text-center"
             >
               <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
-                {t('School Services', 'शाळा सेवा')}
+                {t('Explore Our School', 'आमची शाळा जाणून घ्या')}
               </h2>
               <div className="mx-auto mb-4 h-0.5 w-16 bg-amber-500" />
               <p className="text-sm text-slate-300">
-                {t('Access our digital services and portals', 'आमच्या डिजिटल सेवा आणि पोर्टल्स वापरा')}
+                {t('Find clear information about learning, admissions, residential life, and school activities.', 'शिक्षण, प्रवेश, निवासी जीवन आणि शालेय उपक्रमांची स्पष्ट माहिती मिळवा.')}
               </p>
             </motion.div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 {
-                  icon: GraduationCap,
-                  titleEn: 'Admission',
+                  icon: BookOpen,
+                  titleEn: 'Academics',
+                  titleMr: 'शैक्षणिक',
+                  descEn: 'Explore standards, subjects, teaching approach, and academic programmes.',
+                  descMr: 'इयत्ता, विषय, अध्यापन पद्धती आणि शैक्षणिक कार्यक्रम जाणून घ्या.',
+                  to: '/academics',
+                },
+                {
+                  icon: FileText,
+                  titleEn: 'Admissions',
                   titleMr: 'प्रवेश',
-                  descEn: 'Online admission process for new students with easy form submission.',
-                  descMr: 'नवीन विद्यार्थ्यांसाठी सुलभ फॉर्म सबमिशनसह ऑनलाइन प्रवेश प्रक्रिया.',
+                  descEn: 'Review eligibility and documents, then submit a secure admission enquiry.',
+                  descMr: 'पात्रता आणि कागदपत्रे तपासा, त्यानंतर सुरक्षित प्रवेश चौकशी सबमिट करा.',
                   to: '/admission',
                 },
                 {
-                  icon: Bot,
-                  titleEn: 'AI Assistant',
-                  titleMr: 'AI सहाय्यक',
-                  descEn: 'Get instant answers about school, admission, and more using our AI chatbot.',
-                  descMr: 'शाळा, प्रवेश आणि बरेच काही यांबद्दल तत्काळ उत्तरे मिळवा.',
-                  to: '/contact',
+                  icon: Bed,
+                  titleEn: 'Hostel Life',
+                  titleMr: 'वसतिगृह जीवन',
+                  descEn: 'Learn about accommodation, meals, supervision, and the daily routine.',
+                  descMr: 'निवास, भोजन, देखरेख आणि दैनंदिन दिनक्रमाची माहिती मिळवा.',
+                  to: '/hostel',
                 },
                 {
-                  icon: Users,
-                  titleEn: 'Parent Portal',
-                  titleMr: 'पालक पोर्टल',
-                  descEn: 'Track your child\'s attendance, progress, and school activities.',
-                  descMr: 'तुमच्या मुलाची उपस्थिती, प्रगती आणि शालेय उपक्रम पहा.',
-                  to: '/login',
-                },
-                {
-                  icon: MessageCircle,
-                  titleEn: 'WhatsApp Bot',
-                  titleMr: 'WhatsApp बॉट',
-                  descEn: 'Get updates and notifications directly on WhatsApp.',
-                  descMr: 'WhatsApp वर थेट अपडेट आणि सूचना मिळवा.',
-                  to: '/contact',
+                  icon: Camera,
+                  titleEn: 'Photo Gallery',
+                  titleMr: 'फोटो गॅलरी',
+                  descEn: 'View published photos from school events, activities, and campus life.',
+                  descMr: 'शालेय कार्यक्रम, उपक्रम आणि परिसर जीवनातील प्रकाशित फोटो पहा.',
+                  to: '/gallery',
                 },
               ].map((item, i) => (
                 <motion.div

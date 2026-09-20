@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /portal/
+Disallow: /admin/
+Disallow: /clerk/
+Disallow: /principal/
+Disallow: /ai-test/
+
+Sitemap: https://ashram-shala-pathraj.onrender.com/sitemap.xml

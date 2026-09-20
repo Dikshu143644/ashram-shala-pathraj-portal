@@ -50,6 +50,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
   const [phoneOtpSent, setPhoneOtpSent] = useState(false);
   const [phoneOtp, setPhoneOtp] = useState('');
   const [phoneVerified, setPhoneVerified] = useState(false);
+  const [phoneVerificationToken, setPhoneVerificationToken] = useState('');
   const [phoneSending, setPhoneSending] = useState(false);
   const [phoneVerifying, setPhoneVerifying] = useState(false);
   const [phoneTimer, setPhoneTimer] = useState(0);
@@ -60,6 +61,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
   const [emailOtpSent, setEmailOtpSent] = useState(false);
   const [emailOtp, setEmailOtp] = useState('');
   const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerificationToken, setEmailVerificationToken] = useState('');
   const [emailSending, setEmailSending] = useState(false);
   const [emailVerifying, setEmailVerifying] = useState(false);
   const [emailTimer, setEmailTimer] = useState(0);
@@ -136,7 +138,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
         startPhoneTimer();
       } else if (data.smsUnavailable) {
         setSmsUnavailable(true);
-        setPhoneError(t('SMS unavailable. Verify via email instead.', 'SMS उपलब्ध नाही. कृपया ईमेलद्वारे सत्यापित करा.'));
+        setPhoneError(t('SMS is unavailable. Please try again later or contact the school office.', 'SMS उपलब्ध नाही. कृपया नंतर पुन्हा प्रयत्न करा किंवा शाळा कार्यालयाशी संपर्क साधा.'));
       } else {
         setPhoneError(data.error || t('Failed to send OTP.', 'OTP पाठवण्यात अयशस्वी.'));
       }
@@ -161,8 +163,9 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
         body: JSON.stringify({ phone: mobileNumber, otp: phoneOtp }),
       });
       const data = await response.json();
-      if (response.ok && data.success) {
+      if (response.ok && data.success && typeof data.verificationToken === 'string') {
         setPhoneVerified(true);
+        setPhoneVerificationToken(data.verificationToken);
         if (phoneTimerRef.current) clearInterval(phoneTimerRef.current);
       } else {
         setPhoneError(data.error || t('Invalid OTP.', 'अवैध OTP.'));
@@ -215,8 +218,9 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
         body: JSON.stringify({ email, otp: emailOtp }),
       });
       const data = await response.json();
-      if (response.ok && data.success) {
+      if (response.ok && data.success && typeof data.verificationToken === 'string') {
         setEmailVerified(true);
+        setEmailVerificationToken(data.verificationToken);
         if (emailTimerRef.current) clearInterval(emailTimerRef.current);
       } else {
         setEmailError(data.error || t('Invalid OTP.', 'अवैध OTP.'));
@@ -233,7 +237,11 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
       setError(t('Full name is required.', 'पूर्ण नाव आवश्यक आहे.'));
       return;
     }
-    if (!emailVerified) {
+    if (!phoneVerified || !phoneVerificationToken) {
+      setError(t('Please verify your mobile number.', 'कृपया तुमचा मोबाईल नंबर सत्यापित करा.'));
+      return;
+    }
+    if (!emailVerified || !emailVerificationToken) {
       setError(t('Please verify your email address.', 'कृपया तुमचा ईमेल पत्ता सत्यापित करा.'));
       return;
     }
@@ -258,9 +266,30 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
       }
 
       setIsLoading(true);
-      const result = await register({ fullName: fullName.trim(), mobileNumber, email, relationship, password });
+      const result = await register({
+        fullName: fullName.trim(),
+        mobileNumber,
+        email,
+        relationship,
+        password,
+        phoneVerificationToken,
+        emailVerificationToken,
+      });
       if (!result.success) {
-        setError(result.error || t('Registration failed.', 'नोंदणी अयशस्वी.'));
+        const message = result.error || t('Registration failed.', 'नोंदणी अयशस्वी.');
+        setError(message);
+        const normalizedMessage = message.toLowerCase();
+        if (normalizedMessage.includes('phone verification')) {
+          setPhoneVerified(false);
+          setPhoneVerificationToken('');
+          setPhoneOtp('');
+          setStage('verify');
+        } else if (normalizedMessage.includes('email verification')) {
+          setEmailVerified(false);
+          setEmailVerificationToken('');
+          setEmailOtp('');
+          setStage('verify');
+        }
         return;
       }
 
@@ -282,7 +311,8 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
 
   const inputClasses = "h-12 w-full rounded-[14px] border border-slate-400/15 bg-slate-800/50 pl-11 pr-4 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all";
 
-  const canProceed = emailVerified;
+  const canProceed = phoneVerified && emailVerified
+    && Boolean(phoneVerificationToken) && Boolean(emailVerificationToken);
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden p-4 sm:p-8">
@@ -344,7 +374,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
           <p className="mt-1.5 text-center text-xs text-slate-300">
             {stage === 'done' ? t('You can now use the portal.', 'आता तुम्ही पोर्टल वापरू शकता.')
               : stage === 'password' ? t('Set a secure password for your account', 'तुमच्या खात्यासाठी सुरक्षित पासवर्ड सेट करा')
-              : t('Verify your email to register (phone optional)', 'नोंदणीसाठी ईमेल सत्यापित करा (मोबाईल ऐच्छिक)')}
+              : t('Verify your mobile number and email to register', 'नोंदणीसाठी मोबाईल नंबर आणि ईमेल सत्यापित करा')}
           </p>
         </div>
 
@@ -366,10 +396,10 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
                 {phoneVerified && <span className="ml-2 inline-flex items-center gap-1 text-green-500"><Check className="h-3.5 w-3.5" /> {t('Verified', 'सत्यापित')}</span>}
               </label>
               {!phoneVerified && !smsUnavailable && (
-                <p className="mb-1.5 text-[10px] text-amber-400/80">{t('SMS verification optional. Email verification required.', 'SMS सत्यापन ऐच्छिक. ईमेल सत्यापन आवश्यक.')}</p>
+                <p className="mb-1.5 text-[10px] text-amber-400/80">{t('Mobile verification is required for account security.', 'खात्याच्या सुरक्षिततेसाठी मोबाईल सत्यापन आवश्यक आहे.')}</p>
               )}
               {smsUnavailable && (
-                <p className="mb-1.5 text-[10px] text-amber-400/80">{t('SMS unavailable. Verify via email instead.', 'SMS उपलब्ध नाही. कृपया ईमेलद्वारे सत्यापित करा.')}</p>
+                <p className="mb-1.5 text-[10px] text-red-300">{t('SMS is temporarily unavailable. Please try again later or contact the school office.', 'SMS तात्पुरते उपलब्ध नाही. कृपया नंतर पुन्हा प्रयत्न करा किंवा शाळा कार्यालयाशी संपर्क साधा.')}</p>
               )}
               <div className="flex gap-2">
                 <div className="relative flex-1">
@@ -524,7 +554,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
             <div className="mb-4 rounded-[14px] border border-green-500/20 bg-green-500/5 p-3">
               <div className="flex items-center gap-2 text-xs text-green-400">
                 <Check className="h-4 w-4" />
-                <span>{phoneVerified ? t('Mobile & Email verified', 'मोबाईल आणि ईमेल सत्यापित') : t('Email verified', 'ईमेल सत्यापित')}</span>
+                <span>{t('Mobile and email verified', 'मोबाईल आणि ईमेल सत्यापित')}</span>
               </div>
               <div className="mt-1 flex items-center gap-3 text-[11px] text-slate-400">
                 {phoneVerified && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />+91 {mobileNumber}</span>}

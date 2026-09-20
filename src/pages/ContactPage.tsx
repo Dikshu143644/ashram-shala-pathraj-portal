@@ -1,6 +1,6 @@
 import { useAppContext } from '../contexts/AppContext';
 import { motion } from 'motion/react';
-import { MapPin, Phone, Mail, MessageCircle, Send, User, Navigation2 } from 'lucide-react';
+import { MapPin, Phone, Mail, MessageCircle, User, Navigation2 } from 'lucide-react';
 
 export default function ContactPage() {
   const { language } = useAppContext();
@@ -242,7 +242,7 @@ export default function ContactPage() {
               <div className="overflow-hidden rounded-2xl border border-white/[0.12] bg-white/5 backdrop-blur-md">
                 <iframe
                   title={t('School Location', 'शाळेचे स्थान')}
-                  src="https://maps.google.com/maps?q=Pathraj+Karjat+Raigad+Maharashtra+410201&output=embed"
+                  src="https://maps.google.com/maps?q=Government+Secondary+and+Higher+Secondary+Ashram+School+Pathraj+Karjat+Raigad+Maharashtra+410201&output=embed"
                   width="100%"
                   height="400"
                   style={{ border: 0 }}
@@ -256,7 +256,7 @@ export default function ContactPage() {
               {/* Navigate to School Button */}
               <div className="mt-6 text-center">
                 <a
-                  href="https://www.google.com/maps/dir/?api=1&destination=%E0%A4%B6%E0%A4%BE%E0%A4%B8%E0%A4%A8%E0%A4%BE%E0%A4%B8%E0%A4%A8+%E0%A4%86%E0%A4%B6%E0%A5%8D%E0%A4%B0%E0%A4%AE%E0%A4%B6%E0%A4%BE%E0%A4%B3%E0%A4%BE+%E0%A4%AA%E0%A4%BE%E0%A4%A5%E0%A4%B0%E0%A4%9C,+Pathraj,+Taluka+Karjat,+District+Raigad,+Maharashtra+410201"
+                  href="https://www.google.com/maps/dir/?api=1&destination=Government+Secondary+and+Higher+Secondary+Ashram+School,+Pathraj,+Karjat,+Raigad,+Maharashtra+410201"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white no-underline shadow-lg shadow-amber-600/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-500"
@@ -269,80 +269,21 @@ export default function ContactPage() {
           </div>
         </section>
 
-        {/* Contact Form (Coming Soon) */}
+        {/* Direct inquiry options */}
         <section className="px-4 py-20 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.7 }}
-            >
-              <div className="mb-6 flex items-center gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.12] bg-white/5">
-                  <Send className="h-5 w-5 text-amber-500" />
-                </div>
-                <h2 className="text-2xl font-bold text-white sm:text-3xl">
-                  {t('Send a Message', 'संदेश पाठवा')}
-                </h2>
-              </div>
-
-              <div className="rounded-2xl border border-white/[0.12] bg-white/5 p-8 backdrop-blur-md sm:p-10">
-                <div className="space-y-5">
-                  <div>
-                    <label className="mb-2 block text-xs uppercase tracking-wider text-slate-400">
-                      {t('Your Name', 'आपले नाव')}
-                    </label>
-                    <input
-                      type="text"
-                      disabled
-                      placeholder={t('Enter your name', 'आपले नाव प्रविष्ट करा')}
-                      className="w-full rounded-xl border border-white/[0.12] bg-white/5 px-4 py-3 text-sm text-slate-300 outline-none placeholder:text-slate-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-xs uppercase tracking-wider text-slate-400">
-                      {t('Mobile Number', 'मोबाईल नंबर')}
-                    </label>
-                    <input
-                      type="tel"
-                      disabled
-                      placeholder={t('Enter your mobile number', 'आपला मोबाईल नंबर प्रविष्ट करा')}
-                      className="w-full rounded-xl border border-white/[0.12] bg-white/5 px-4 py-3 text-sm text-slate-300 outline-none placeholder:text-slate-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-xs uppercase tracking-wider text-slate-400">
-                      {t('Message', 'संदेश')}
-                    </label>
-                    <textarea
-                      disabled
-                      rows={4}
-                      placeholder={t('Write your message here', 'आपला संदेश येथे लिहा')}
-                      className="w-full resize-none rounded-xl border border-white/[0.12] bg-white/5 px-4 py-3 text-sm text-slate-300 outline-none placeholder:text-slate-500"
-                    />
-                  </div>
-
-                  <div className="pt-2">
-                    <button
-                      disabled
-                      className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl bg-white/10 px-6 py-3 text-sm font-medium text-white opacity-60"
-                    >
-                      <Send className="h-4 w-4" />
-                      {t('Coming Soon', 'लवकरच उपलब्ध')}
-                    </button>
-                    <p className="mt-3 text-xs text-slate-400">
-                      {t(
-                        'Contact form will be available soon. Meanwhile, please reach us via phone or WhatsApp.',
-                        'संपर्क फॉर्म लवकरच उपलब्ध होईल. तोपर्यंत कृपया फोन किंवा WhatsApp द्वारे संपर्क साधा.'
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+          <div className="mx-auto max-w-4xl rounded-2xl border border-white/[0.12] bg-slate-950/50 p-8 text-center backdrop-blur-md sm:p-10">
+            <h2 className="text-2xl font-bold text-white sm:text-3xl">{t('Need help with an enquiry?', 'चौकशीसाठी मदत हवी आहे?')}</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-300">
+              {t('Call the school office during working hours, send an email, or start a WhatsApp conversation. These channels are monitored by the school.', 'कामकाजाच्या वेळेत शाळा कार्यालयाला कॉल करा, ईमेल पाठवा किंवा WhatsApp संभाषण सुरू करा. या माध्यमांचे निरीक्षण शाळेकडून केले जाते.')}
+            </p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <a href="tel:+917666971183" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white no-underline hover:bg-amber-500">
+                <Phone className="h-4 w-4" aria-hidden="true" />{t('Call the office', 'कार्यालयाला कॉल करा')}
+              </a>
+              <a href="mailto:hmpathraj22@gmail.com?subject=School%20website%20enquiry" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white no-underline hover:bg-white/10">
+                <Mail className="h-4 w-4" aria-hidden="true" />{t('Send an email', 'ईमेल पाठवा')}
+              </a>
+            </div>
           </div>
         </section>
       </div>
