@@ -1,0 +1,16 @@
+/about                 /about.html            200
+/academics             /academics.html        200
+/admission             /admission.html        200
+/hostel                 /hostel.html           200
+/gallery                /gallery.html          200
+/contact                /contact.html          200
+/privacy                /privacy.html          200
+/login                  /login.html            200
+/clerk/login            /login.html            200
+/admin/login            /login.html            200
+/principal/login        /login.html            200
+/register               /register.html         200
+/forgot-password        /forgot-password.html  200
+/portal                 /portal.html           200
+/portal/*               /portal.html           200
+/*                      /404.html              404

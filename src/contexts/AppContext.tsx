@@ -51,13 +51,29 @@ interface AppContextType {
   beginLogin: (username: string, password: string) => Promise<BeginLoginResult>;
   sendOtp: (challengeToken: string) => Promise<SendOtpResult>;
   verifyOtp: (challengeToken: string, code: string) => Promise<OperationResult>;
-  register: (data: { fullName: string; mobileNumber: string; email: string; relationship: string; password: string }) => Promise<RegisterResult>;
+  register: (data: {
+    fullName: string;
+    mobileNumber: string;
+    email: string;
+    relationship: string;
+    password: string;
+    phoneVerificationToken: string;
+    emailVerificationToken: string;
+  }) => Promise<RegisterResult>;
   setPassword: (password: string, confirmPassword: string) => Promise<OperationResult>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<OperationResult>;
   logout: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+function getStoredLanguage(): Language {
+  try {
+    return localStorage.getItem('ashram_language') === 'mr' ? 'mr' : 'en';
+  } catch {
+    return 'en';
+  }
+}
 
 function getStoredAuth(): { isAuthenticated: boolean; currentUser: AuthUser | null } {
   try {
@@ -126,7 +142,15 @@ function newOperationId(): string {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(getStoredLanguage);
+  const setLanguage = useCallback((nextLanguage: Language) => {
+    setLanguageState(nextLanguage);
+    try {
+      localStorage.setItem('ashram_language', nextLanguage);
+    } catch {
+      // The preference still applies for this session when storage is unavailable.
+    }
+  }, []);
   const storedAuth = getStoredAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(storedAuth.isAuthenticated);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -294,7 +318,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem('ashram_auth');
   }, []);
 
-  const register = useCallback(async (regData: { fullName: string; mobileNumber: string; email: string; relationship: string; password: string }): Promise<RegisterResult> => {
+  const register = useCallback(async (regData: {
+    fullName: string;
+    mobileNumber: string;
+    email: string;
+    relationship: string;
+    password: string;
+    phoneVerificationToken: string;
+    emailVerificationToken: string;
+  }): Promise<RegisterResult> => {
     try {
       const { response, data } = await apiRequest(
         '/api/auth/register',

@@ -1,0 +1,17 @@
+{
+  "name": "Government Ashram School, Pathraj",
+  "short_name": "Ashram School",
+  "description": "Official public website of Government Ashram School, Pathraj.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -149,7 +149,7 @@ export default function AcademicsPage() {
                 { icon: GraduationCap, labelEn: 'Standards 1st to 12th', labelMr: 'इयत्ता १ ली ते १२ वी' },
                 { icon: Languages, labelEn: 'Marathi Medium', labelMr: 'मराठी माध्यम' },
                 { icon: Palette, labelEn: 'Arts Stream (11-12)', labelMr: 'कला शाखा (११-१२)' },
-                { icon: Lightbulb, labelEn: 'Science stream coming soon', labelMr: 'विज्ञान शाखा लवकरच' },
+                { icon: Lightbulb, labelEn: 'Residential learning support', labelMr: 'निवासी अध्ययन सहाय्य' },
               ].map((item, i) => (
                 <motion.div
                   key={item.labelEn}
@@ -289,8 +289,8 @@ export default function AcademicsPage() {
               className="mt-8 text-center text-sm text-slate-400"
             >
               {t(
-                'Total permanent staff: 25 members including teaching and non-teaching staff',
-                'एकूण कायम कर्मचारी: शैक्षणिक आणि अशैक्षणिक कर्मचाऱ्यांसह २५ सदस्य'
+                'Our teaching and non-teaching staff work together to support every student',
+                'आमचे शैक्षणिक आणि अशैक्षणिक कर्मचारी प्रत्येक विद्यार्थ्याला सहाय्य करण्यासाठी एकत्र काम करतात'
               )}
             </motion.p>
           </div>

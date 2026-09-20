@@ -111,6 +111,55 @@ export function clearSession(res: Response): void {
   ].filter(Boolean).join('; '));
 }
 
+type RegistrationProofChannel = 'email' | 'phone';
+
+interface RegistrationProofClaims {
+  purpose: 'registration';
+  channel: RegistrationProofChannel;
+  value: string;
+  expiresAt: number;
+}
+
+const REGISTRATION_PROOF_TTL_SECONDS = 10 * 60;
+
+export function issueRegistrationProof(channel: RegistrationProofChannel, value: string): string {
+  const secret = sessionSecret();
+  if (!secret) throw new Error('SESSION_SECRET or OTP_HMAC_SECRET must contain at least 32 characters');
+  const claims: RegistrationProofClaims = {
+    purpose: 'registration',
+    channel,
+    value: value.toLowerCase(),
+    expiresAt: Math.floor(Date.now() / 1000) + REGISTRATION_PROOF_TTL_SECONDS,
+  };
+  const payload = base64Url(JSON.stringify(claims));
+  return `${payload}.${sign(payload, secret)}`;
+}
+
+export function verifyRegistrationProof(
+  token: unknown,
+  channel: RegistrationProofChannel,
+  value: string,
+): boolean {
+  const secret = sessionSecret();
+  if (!secret || typeof token !== 'string') return false;
+  const separator = token.lastIndexOf('.');
+  if (separator < 1) return false;
+  const payload = token.slice(0, separator);
+  const signature = token.slice(separator + 1);
+  if (!safeEqual(signature, sign(payload, secret))) return false;
+
+  try {
+    const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as RegistrationProofClaims;
+    return claims.purpose === 'registration'
+      && claims.channel === channel
+      && claims.value === value.toLowerCase()
+      && typeof claims.expiresAt === 'number'
+      && claims.expiresAt > Math.floor(Date.now() / 1000);
+  } catch {
+    return false;
+  }
+}
+
 export function requireSession(roles?: string[]): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
     const session = readSession(req);

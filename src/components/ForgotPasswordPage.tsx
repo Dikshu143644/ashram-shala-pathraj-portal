@@ -274,7 +274,7 @@ export default function ForgotPasswordPage() {
                 boxShadow: '0 4px 20px rgba(15, 23, 42, 0.4)',
               }}
             >
-              <ShieldCheck className="h-4 w-4" />{t('Verify Code', 'कोड सत्यापित करा')}
+              <ShieldCheck className="h-4 w-4" />{t('Continue', 'पुढे जा')}
             </button>
 
             <div className="flex items-center justify-center">

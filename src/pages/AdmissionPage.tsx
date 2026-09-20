@@ -25,25 +25,30 @@ export default function AdmissionPage() {
     if (!applicantName.trim()) { setFormError(t('Student name is required.', 'विद्यार्थ्याचे नाव आवश्यक आहे.')); return; }
     if (!parentName.trim()) { setFormError(t('Parent/Guardian name is required.', 'पालक/पालकाचे नाव आवश्यक आहे.')); return; }
     if (!/^[6-9]\d{9}$/.test(parentMobile)) { setFormError(t('Enter a valid 10-digit mobile number.', 'वैध 10 अंकी मोबाईल नंबर प्रविष्ट करा.')); return; }
+    if (!standardApplying) { setFormError(t('Select the standard you are applying for.', 'अर्ज करत असलेली इयत्ता निवडा.')); return; }
 
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 15_000);
     setFormLoading(true);
     try {
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           applicant_name: applicantName.trim(),
           parent_name: parentName.trim(),
           parent_mobile: parentMobile.trim(),
           parent_email: parentEmail.trim() || undefined,
-          standard_applying: standardApplying ? parseInt(standardApplying, 10) : undefined,
+          standard_applying: Number.parseInt(standardApplying, 10),
         }),
       });
-      const data = await response.json();
-      if (response.ok && data.data) {
+      const isJson = response.headers.get('content-type')?.includes('application/json');
+      const data = isJson ? await response.json() as { data?: { id?: string }; error?: string } : {};
+      if (response.ok && data.data?.id) {
         setFormSuccess(t(
-          'Application submitted successfully! Your application ID: ' + data.data.id.slice(0, 8) + '. We will contact you soon.',
-          'अर्ज यशस्वीरित्या सबमिट झाला! तुमचा अर्ज आयडी: ' + data.data.id.slice(0, 8) + '. आम्ही लवकरच तुमच्याशी संपर्क साधू.'
+          `Application submitted successfully! Your reference is ${data.data.id.slice(0, 8)}. The school will contact you soon.`,
+          `अर्ज यशस्वीरित्या सबमिट झाला! तुमचा संदर्भ क्रमांक ${data.data.id.slice(0, 8)} आहे. शाळा लवकरच संपर्क साधेल.`
         ));
         setApplicantName('');
         setParentName('');
@@ -51,11 +56,14 @@ export default function AdmissionPage() {
         setParentEmail('');
         setStandardApplying('');
       } else {
-        setFormError(data.error || t('Could not submit application.', 'अर्ज सबमिट करता आला नाही.'));
+        setFormError(data.error || t('Could not submit the application. Please call the school office if this continues.', 'अर्ज सबमिट करता आला नाही. समस्या कायम राहिल्यास शाळा कार्यालयाशी संपर्क साधा.'));
       }
-    } catch {
-      setFormError(t('Request failed. Please try again.', 'विनंती अयशस्वी. कृपया पुन्हा प्रयत्न करा.'));
+    } catch (error) {
+      setFormError(error instanceof DOMException && error.name === 'AbortError'
+        ? t('The request timed out. Please try again.', 'विनंतीची वेळ संपली. कृपया पुन्हा प्रयत्न करा.')
+        : t('Request failed. Check your connection and try again.', 'विनंती अयशस्वी. तुमचे कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.'));
     } finally {
+      window.clearTimeout(timeout);
       setFormLoading(false);
     }
   };
@@ -167,16 +175,16 @@ export default function AdmissionPage() {
               <div className="flex items-center justify-center gap-2 mb-3">
                 <CheckCircle className="h-5 w-5 text-amber-500" />
                 <span className="inline-flex items-center rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-500">
-                  {t('OPEN', 'सुरू')}
+                  {t('ENQUIRIES OPEN', 'चौकशी सुरू')}
                 </span>
               </div>
               <p className="text-base font-semibold text-white mb-1">
-                {t('Admissions Open for 2026-27', '२०२६-२७ साठी प्रवेश सुरू')}
+                {t('Admission enquiries are being accepted', 'प्रवेश चौकशी स्वीकारली जात आहे')}
               </p>
               <p className="text-sm text-slate-300">
                 {t(
-                  'Applications are now being accepted for the upcoming academic year. Fill the form below to apply online.',
-                  'आगामी शैक्षणिक वर्षासाठी अर्ज स्वीकारले जात आहेत. ऑनलाइन अर्ज करण्यासाठी खालील फॉर्म भरा.'
+                  'Submit an enquiry below. Admission is confirmed only after seat availability and document verification.',
+                  'खाली चौकशी सबमिट करा. जागांची उपलब्धता आणि कागदपत्र पडताळणीनंतरच प्रवेश निश्चित केला जातो.'
                 )}
               </p>
             </motion.div>
@@ -357,7 +365,7 @@ export default function AdmissionPage() {
               </div>
 
               {formSuccess ? (
-                <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-6 text-center">
+                <div role="status" aria-live="polite" className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-6 text-center">
                   <CheckCircle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
                   <p className="text-sm font-semibold text-amber-400">{formSuccess}</p>
                   <button
@@ -371,73 +379,103 @@ export default function AdmissionPage() {
               ) : (
                 <form onSubmit={handleApplicationSubmit} className="space-y-5">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                    <label htmlFor="admission-student-name" className="mb-2 block text-xs uppercase tracking-wider text-slate-300">
                       {t('Student Name *', 'विद्यार्थ्याचे नाव *')}
                     </label>
                     <input
+                      id="admission-student-name"
+                      name="studentName"
                       type="text"
+                      autoComplete="name"
+                      required
+                      maxLength={160}
                       value={applicantName}
                       onChange={(e) => setApplicantName(e.target.value)}
                       placeholder={t('Enter student full name', 'विद्यार्थ्याचे पूर्ण नाव प्रविष्ट करा')}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors"
+                      className="w-full rounded-xl border border-white/20 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-400 focus:border-amber-400 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                    <label htmlFor="admission-parent-name" className="mb-2 block text-xs uppercase tracking-wider text-slate-300">
                       {t('Parent/Guardian Name *', 'पालक/पालकाचे नाव *')}
                     </label>
                     <input
+                      id="admission-parent-name"
+                      name="parentName"
                       type="text"
+                      autoComplete="name"
+                      required
+                      maxLength={160}
                       value={parentName}
                       onChange={(e) => setParentName(e.target.value)}
                       placeholder={t('Enter parent or guardian name', 'पालक किंवा पालकाचे नाव प्रविष्ट करा')}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors"
+                      className="w-full rounded-xl border border-white/20 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-400 focus:border-amber-400 transition-colors"
                     />
                   </div>
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                      <label htmlFor="admission-mobile" className="mb-2 block text-xs uppercase tracking-wider text-slate-300">
                         {t('Mobile Number *', 'मोबाईल नंबर *')}
                       </label>
                       <input
+                        id="admission-mobile"
+                        name="mobile"
                         type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                        required
+                        pattern="[6-9][0-9]{9}"
                         value={parentMobile}
                         onChange={(e) => setParentMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
                         placeholder="9876543210"
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors"
+                        className="w-full rounded-xl border border-white/20 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-400 focus:border-amber-400 transition-colors"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                      <label htmlFor="admission-email" className="mb-2 block text-xs uppercase tracking-wider text-slate-300">
                         {t('Email (optional)', 'ईमेल (पर्यायी)')}
                       </label>
                       <input
+                        id="admission-email"
+                        name="email"
                         type="email"
+                        autoComplete="email"
+                        maxLength={320}
                         value={parentEmail}
                         onChange={(e) => setParentEmail(e.target.value)}
                         placeholder="parent@example.com"
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors"
+                        className="w-full rounded-xl border border-white/20 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-400 focus:border-amber-400 transition-colors"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
-                      {t('Standard Applying For', 'अर्ज करत असलेली इयत्ता')}
+                    <label htmlFor="admission-standard" className="mb-2 block text-xs uppercase tracking-wider text-slate-300">
+                      {t('Standard Applying For *', 'अर्ज करत असलेली इयत्ता *')}
                     </label>
                     <select
+                      id="admission-standard"
+                      name="standard"
+                      required
                       value={standardApplying}
                       onChange={(e) => setStandardApplying(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none appearance-none focus:border-amber-500/50 transition-colors"
+                      className="w-full appearance-none rounded-xl border border-white/20 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none focus:border-amber-400 transition-colors"
                     >
-                      <option value="" className="bg-slate-900 text-white">{t('Select Standard', 'इयत्ता निवडा')}</option>
-                      {[1,2,3,4,5,6,7,8,9,10,11,12].map((s) => (
-                        <option key={s} value={s} className="bg-slate-900 text-white">{t(`Standard ${s}`, `इयत्ता ${s}`)}</option>
+                      <option value="" className="bg-slate-950 text-white">{t('Select Standard', 'इयत्ता निवडा')}</option>
+                      {[1,2,3,4,5,6,7,8,9,10,11,12].map((standard) => (
+                        <option key={standard} value={standard} className="bg-slate-950 text-white">{t(`Standard ${standard}`, `इयत्ता ${standard}`)}</option>
                       ))}
                     </select>
                   </div>
 
+                  <p className="rounded-xl border border-white/10 bg-slate-950/40 px-4 py-3 text-xs leading-relaxed text-slate-300">
+                    {t('By submitting, you consent to the school using these details to respond to this admission enquiry. ', 'सबमिट करून, तुम्ही या प्रवेश चौकशीला प्रतिसाद देण्यासाठी शाळेला हे तपशील वापरण्याची संमती देता. ')}
+                    <Link to="/privacy" className="font-semibold text-amber-300 underline underline-offset-2 hover:text-amber-200">
+                      {t('Read the privacy notice.', 'गोपनीयता सूचना वाचा.')}
+                    </Link>
+                  </p>
+
                   {formError && (
-                    <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-center text-xs text-red-300">
+                    <div role="alert" aria-live="assertive" className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-center text-xs text-red-200">
                       {formError}
                     </div>
                   )}
@@ -446,14 +484,14 @@ export default function AdmissionPage() {
                     <button
                       type="submit"
                       disabled={formLoading}
-                      className="inline-flex items-center gap-2 rounded-full bg-amber-600 px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-amber-700 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-full bg-amber-600 px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {formLoading ? (
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" />
                       ) : (
-                        <Send className="h-4 w-4" />
+                        <Send className="h-4 w-4" aria-hidden="true" />
                       )}
-                      {t('Submit Application', 'अर्ज सबमिट करा')}
+                      {formLoading ? t('Submitting…', 'सबमिट करत आहे…') : t('Submit Admission Enquiry', 'प्रवेश चौकशी सबमिट करा')}
                     </button>
                   </div>
                 </form>
@@ -461,10 +499,10 @@ export default function AdmissionPage() {
 
               <div className="mt-6 text-center">
                 <Link
-                  to="/register"
-                  className="inline-flex items-center gap-2 text-xs font-medium text-amber-500 no-underline transition-colors hover:text-amber-400"
+                  to="/login"
+                  className="inline-flex items-center gap-2 text-xs font-medium text-amber-300 no-underline transition-colors hover:text-amber-200"
                 >
-                  {t('Already have an account? Register & Track', 'आधीच खाते आहे? नोंदणी करा आणि ट्रॅक करा')}
+                  {t('Have a parent account? Sign in', 'पालक खाते आहे? साइन इन करा')}
                   <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>

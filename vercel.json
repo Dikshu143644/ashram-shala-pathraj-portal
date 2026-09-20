@@ -2,11 +2,24 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": null,
+  "trailingSlash": false,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/ai-test", "destination": "/ai-test/index.html" },
-    { "source": "/ai-test/", "destination": "/ai-test/index.html" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/academics", "destination": "/academics.html" },
+    { "source": "/admission", "destination": "/admission.html" },
+    { "source": "/hostel", "destination": "/hostel.html" },
+    { "source": "/gallery", "destination": "/gallery.html" },
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/clerk/login", "destination": "/login.html" },
+    { "source": "/admin/login", "destination": "/login.html" },
+    { "source": "/principal/login", "destination": "/login.html" },
+    { "source": "/register", "destination": "/register.html" },
+    { "source": "/forgot-password", "destination": "/forgot-password.html" },
+    { "source": "/portal", "destination": "/portal.html" },
+    { "source": "/portal/(.*)", "destination": "/portal.html" }
   ],
   "functions": {
     "api/**": {

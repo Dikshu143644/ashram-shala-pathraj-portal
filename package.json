@@ -2,10 +2,11 @@
   "name": "ashram-shala-pathraj",
   "version": "1.0.0",
   "type": "module",
-  "description": "Shashkeey Madhyamik v Uchh Madhyamik Ashram Shala Pathraj - Management System",
+  "description": "Official website and secure services for Government Ashram School, Pathraj",
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --packages=external --outfile=dist/server.js --format=esm",
+    "postbuild": "node scripts/generate-route-html.mjs",
     "start": "NODE_ENV=production node dist/server.js",
     "lint": "tsc --noEmit",
     "adk:install": "cd agents && pip install -r requirements.txt",
@@ -15,7 +16,6 @@
     "docker:run": "docker run -p 3000:3000 --env-file .env ashram-shala-pathraj"
   },
   "dependencies": {
-    "@google/genai": "^0.7.0",
     "@supabase/supabase-js": "^2.112.3",
     "bcrypt": "^6.0.0",
     "express": "^4.21.0",
@@ -36,7 +36,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "dotenv": "^17.4.2",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.28.2",
     "postcss": "^8.4.49",
     "postgres": "^3.4.9",
     "tailwindcss": "^4.0.0",
