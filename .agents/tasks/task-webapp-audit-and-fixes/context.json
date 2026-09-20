@@ -1,0 +1,28 @@
+{
+  "project_type": "Full-stack web portal (React 18 SPA + Express 4 API) for a government Ashram School. Bilingual (English/Marathi).",
+  "language": "TypeScript (frontend React + backend Express)",
+  "build_system": "npm + Vite 6 (frontend) + esbuild (server bundle). Node 22.",
+  "test_framework": "None. No test files, no test runner configured in package.json. Verification is via tsc typecheck and vite/esbuild build only.",
+  "build_command": "npm run build (runs `vite build` then esbuild bundle of server.ts to dist/server.js)",
+  "test_command": "npm run lint (tsc --noEmit). There is no test suite; lint + build are the only automated gates.",
+  "verification_instructions": "1) npm install (already done, node_modules present). 2) npm run lint must exit 0 (tsc --noEmit). 3) npm run build must succeed (vite + esbuild). Both PASS on the clean baseline. There is no dev-server smoke test feasible in sandbox (needs Supabase + external API keys).",
+  "snapshot_or_generated_files": "dist/ is build output (gitignored). No committed generated/snapshot files.",
+  "setup_instructions": "npm install; copy .env.example to .env for runtime. Dependencies already installed in sandbox. Registry (registry.npmjs.org) is reachable.",
+  "environment_constraints": "npm registry reachable (npm ping OK). Cannot run the app end-to-end (requires SUPABASE_URL/keys, RESEND/GMAIL, GEMINI/OPENAI keys not present). Verification limited to `npm run lint` and `npm run build`. Do NOT attempt runtime/integration tests against Supabase or external AI/email providers.",
+  "contribution_requirements": "No CONTRIBUTING.md. CI (.github/workflows/ci.yml) runs npm ci, npm run lint, npm run build, and a docker build validation on every push/PR. Keep lint and build green. Follow existing code style (strict TS, no `any`, explicit types, functional React components).",
+  "key_patterns": "Server routes are registered via register*Routes(app, supabase) in server/app.ts. Security helpers (session cookies, rate limit, requireSession) live in server/security.ts. Auth flows in server/auth.ts use bcrypt + HMAC-signed session cookies + Supabase RPCs for rate limiting/OTP. Frontend state via React Context (src/contexts/AppContext.tsx). Pages under src/pages, portal components under src/components. Bilingual via a local `t(en, mr)` helper. Icons from lucide-react. Animations via motion/react. Crypto-secure randomness pattern: node:crypto randomUUID/randomBytes is already imported in auth.ts and security.ts.",
+  "relevant_files": [
+    "server/agents.ts (AI chat; has invalid default Gemini model name)",
+    "server/auth.ts (OTP + AI PIN use Math.random; verify path omits phoneVerified)",
+    "server/sms-otp.ts (OTP code uses Math.random)",
+    "server/security.ts (configureSecurity sets headers; missing CSP/HSTS/X-Frame-Options)",
+    "src/App.tsx (no ErrorBoundary wrapping routes)",
+    "src/main.tsx (root render; candidate for ErrorBoundary)",
+    "src/pages/*.tsx (accessibility: unlabeled inputs, image alts)",
+    "src/components/AiAssistant.tsx (chat UX)",
+    "vite.config.ts (no build.chunkSizeWarningLimit / manualChunks; 671kB bundle warning)",
+    "index.html (lang=en fixed; loads external font CDNs)",
+    "README.md, package.json, .github/workflows/ci.yml"
+  ],
+  "directory_structure": "src/ = React frontend (pages/, components/, contexts/, lib/, utils/, data/, types/). server/ = Express API modules. api/ = Vercel serverless entry. agents/ = Python ADK (out of scope). supabase/ = SQL. k8s/, Dockerfile, docker-compose.yml = deploy. scripts/ = db setup."
+}

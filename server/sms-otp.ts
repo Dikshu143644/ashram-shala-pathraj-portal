@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomInt } from 'node:crypto';
 import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -10,8 +10,8 @@ const SMS_RATE_LIMIT_MAX = 3;
 const smsPhoneRateMap = new Map<string, { count: number; windowStart: number }>();
 
 function generateOtp(): string {
-  const digits = Math.floor(100000 + Math.random() * 900000);
-  return digits.toString();
+  // Use a cryptographically secure RNG for OTP codes instead of Math.random.
+  return randomInt(0, 1_000_000).toString().padStart(6, '0');
 }
 
 function hashOtp(otp: string): string {

@@ -1,4 +1,4 @@
-import { createHash, createHmac, randomUUID, randomBytes } from 'node:crypto';
+import { createHash, createHmac, randomUUID, randomBytes, randomInt } from 'node:crypto';
 import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import bcrypt from 'bcrypt';
@@ -169,6 +169,12 @@ async function loadChallenge(
   const { data, error } = await query.maybeSingle();
   if (error) throw error;
   return data as OtpVerification | null;
+}
+
+// Generate a cryptographically secure zero-padded 6-digit code for OTPs and PINs.
+// Uses node:crypto randomInt instead of Math.random so codes are not predictable.
+function secureSixDigitCode(): string {
+  return randomInt(0, 1_000_000).toString().padStart(6, '0');
 }
 
 async function loadActiveUser(supabase: SupabaseClient, userId: string): Promise<AuthUserRow | null> {
@@ -712,6 +718,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
           nameEn: user.name_en,
           nameMr: user.name_mr,
           mustChangePassword: user.must_change_password,
+          phoneVerified: user.phone_verified ?? false,
         },
       });
     } catch (error) {
@@ -753,7 +760,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
     }
 
     try {
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const code = secureSixDigitCode();
       const expiresAt = Date.now() + 10 * 60_000;
       regEmailOtpStore.set(email.toLowerCase(), { code, expiresAt });
 
@@ -1046,7 +1053,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       // Security note: The 6-digit PIN (900,000 values) is intentionally acceptable here because
       // login is rate-limited to 5 attempts per 60-second window per IP and per account,
       // making brute-force infeasible (would take ~250 days at maximum rate).
-      const aiPin = Math.floor(100000 + Math.random() * 900000).toString();
+      const aiPin = secureSixDigitCode();
       const aiPinHash = await bcrypt.hash(aiPin, BCRYPT_SALT_ROUNDS);
 
       const { error } = await supabase
@@ -1554,7 +1561,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient): void
       }
 
       // Generate 6-digit OTP
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const code = secureSixDigitCode();
       const expiresAt = Date.now() + 10 * 60_000; // 10 minutes
 
       // Store OTP keyed by the identifier (so user can use same identifier to reset)
