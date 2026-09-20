@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useAppContext } from './contexts/AppContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import PublicLayout from './components/layout/PublicLayout';
 import PortalLayout from './components/layout/PortalLayout';
 import HomePage from './pages/HomePage';
@@ -71,10 +72,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppProvider>
-        <AppRoutes />
-      </AppProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppProvider>
+          <AppRoutes />
+        </AppProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }

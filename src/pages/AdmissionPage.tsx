@@ -371,10 +371,11 @@ export default function AdmissionPage() {
               ) : (
                 <form onSubmit={handleApplicationSubmit} className="space-y-5">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                    <label htmlFor="apply-student-name" className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
                       {t('Student Name *', 'विद्यार्थ्याचे नाव *')}
                     </label>
                     <input
+                      id="apply-student-name"
                       type="text"
                       value={applicantName}
                       onChange={(e) => setApplicantName(e.target.value)}
@@ -383,10 +384,11 @@ export default function AdmissionPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                    <label htmlFor="apply-parent-name" className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
                       {t('Parent/Guardian Name *', 'पालक/पालकाचे नाव *')}
                     </label>
                     <input
+                      id="apply-parent-name"
                       type="text"
                       value={parentName}
                       onChange={(e) => setParentName(e.target.value)}
@@ -396,10 +398,11 @@ export default function AdmissionPage() {
                   </div>
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                      <label htmlFor="apply-mobile" className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
                         {t('Mobile Number *', 'मोबाईल नंबर *')}
                       </label>
                       <input
+                        id="apply-mobile"
                         type="tel"
                         value={parentMobile}
                         onChange={(e) => setParentMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
@@ -408,10 +411,11 @@ export default function AdmissionPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                      <label htmlFor="apply-email" className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
                         {t('Email (optional)', 'ईमेल (पर्यायी)')}
                       </label>
                       <input
+                        id="apply-email"
                         type="email"
                         value={parentEmail}
                         onChange={(e) => setParentEmail(e.target.value)}
@@ -421,10 +425,11 @@ export default function AdmissionPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
+                    <label htmlFor="apply-standard" className="block text-xs uppercase tracking-wider text-slate-400 mb-2">
                       {t('Standard Applying For', 'अर्ज करत असलेली इयत्ता')}
                     </label>
                     <select
+                      id="apply-standard"
                       value={standardApplying}
                       onChange={(e) => setStandardApplying(e.target.value)}
                       className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none appearance-none focus:border-amber-500/50 transition-colors"

@@ -139,6 +139,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (currentUser) setRole(currentUser.role);
   }, [currentUser]);
 
+  // Keep the document language in sync with the selected UI language so screen
+  // readers pronounce Marathi content correctly. index.html keeps a static
+  // lang="en" default for the initial static render.
+  useEffect(() => {
+    document.documentElement.lang = language === 'mr' ? 'mr' : 'en';
+  }, [language]);
+
   useEffect(() => {
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), 8_000);

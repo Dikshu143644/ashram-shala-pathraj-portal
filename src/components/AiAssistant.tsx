@@ -353,6 +353,7 @@ export default function AiAssistant() {
                   : 'bg-[#F3F2EF] text-[#6B6B6B] hover:bg-[#E7E7E4]'
               }`}
               title={isRecording ? t('Stop recording', 'रेकॉर्डिंग थांबवा') : t('Voice input', 'आवाज इनपुट')}
+              aria-label={isRecording ? t('Stop recording', 'रेकॉर्डिंग थांबवा') : t('Voice input', 'आवाज इनपुट')}
             >
               {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </motion.button>
@@ -362,6 +363,8 @@ export default function AiAssistant() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            maxLength={1000}
+            aria-label={t('Ask the AI assistant a question', 'AI सहाय्यकाला प्रश्न विचारा')}
             placeholder={isRecording ? t('Listening...', 'ऐकत आहे...') : t('Ask anything about admissions, school, hostel...', 'प्रवेश, शाळा, वसतिगृहाबद्दल काहीही विचारा...')}
             className="flex-1 px-4 py-3 border border-[#E7E7E4] rounded-xl text-sm outline-none focus:border-black focus:ring-2 focus:ring-black/10 transition-all bg-white"
           />
@@ -370,6 +373,7 @@ export default function AiAssistant() {
             whileTap={{ scale: 0.95 }}
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
+            aria-label={t('Send message', 'संदेश पाठवा')}
             className="flex h-11 w-11 items-center justify-center rounded-full bg-black text-white transition-all disabled:opacity-50"
           >
             <Send className="w-4 h-4" />

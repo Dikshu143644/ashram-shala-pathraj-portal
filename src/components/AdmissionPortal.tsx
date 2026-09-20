@@ -234,8 +234,9 @@ export default function AdmissionPortal() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Full Name', 'पूर्ण नाव')}</label>
+                    <label htmlFor="admission-full-name" className="block text-sm font-medium text-slate-600 mb-1.5">{t('Full Name', 'पूर्ण नाव')}</label>
                     <input
+                      id="admission-full-name"
                       type="text"
                       value={formData.full_name}
                       onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
@@ -244,8 +245,9 @@ export default function AdmissionPortal() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Standard', 'इयत्ता')}</label>
+                    <label htmlFor="admission-standard" className="block text-sm font-medium text-slate-600 mb-1.5">{t('Standard', 'इयत्ता')}</label>
                     <select
+                      id="admission-standard"
                       value={formData.standard}
                       onChange={(e) => setFormData({ ...formData, standard: e.target.value })}
                       className="w-full px-3.5 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all bg-white/80"
@@ -256,9 +258,10 @@ export default function AdmissionPortal() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('APAAR ID', 'अपार आयडी')}</label>
+                    <label htmlFor="admission-apaar-id" className="block text-sm font-medium text-slate-600 mb-1.5">{t('APAAR ID', 'अपार आयडी')}</label>
                     <div className="flex gap-2">
                       <input
+                        id="admission-apaar-id"
                         type="text"
                         value={formData.apaar_id}
                         onChange={(e) => { setFormData({ ...formData, apaar_id: e.target.value.replace(/\D/g, '') }); setApaarVerified(false); }}
@@ -282,8 +285,9 @@ export default function AdmissionPortal() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Mobile Number', 'मोबाईल नंबर')}</label>
+                    <label htmlFor="admission-mobile" className="block text-sm font-medium text-slate-600 mb-1.5">{t('Mobile Number', 'मोबाईल नंबर')}</label>
                     <input
+                      id="admission-mobile"
                       type="text"
                       value={formData.mobile_number}
                       onChange={(e) => setFormData({ ...formData, mobile_number: e.target.value.replace(/\D/g, '').slice(0, 10) })}
@@ -293,8 +297,9 @@ export default function AdmissionPortal() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Guardian Name', 'पालकाचे नाव')}</label>
+                    <label htmlFor="admission-guardian" className="block text-sm font-medium text-slate-600 mb-1.5">{t('Guardian Name', 'पालकाचे नाव')}</label>
                     <input
+                      id="admission-guardian"
                       type="text"
                       value={formData.guardian_name}
                       onChange={(e) => setFormData({ ...formData, guardian_name: e.target.value })}
@@ -303,8 +308,9 @@ export default function AdmissionPortal() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1.5">{t('Village', 'गाव')}</label>
+                    <label htmlFor="admission-village" className="block text-sm font-medium text-slate-600 mb-1.5">{t('Village', 'गाव')}</label>
                     <input
+                      id="admission-village"
                       type="text"
                       value={formData.village}
                       onChange={(e) => setFormData({ ...formData, village: e.target.value })}
@@ -339,12 +345,14 @@ export default function AdmissionPortal() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('Search by name, guardian or village...', 'नाव, पालक किंवा गावाने शोधा...')}
+              aria-label={t('Search students by name, guardian or village', 'नाव, पालक किंवा गावाने विद्यार्थी शोधा')}
               className="min-w-0 flex-1 px-3.5 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-white/80"
             />
           </div>
           <select
             value={filterStd}
             onChange={(e) => setFilterStd(e.target.value)}
+            aria-label={t('Filter students by standard', 'इयत्तेनुसार विद्यार्थी फिल्टर करा')}
             className="px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-sm outline-none focus:border-amber-400 transition-all bg-white/80"
           >
             <option value="">{t('All Standards', 'सर्व इयत्ता')}</option>

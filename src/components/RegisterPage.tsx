@@ -411,6 +411,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
                     value={phoneOtp}
                     onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder={t('Enter 6-digit OTP', '6 अंकी OTP प्रविष्ट करा')}
+                    aria-label={t('Mobile OTP code', 'मोबाईल OTP कोड')}
                     className="h-10 flex-1 rounded-[12px] border border-slate-400/15 bg-slate-800/50 px-3 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                   />
                   <button
@@ -468,6 +469,7 @@ export default function RegisterPage({ onBack }: RegisterPageProps) {
                     value={emailOtp}
                     onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder={t('Enter 6-digit OTP', '6 अंकी OTP प्रविष्ट करा')}
+                    aria-label={t('Email OTP code', 'ईमेल OTP कोड')}
                     className="h-10 flex-1 rounded-[12px] border border-slate-400/15 bg-slate-800/50 px-3 text-sm text-white placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                   />
                   <button
